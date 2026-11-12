@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
 	CalendarDays,
@@ -6,8 +7,13 @@ import {
 	FileText,
 	Lightbulb,
 } from "lucide-react";
+import { errorMessage } from "../../api/client";
+import { calendarQuery } from "../../api/queries";
 import { SoonBadge } from "../../components/soon-badge";
-import { EmptyState } from "../../components/states";
+import { EmptyState, ErrorState, SkeletonList } from "../../components/states";
+import { addDays, todayIso } from "../../lib/dates";
+import { ContentCard } from "../conteudo/content-card";
+import { useOpenNewContent } from "../conteudo/new-content";
 
 /** Tela Início: atalhos grandes para as ações principais (RN-006, design §13.2). */
 export function Home({ companyId }: { companyId: string }) {
@@ -63,10 +69,44 @@ export function Home({ companyId }: { companyId: string }) {
 				<h2 id="proximos" className="text-lg font-semibold">
 					Próximos posts
 				</h2>
-				<EmptyState icon={CalendarDays} title="Nenhum post planejado ainda">
-					O calendário editorial chega na próxima etapa do app.
-				</EmptyState>
+				<UpcomingPosts companyId={companyId} />
 			</section>
 		</div>
+	);
+}
+
+/** Próximos 7 dias do calendário (RN-062). */
+function UpcomingPosts({ companyId }: { companyId: string }) {
+	const today = todayIso();
+	const query = useQuery(calendarQuery(companyId, today, addDays(today, 6)));
+	const openNewContent = useOpenNewContent();
+
+	if (query.isPending) return <SkeletonList rows={2} />;
+	if (query.isError) return <ErrorState message={errorMessage(query.error)} />;
+	if (query.data.contents.length === 0) {
+		return (
+			<EmptyState icon={CalendarDays} title="Nenhum post nos próximos 7 dias">
+				<button
+					type="button"
+					onClick={() => openNewContent(today)}
+					className="mt-1 min-h-11 rounded-full px-4 font-semibold text-brand-700 dark:text-brand-300"
+				>
+					Planejar um post para hoje
+				</button>
+			</EmptyState>
+		);
+	}
+	return (
+		<ul className="flex flex-col gap-2">
+			{[...query.data.contents]
+				.sort((a, b) =>
+					(a.plannedDate ?? "").localeCompare(b.plannedDate ?? ""),
+				)
+				.map((content) => (
+					<li key={content.id}>
+						<ContentCard content={content} showStatus />
+					</li>
+				))}
+		</ul>
 	);
 }

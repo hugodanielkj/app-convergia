@@ -54,12 +54,47 @@ async function call<T>(request: Promise<ClientResponse<T>>): Promise<T> {
 	);
 }
 
+const companyApi = client.companies[":companyId"];
+const contentApi = companyApi.contents[":contentId"];
+
+type KanbanStatus = "idea" | "draft" | "edited" | "published";
+type ContentParams = { companyId: string; contentId: string };
+
 export const api = {
 	me: () => call(client.me.$get()),
 	companies: () => call(client.companies.$get()),
 	company: (companyId: string) =>
-		call(client.companies[":companyId"].$get({ param: { companyId } })),
+		call(companyApi.$get({ param: { companyId } })),
+
+	contents: (companyId: string) =>
+		call(companyApi.contents.$get({ param: { companyId }, query: {} })),
+	calendar: (companyId: string, from: string, to: string) =>
+		call(
+			companyApi.calendar.$get({ param: { companyId }, query: { from, to } }),
+		),
+	trash: (companyId: string) =>
+		call(companyApi.trash.$get({ param: { companyId } })),
+	content: (param: ContentParams) => call(contentApi.$get({ param })),
+	createContent: (
+		companyId: string,
+		json: { title: string; plannedDate?: string | null },
+	) => call(companyApi.contents.$post({ param: { companyId }, json })),
+	updateContent: (
+		param: ContentParams,
+		json: Parameters<typeof contentApi.$patch>[0]["json"],
+	) => call(contentApi.$patch({ param, json })),
+	moveContent: (param: ContentParams, status: KanbanStatus) =>
+		call(contentApi.move.$post({ param, json: { status } })),
+	scheduleContent: (param: ContentParams, plannedDate: string | null) =>
+		call(contentApi.schedule.$put({ param, json: { plannedDate } })),
+	duplicateContent: (param: ContentParams) =>
+		call(contentApi.duplicate.$post({ param })),
+	deleteContent: (param: ContentParams) => call(contentApi.$delete({ param })),
+	restoreContent: (param: ContentParams) =>
+		call(contentApi.restore.$post({ param })),
 };
 
 export type Me = Awaited<ReturnType<typeof api.me>>;
 export type CompanySummary = Awaited<ReturnType<typeof api.company>>;
+export type ContentDto = Awaited<ReturnType<typeof api.content>>;
+export type ContentChanges = Parameters<typeof api.updateContent>[1];

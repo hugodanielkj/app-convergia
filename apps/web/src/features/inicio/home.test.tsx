@@ -1,9 +1,20 @@
 import { screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderInRouter } from "../../test/render-in-router";
 import { Home } from "./home";
 
 describe("tela Início", () => {
+	beforeEach(() => {
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(async () => Response.json({ contents: [] })),
+		);
+	});
+
+	afterEach(() => {
+		vi.unstubAllGlobals();
+	});
+
 	it("RN-006: mostra os atalhos principais", async () => {
 		renderInRouter(<Home companyId="c1" />);
 
@@ -21,7 +32,7 @@ describe("tela Início", () => {
 		renderInRouter(<Home companyId="c1" />);
 
 		expect(
-			await screen.findByText("Nenhum post planejado ainda"),
+			await screen.findByText("Nenhum post nos próximos 7 dias"),
 		).toBeInTheDocument();
 	});
 });

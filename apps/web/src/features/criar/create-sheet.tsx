@@ -9,7 +9,12 @@ import {
 import { BottomSheet } from "../../components/bottom-sheet";
 import { SoonBadge } from "../../components/soon-badge";
 
-type CreateOption = { label: string; description: string; icon: LucideIcon };
+type CreateOption = {
+	label: string;
+	description: string;
+	icon: LucideIcon;
+	action?: "new-content";
+};
 
 /** Menu do botão central "Criar" (design §13.2). As ações chegam com cada módulo (§12). */
 export const CREATE_OPTIONS: CreateOption[] = [
@@ -22,6 +27,7 @@ export const CREATE_OPTIONS: CreateOption[] = [
 		label: "Novo card",
 		description: "Uma ideia de post no calendário",
 		icon: SquarePlus,
+		action: "new-content",
 	},
 	{
 		label: "Gerar ideias",
@@ -43,19 +49,25 @@ export const CREATE_OPTIONS: CreateOption[] = [
 export function CreateSheet({
 	open,
 	onClose,
+	onNewContent,
 }: {
 	open: boolean;
 	onClose: () => void;
+	onNewContent: () => void;
 }) {
 	return (
 		<BottomSheet open={open} title="Criar" onClose={onClose}>
 			<ul className="flex flex-col">
-				{CREATE_OPTIONS.map(({ label, description, icon: Icon }) => (
+				{CREATE_OPTIONS.map(({ label, description, icon: Icon, action }) => (
 					<li key={label}>
 						<button
 							type="button"
-							disabled
-							className="flex min-h-14 w-full items-center gap-4 rounded-2xl px-2 py-3 text-left disabled:cursor-not-allowed"
+							disabled={!action}
+							onClick={() => {
+								onClose();
+								onNewContent();
+							}}
+							className="flex min-h-14 w-full items-center gap-4 rounded-2xl px-2 py-3 text-left hover:bg-zinc-100 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:hover:bg-zinc-800"
 						>
 							<span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-900 dark:text-brand-100">
 								<Icon className="size-5" aria-hidden />
@@ -66,7 +78,7 @@ export function CreateSheet({
 									{description}
 								</span>
 							</span>
-							<SoonBadge />
+							{!action && <SoonBadge />}
 						</button>
 					</li>
 				))}

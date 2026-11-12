@@ -20,7 +20,9 @@ export function BottomSheet({
 
 	useEffect(() => {
 		if (!open) return;
-		panel.current?.focus();
+		// Mantém o foco num campo com autoFocus; senão, foca a folha para o leitor de tela.
+		if (!panel.current?.contains(document.activeElement))
+			panel.current?.focus();
 		const onKey = (event: KeyboardEvent) => {
 			if (event.key === "Escape") onClose();
 		};
