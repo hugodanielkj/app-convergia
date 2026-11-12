@@ -67,8 +67,16 @@ Quando ele pedir permissão, responda "sim", "não" ou dê outra instrução. A 
 
 ## Primeira configuração (cada colaborador)
 
-1. Instale Git, Docker, Node.js e o GitHub CLI.
-2. Rode `gh auth login`.
-3. Clone o repositório e peça ao Claude: "prepare meu ambiente de desenvolvimento".
+1. Instale Git, Docker, Node.js 26, pnpm e o GitHub CLI; rode `gh auth login`.
+2. Clone o repositório e, na pasta dele:
+   - `pnpm install --frozen-lockfile`
+   - `cp .env.example .env`
+   - `docker compose up -d --wait` (Postgres local na porta 54320)
+3. Confira: `pnpm lint && pnpm typecheck && pnpm test && pnpm test:integration`.
+4. `pnpm dev` sobe o servidor MCP em `http://localhost:3000/api/mcp`.
 
-O passo a passo detalhado de instalação entra aqui quando o esqueleto do monorepo for criado.
+## CI
+
+- Todo Pull Request roda: título do PR, lint, tipos, testes, integração com Postgres e auditoria de dependências.
+- O Claude só faz o merge com o CI verde.
+- No GitHub, proteja a `main` exigindo o check **CI** (Settings → Branches).

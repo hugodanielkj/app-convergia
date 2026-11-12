@@ -14,7 +14,11 @@ pnpm install --frozen-lockfile  # falha se package.json e lockfile divergem
 pnpm lint
 pnpm typecheck
 pnpm test
+docker compose up -d --wait
+DATABASE_URL=postgres://convergia:convergia@localhost:54320/convergia pnpm test:integration
 ```
+
+São as mesmas verificações do CI (`.github/workflows/ci.yml`), mais `pnpm audit --prod --audit-level=high`. Se o CI ganhar um passo, este bloco ganha também.
 
 Uma falha se corrige na causa. Não pule teste, não use `@ts-ignore`, não desligue regra de lint e não use `--no-verify`; qualquer um desses exige permissão do usuário.
 

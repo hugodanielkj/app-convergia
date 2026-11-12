@@ -43,7 +43,7 @@ Tarefa que atravessa módulos (ex.: gerar roteiro dispara aprovação e cota): l
 
 ## 3. Estado atual e estrutura
 
-Hoje o repositório tem `rules/`, `.claude/`, `README.md` e `.gitignore`. O código ainda não existe. A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
+O esqueleto do monorepo existe: `packages/core`, `packages/config`, `packages/infra` (só a conexão com o Postgres) e `apps/mcp-server` com a ferramenta `whoami`. Ainda não existem: `apps/worker`, Drizzle e migrações, tabelas e autenticação (`Q-04`). A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
 
 ```text
 apps/mcp-server/   servidor HTTP + ferramentas e prompts MCP
@@ -52,19 +52,27 @@ packages/core/     domínio, casos de uso, políticas, portas (sem infraestrutur
 packages/infra/    Postgres, fila, Instagram, IA, imagem, armazenamento
 packages/config/   tsconfig, lint, variáveis de ambiente validadas
 rules/             documentos de regra, stack e design (lidos também pelo usuário)
+.github/           CI (workflows/ci.yml), ação de setup e Dependabot
 .claude/           este guia, regras por caminho e skills (só para o Claude)
 README.md          como o usuário conversa com o Claude neste projeto
 ```
 
-Comandos padrão, a criar junto com o esqueleto do monorepo (scripts no `package.json` da raiz):
+Comandos (scripts no `package.json` da raiz):
 
 | Comando | Faz |
 |---|---|
 | `pnpm install --frozen-lockfile` | Instala exatamente o que está no lockfile |
-| `pnpm lint` / `pnpm typecheck` / `pnpm test` | Lint, tipos, testes (Vitest) |
-| `docker compose up -d` | Postgres local |
+| `pnpm lint` / `pnpm format` | Confere / corrige lint e formatação (Biome; Markdown fica de fora) |
+| `pnpm typecheck` | Tipos em todos os pacotes |
+| `pnpm test` | Testes unitários e de contrato (`*.test.ts`), sem banco |
+| `pnpm test:integration` | Testes de integração (`*.int.test.ts`); exige `docker compose up -d --wait` e `DATABASE_URL` |
+| `pnpm dev` | Servidor MCP local com recarga |
 
-Se um desses scripts ainda não existir, diga isso. Nunca relate uma verificação como aprovada sem tê-la executado.
+O Postgres local fica na porta **54320**. Sem `.env`, passe a variável na linha de comando: `DATABASE_URL=postgres://convergia:convergia@localhost:54320/convergia pnpm test:integration` (é a credencial de desenvolvimento de `.env.example`, não um segredo).
+
+O CI (`.github/workflows/ci.yml`) roda em todo PR e na `main`: título do PR, lint, tipos, testes, integração com Postgres e auditoria de dependências. O job `CI` resume todos e é o check obrigatório. Ao criar um script de verificação novo, adicione-o ao CI no mesmo PR.
+
+Nunca relate uma verificação como aprovada sem tê-la executado.
 
 ## 4. Autonomia
 
@@ -138,7 +146,7 @@ Detalhes e comandos na skill `fluxo-git`. Resumo:
 
 Commits, branches e PRs seguem **Conventional Commits em português**: `feat(aprovacao): adiciona cancelamento de envio pendente`. Tipos: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `build`, `perf`. Escopo: o módulo, `infra`, `deps` ou `regras`.
 
-Pré-requisitos de cada colaborador: Git, Node.js na versão de `.nvmrc`, pnpm via Corepack, Docker e o GitHub CLI autenticado (`gh auth login`). Sem o `gh`, faça o push da branch e entregue ao usuário o link para abrir o PR; não faça o merge por outro caminho.
+Pré-requisitos de cada colaborador: Git, Node.js na versão de `.nvmrc`, pnpm, Docker e o GitHub CLI autenticado (`gh auth login`). Sem o `gh`, faça o push da branch e entregue ao usuário o link para abrir o PR; não faça o merge por outro caminho.
 
 ## 7. Quando perguntar
 

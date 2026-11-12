@@ -8,7 +8,7 @@
 | Camada | Escolha | Status |
 |---|---|---|
 | Linguagem | **TypeScript** | ✅ |
-| Runtime | Node.js LTS | 💡 |
+| Runtime | Node.js 26 (LTS), fixado em `.nvmrc` | 💡 |
 | Protocolo | MCP via **Streamable HTTP** | 💡 (igual ao Dalea; é o que o Claude web/desktop e o ChatGPT aceitam) |
 | SDK MCP | `@modelcontextprotocol/sdk` (oficial) | 💡 |
 | Servidor HTTP | Hono | 💡 |
@@ -128,9 +128,9 @@ Opções que atendem sem complicação: Railway, Render, Fly.io, ou AWS/GCP se a
 | pnpm workspaces | Monorepo (servidor, worker, pacotes compartilhados) |
 | Vitest | Testes unitários (regras de domínio) e de integração (Postgres de teste) |
 | MCP Inspector | Testar as ferramentas na mão |
-| Biome ou ESLint + Prettier | Lint e formatação |
-| GitHub Actions | CI: lint, tipos, testes, migrações |
-| Docker Compose | Postgres local |
+| Biome | Lint e formatação |
+| GitHub Actions | CI: título do PR, lint, tipos, testes, integração com Postgres, auditoria de dependências (migrações entram com a primeira tabela) |
+| Docker Compose | Postgres local (porta 54320) |
 
 ## 9. Riscos técnicos
 
