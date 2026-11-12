@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@theme {
+	--color-brand-50: #f3f1fe;
+	--color-brand-100: #e6e2fd;
+	--color-brand-200: #cdc5fb;
+	--color-brand-300: #aa9df6;
+	--color-brand-500: #6c58ec;
+	--color-brand-600: #4f3bd9;
+	--color-brand-700: #4030b4;
+	--color-brand-900: #231a66;
+	--color-accent: #ffd166;
+	--font-sans:
+		system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+		sans-serif;
+}
+
+@layer base {
+	html {
+		-webkit-tap-highlight-color: transparent;
+		-webkit-text-size-adjust: 100%;
+	}
+
+	body {
+		@apply bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+	}
+
+	/* RN-005: campos com 16 px evitam o zoom automático do iPhone. */
+	input,
+	select,
+	textarea {
+		font-size: 16px;
+	}
+
+	:focus-visible {
+		@apply outline-2 outline-offset-2 outline-brand-600;
+	}
+}

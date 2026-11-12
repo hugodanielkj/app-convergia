@@ -45,6 +45,8 @@ jobs:
         run: pnpm typecheck
       - name: Testes unitários e de contrato
         run: pnpm test
+      - name: Build do app web
+        run: pnpm build
 
   integracao:
     name: Testes de integração
