@@ -43,7 +43,7 @@ Tarefa que atravessa módulos (ex.: gerar roteiro dispara aprovação e cota): l
 
 ## 3. Estado atual e estrutura
 
-O esqueleto do monorepo existe: `packages/core`, `packages/config`, `packages/infra` (só a conexão com o Postgres) e `apps/mcp-server` com a ferramenta `whoami`. Ainda não existem: `apps/worker`, Drizzle e migrações, tabelas e autenticação (OAuth e chave de API, RN-023; fornecedor do OAuth em `Q-31`). A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
+O esqueleto do monorepo existe: `packages/core`, `packages/config`, `packages/infra` (Drizzle, migrações e as tabelas de acesso: agências, empresas, usuários e chaves de API) e `apps/mcp-server` com a ferramenta `whoami`. A autenticação por chave de API funciona (RN-023); o OAuth espera o fornecedor (`Q-31`) e o membro da agência espera a forma de escolher a empresa (`Q-03`). Ainda não existe o `apps/worker`. A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
 
 ```text
 apps/mcp-server/   servidor HTTP + ferramentas e prompts MCP
@@ -67,6 +67,9 @@ Comandos (scripts no `package.json` da raiz):
 | `pnpm test` | Testes unitários e de contrato (`*.test.ts`), sem banco |
 | `pnpm test:integration` | Testes de integração (`*.int.test.ts`); exige `docker compose up -d --wait` e `DATABASE_URL` |
 | `pnpm dev` | Servidor MCP local com recarga |
+| `pnpm db:generate` | Gera a migração a partir do schema em `packages/infra/src/db/schema/` |
+| `pnpm db:migrate` | Aplica as migrações no banco local (os testes de integração também aplicam) |
+| `pnpm db:seed` | Cria dados de exemplo e imprime uma chave de API nova para cada usuário de exemplo; só roda no banco local |
 
 O Postgres local fica na porta **54320**. Sem `.env`, passe a variável na linha de comando: `DATABASE_URL=postgres://convergia:convergia@localhost:54320/convergia pnpm test:integration` (é a credencial de desenvolvimento de `.env.example`, não um segredo).
 

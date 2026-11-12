@@ -7,10 +7,19 @@
 		".": "./src/index.ts"
 	},
 	"scripts": {
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "tsx --env-file-if-exists=../../.env src/scripts/migrate.ts",
+		"db:seed": "tsx --env-file-if-exists=../../.env src/scripts/seed-dev.ts"
 	},
 	"dependencies": {
 		"@convergia/config": "workspace:*",
+		"@convergia/core": "workspace:*",
+		"drizzle-orm": "^0.45.4",
 		"postgres": "^4.1.1"
+	},
+	"devDependencies": {
+		"drizzle-kit": "^0.31.11",
+		"tsx": "^4.23.15"
 	}
 }

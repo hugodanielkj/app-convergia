@@ -72,8 +72,10 @@ Quando ele pedir permissão, responda "sim", "não" ou dê outra instrução. A 
    - `pnpm install --frozen-lockfile`
    - `cp .env.example .env`
    - `docker compose up -d --wait` (Postgres local na porta 54320)
+   - `pnpm db:migrate` (cria as tabelas)
 3. Confira: `pnpm lint && pnpm typecheck && pnpm test && pnpm test:integration`.
 4. `pnpm dev` sobe o servidor MCP em `http://localhost:3000/api/mcp`.
+5. `pnpm db:seed` cria uma empresa e dois usuários de exemplo e mostra uma chave de API para cada um. Use a chave no cabeçalho `Authorization: Bearer <chave>` do seu cliente MCP. A chave aparece só nessa hora; rodar de novo gera outra.
 
 ## CI
 

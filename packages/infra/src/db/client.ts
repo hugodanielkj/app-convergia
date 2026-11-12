@@ -1,7 +1,12 @@
+import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import * as schema from "./schema";
 
-export type Db = postgres.Sql;
-
-export function createDb(databaseUrl: string): Db {
-	return postgres(databaseUrl, { onnotice: () => {} });
+export function createDb(databaseUrl: string) {
+	return drizzle({
+		client: postgres(databaseUrl, { onnotice: () => {} }),
+		schema,
+	});
 }
+
+export type Db = ReturnType<typeof createDb>;

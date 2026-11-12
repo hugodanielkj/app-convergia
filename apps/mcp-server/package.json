@@ -11,6 +11,7 @@
 	"dependencies": {
 		"@convergia/config": "workspace:*",
 		"@convergia/core": "workspace:*",
+		"@convergia/infra": "workspace:*",
 		"@hono/node-server": "^2.1.7",
 		"@modelcontextprotocol/sdk": "^1.32.2",
 		"hono": "^4.13.18",
