@@ -117,7 +117,7 @@ Legenda: ✔ pode · ✘ não pode · ❓ em aberto
 - ✅ **RN-020** — Toda chamada de ferramenta é feita **em nome de um usuário autenticado** (membro da agência ou usuário do cliente).
 - ✅ **RN-021** — Toda operação sobre dados acontece **dentro de uma empresa cliente** (o "contexto"). Para o usuário do cliente, o contexto é sempre a empresa dele. O membro da agência precisa dizer em qual empresa está operando.
 - ❓ **RN-022** — Como o membro da agência escolhe a empresa: por um parâmetro em cada chamada ou "selecionando uma empresa ativa" que vale até ser trocada (como a "marca ativa" do Dalea)? (Q-03)
-- ❓ **RN-023** — Método de autenticação no protótipo: OAuth 2.1 (necessário para conectar no Claude web/desktop e no ChatGPT), chave de API (para Claude Code e Cursor) ou os dois, como o Dalea? (Q-04)
+- ✅ **RN-023** — O protótipo aceita **os dois métodos de autenticação**, como o Dalea: **OAuth 2.1** (para conectar no Claude web/desktop e no ChatGPT) e **chave de API** (para Claude Code, Cursor e outros clientes). O fornecedor do OAuth está em aberto (❓ Q-31).
 - 📎 **RN-024** — Escopos de acesso: `leitura` e `escrita`. Uma conexão só de leitura recebe uma mensagem pedindo para reconectar com escrita quando chama uma ferramenta de escrita.
 - 📎 **RN-025** — Até 10 chaves de API ativas por conta; chaves e conexões OAuth podem ser revogadas a qualquer momento.
 - ❓ **RN-026** — Como a agência cadastra empresas e usuários sem app web: ferramentas MCP de administração, script interno ou painel mínimo? (Q-06)
@@ -330,7 +330,8 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 - **Q-01** — Uma agência só (a de vocês), ou o sistema deve suportar várias agências no futuro?
 - **Q-02** — Existe um papel de "admin" na agência, diferente do membro comum?
 - **Q-03** — Como o membro da agência escolhe a empresa em que está trabalhando: parâmetro em cada chamada ou "empresa ativa"?
-- **Q-04** — Autenticação no protótipo: OAuth, chave de API ou os dois?
+- ~~**Q-04**~~ — Respondida em 12/11/2026: OAuth e chave de API (RN-023).
+- **Q-31** — Fornecedor do OAuth: serviço gerenciado (WorkOS AuthKit, Stytch, Clerk, Auth0...) ou servidor de autorização próprio (Better Auth, `oidc-provider`)? Ver `stack.md` §3.
 - **Q-06** — Como a agência cadastra empresas e usuários sem app: ferramentas MCP de administração, script interno ou painel mínimo?
 
 ### Instagram e IA

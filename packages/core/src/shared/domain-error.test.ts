@@ -13,9 +13,9 @@ describe("erros de domínio", () => {
 	});
 
 	it("NotDecidedYet identifica a pergunta em aberto", () => {
-		const error = new NotDecidedYet("Q-04");
+		const error = new NotDecidedYet("Q-31");
 
-		expect(error.questionId).toBe("Q-04");
-		expect(error.message).toContain("Q-04");
+		expect(error.questionId).toBe("Q-31");
+		expect(error.message).toContain("Q-31");
 	});
 });
