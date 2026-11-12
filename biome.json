@@ -7,7 +7,13 @@
 	},
 	"files": {
 		"ignoreUnknown": true,
-		"includes": ["**", "!**/*.md", "!**/db/migrations"]
+		"includes": [
+			"**",
+			"!**/*.md",
+			"!**/db/migrations",
+			"!**/routeTree.gen.ts",
+			"!**/dev-dist"
+		]
 	},
 	"formatter": {
 		"enabled": true,
@@ -30,6 +36,11 @@
 			"source": {
 				"organizeImports": "on"
 			}
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
 		}
 	}
 }

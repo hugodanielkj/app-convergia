@@ -5,11 +5,12 @@ const integration = "**/*.int.test.ts";
 export default defineConfig({
 	test: {
 		projects: [
+			"apps/web/vitest.config.ts",
 			{
 				test: {
 					name: "unit",
 					include: ["{apps,packages}/**/*.test.ts"],
-					exclude: [integration, "**/node_modules/**"],
+					exclude: [integration, "apps/web/**", "**/node_modules/**"],
 				},
 			},
 			{

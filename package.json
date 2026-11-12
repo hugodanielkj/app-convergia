@@ -8,14 +8,16 @@
 	},
 	"scripts": {
 		"dev": "pnpm --filter @convergia/server dev",
+		"dev:web": "pnpm --filter @convergia/web dev",
 		"db:generate": "pnpm --filter @convergia/infra db:generate",
 		"db:migrate": "pnpm --filter @convergia/infra db:migrate",
 		"db:seed": "pnpm --filter @convergia/infra db:seed",
 		"lint": "biome check .",
 		"format": "biome check --write .",
 		"typecheck": "pnpm -r run typecheck",
-		"test": "vitest run --project unit",
-		"test:integration": "node --env-file-if-exists=.env ./node_modules/vitest/vitest.mjs run --project integration"
+		"test": "vitest run --project unit --project web",
+		"test:integration": "node --env-file-if-exists=.env ./node_modules/vitest/vitest.mjs run --project integration",
+		"build": "pnpm --filter @convergia/web build"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.6.6",

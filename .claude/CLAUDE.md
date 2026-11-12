@@ -45,10 +45,10 @@ Tarefa com tela: leia também `rules/software_design.md` "## 13. App web: telas 
 
 ## 3. Estado atual e estrutura
 
-O esqueleto do monorepo existe: `packages/core`, `packages/config`, `packages/infra` (Drizzle, migrações e as tabelas de acesso: agências, empresas, usuários e chaves de API) e `apps/server`, com as ferramentas MCP `whoami` e `list_companies` e a API do app (`/api/app`). A autenticação por chave de API funciona (RN-023); o OAuth espera o fornecedor (`Q-31`). O membro da agência informa a empresa no parâmetro `company_id` de cada chamada (RN-022) e lista as empresas com `list_companies`. Ainda não existem o `apps/worker` e o `apps/web` (o app web é o próximo passo, §12 do design). A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
+O esqueleto do monorepo existe: `packages/core`, `packages/config`, `packages/infra` (Drizzle, migrações e as tabelas de acesso: agências, empresas, usuários e chaves de API) e `apps/server`, com as ferramentas MCP `whoami` e `list_companies` e a API do app (`/api/app`). A autenticação por chave de API funciona (RN-023); o OAuth espera o fornecedor (`Q-31`). O membro da agência informa a empresa no parâmetro `company_id` de cada chamada (RN-022) e lista as empresas com `list_companies`. O `apps/web` tem o esqueleto do app: PWA, navegação, entrada de desenvolvimento por chave de API, escolha de empresa e telas vazias. Ainda não existe o `apps/worker`. A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
 
 ```text
-apps/web/          app web mobile first (PWA): telas React (ainda não criado)
+apps/web/          app web mobile first (PWA): React + Vite + Tailwind + TanStack Router
 apps/server/       servidor HTTP: MCP (/api/mcp) e API do app (/api/app)
 apps/worker/       jobs em segundo plano
 packages/core/     domínio, casos de uso, políticas, portas (sem infraestrutura)
@@ -69,7 +69,9 @@ Comandos (scripts no `package.json` da raiz):
 | `pnpm typecheck` | Tipos em todos os pacotes |
 | `pnpm test` | Testes unitários e de contrato (`*.test.ts`), sem banco |
 | `pnpm test:integration` | Testes de integração (`*.int.test.ts`); exige `docker compose up -d --wait` e `DATABASE_URL` |
-| `pnpm dev` | Servidor MCP local com recarga |
+| `pnpm dev` | Servidor (MCP e API do app) local com recarga, na porta 3000 |
+| `pnpm dev:web` | App web local em `http://localhost:5173`, com `/api` apontando para a porta 3000 |
+| `pnpm build` | Build de produção do app web (também roda no CI) |
 | `pnpm db:generate` | Gera a migração a partir do schema em `packages/infra/src/db/schema/` |
 | `pnpm db:migrate` | Aplica as migrações no banco local (os testes de integração também aplicam) |
 | `pnpm db:seed` | Cria dados de exemplo e imprime uma chave de API nova para cada usuário de exemplo; só roda no banco local |
