@@ -14,10 +14,10 @@ Seções a ler (Grep pelo título, Read com offset/limit):
 - `rules/software_design.md`: "## 4. Contexto do ator e multiempresa", "### Acesso e administração"
 - `rules/stack.md`: "## 3. Autenticação"
 
-Regras: RN-010 a RN-026. Em aberto: Q-01, Q-02, Q-03, Q-06, Q-31.
+Regras: RN-010 a RN-026. Em aberto: Q-01, Q-02, Q-06, Q-31.
 
 Invariantes:
 - Usuário do cliente opera sempre na própria empresa; pedir outra empresa → "Você não tem acesso a esta empresa." (RN-015).
-- Membro da agência sem empresa informada → "Informe em qual empresa cliente você quer trabalhar." (RN-021).
+- Membro da agência informa a empresa no parâmetro `company_id` de cada chamada; não existe empresa ativa (RN-022). Sem o parâmetro → "Informe em qual empresa cliente você quer trabalhar." (RN-021). Empresa de outra agência ou inexistente → "Você não tem acesso a esta empresa."
 - Autenticação por OAuth 2.1 e por chave de API, as duas aceitas (RN-023). Fornecedor do OAuth é ❓ Q-31.
 - Todo membro da agência vê todos os clientes (RN-010). Diferença entre admin e membro comum é ❓ Q-02.

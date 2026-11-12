@@ -2,25 +2,25 @@ import { NotDecidedYet } from "@convergia/core";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { Hono } from "hono";
 import {
+	type Authenticate,
 	InvalidCredentialError,
 	MissingCredentialError,
-	type ResolveActor,
-} from "./auth/resolve-actor";
-import { buildMcpServer } from "./registry";
+} from "./auth/authenticate";
+import { buildMcpServer, type ToolDeps } from "./registry";
 
-export type AppDeps = {
-	resolveActor: ResolveActor;
+export type AppDeps = ToolDeps & {
+	authenticate: Authenticate;
 };
 
-export function createApp({ resolveActor }: AppDeps): Hono {
+export function createApp({ authenticate, ...toolDeps }: AppDeps): Hono {
 	const app = new Hono();
 
 	app.get("/health", (c) => c.json({ status: "ok" }));
 
 	app.all("/api/mcp", async (c) => {
-		let actor: Awaited<ReturnType<ResolveActor>>;
+		let user: Awaited<ReturnType<Authenticate>>;
 		try {
-			actor = await resolveActor(c.req.raw);
+			user = await authenticate(c.req.raw);
 		} catch (error) {
 			if (error instanceof MissingCredentialError) {
 				c.header("WWW-Authenticate", "Bearer");
@@ -47,7 +47,7 @@ export function createApp({ resolveActor }: AppDeps): Hono {
 		}
 
 		// Sem estado entre requisições: servidor e transporte novos a cada chamada, sem sessão MCP.
-		const server = buildMcpServer(actor);
+		const server = buildMcpServer(user, toolDeps);
 		const transport = new WebStandardStreamableHTTPServerTransport({
 			enableJsonResponse: true,
 		});

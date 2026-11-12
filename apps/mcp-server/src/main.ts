@@ -1,13 +1,18 @@
 import { loadEnv } from "@convergia/config";
-import { createApiKeyRepository, createDb } from "@convergia/infra";
+import {
+	createApiKeyRepository,
+	createCompanyRepository,
+	createDb,
+} from "@convergia/infra";
 import { serve } from "@hono/node-server";
 import { createApp } from "./app";
-import { createResolveActor } from "./auth/resolve-actor";
+import { createAuthenticate } from "./auth/authenticate";
 
 const env = loadEnv();
 const db = createDb(env.DATABASE_URL);
 const app = createApp({
-	resolveActor: createResolveActor({ apiKeys: createApiKeyRepository(db) }),
+	authenticate: createAuthenticate({ apiKeys: createApiKeyRepository(db) }),
+	companies: createCompanyRepository(db),
 });
 
 serve({ fetch: app.fetch, port: env.PORT }, ({ port }) => {

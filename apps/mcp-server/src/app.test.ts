@@ -3,10 +3,13 @@ import {
 	type AuthenticatedUser,
 	issueApiKey,
 } from "@convergia/core";
-import { InMemoryApiKeyRepository } from "@convergia/core/testing";
+import {
+	InMemoryApiKeyRepository,
+	InMemoryCompanyRepository,
+} from "@convergia/core/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "./app";
-import { createResolveActor } from "./auth/resolve-actor";
+import { createAuthenticate } from "./auth/authenticate";
 
 const clientUser: AuthenticatedUser = {
 	kind: "client_user",
@@ -64,7 +67,12 @@ describe("servidor HTTP", () => {
 				[agencyMember.userId, agencyMember],
 			]),
 		);
-		app = createApp({ resolveActor: createResolveActor({ apiKeys }) });
+		app = createApp({
+			authenticate: createAuthenticate({ apiKeys }),
+			companies: new InMemoryCompanyRepository([
+				{ id: "company-1", agencyId: "agency-1", name: "Empresa 1" },
+			]),
+		});
 	});
 
 	it("responde ao health check", async () => {
@@ -147,15 +155,20 @@ describe("servidor HTTP", () => {
 		});
 	});
 
-	it("Q-03: membro da agência depende de como escolhe a empresa", async () => {
+	it("RN-022: membro da agência conecta sem empresa fixa", async () => {
 		const token = await keyFor("user-2", ["read"]);
 
 		const response = await callWhoami(`Bearer ${token}`);
 
-		expect(response.status).toBe(501);
+		expect(response.status).toBe(200);
 		expect(await response.json()).toMatchObject({
-			error: "not_decided_yet",
-			questionId: "Q-03",
+			result: {
+				structuredContent: {
+					userId: "user-2",
+					kind: "agency_member",
+					companyId: null,
+				},
+			},
 		});
 	});
 });

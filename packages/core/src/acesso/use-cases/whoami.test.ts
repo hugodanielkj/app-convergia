@@ -1,31 +1,25 @@
 import { describe, expect, it } from "vitest";
-import type { ActorContext } from "../../shared/actor-context";
+import { agencyMember, clientOfA } from "../testing/fixtures";
 import { whoami } from "./whoami";
 
 describe("whoami", () => {
 	it("RN-021: usuário do cliente vê a própria identidade e a própria empresa", () => {
-		const actor: ActorContext = {
-			userId: "user-1",
+		expect(whoami(clientOfA)).toEqual({
+			userId: clientOfA.userId,
 			kind: "client_user",
 			agencyId: "agency-1",
-			companyId: "company-1",
+			companyId: "company-a",
 			scopes: ["read", "write"],
-		};
-
-		expect(whoami(actor)).toEqual(actor);
+		});
 	});
 
-	it("não expõe a lista de escopos do contexto para mutação", () => {
-		const actor: ActorContext = {
-			userId: "user-2",
-			kind: "agency_member",
-			agencyId: "agency-1",
-			companyId: "company-2",
-			scopes: ["read"],
-		};
+	it("RN-022: membro da agência não tem empresa fixa", () => {
+		expect(whoami(agencyMember).companyId).toBeNull();
+	});
 
-		whoami(actor).scopes.push("write");
+	it("não expõe a lista de escopos do usuário para mutação", () => {
+		whoami(agencyMember).scopes.push("write");
 
-		expect(actor.scopes).toEqual(["read"]);
+		expect(agencyMember.scopes).toEqual(["read"]);
 	});
 });

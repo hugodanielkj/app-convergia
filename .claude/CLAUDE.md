@@ -43,7 +43,7 @@ Tarefa que atravessa módulos (ex.: gerar roteiro dispara aprovação e cota): l
 
 ## 3. Estado atual e estrutura
 
-O esqueleto do monorepo existe: `packages/core`, `packages/config`, `packages/infra` (Drizzle, migrações e as tabelas de acesso: agências, empresas, usuários e chaves de API) e `apps/mcp-server` com a ferramenta `whoami`. A autenticação por chave de API funciona (RN-023); o OAuth espera o fornecedor (`Q-31`) e o membro da agência espera a forma de escolher a empresa (`Q-03`). Ainda não existe o `apps/worker`. A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
+O esqueleto do monorepo existe: `packages/core`, `packages/config`, `packages/infra` (Drizzle, migrações e as tabelas de acesso: agências, empresas, usuários e chaves de API) e `apps/mcp-server` com a ferramenta `whoami`. A autenticação por chave de API funciona (RN-023); o OAuth espera o fornecedor (`Q-31`). O membro da agência informa a empresa no parâmetro `company_id` de cada chamada (RN-022) e lista as empresas com `list_companies`. Ainda não existe o `apps/worker`. A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
 
 ```text
 apps/mcp-server/   servidor HTTP + ferramentas e prompts MCP

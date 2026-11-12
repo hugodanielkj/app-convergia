@@ -116,7 +116,7 @@ Legenda: ✔ pode · ✘ não pode · ❓ em aberto
 
 - ✅ **RN-020** — Toda chamada de ferramenta é feita **em nome de um usuário autenticado** (membro da agência ou usuário do cliente).
 - ✅ **RN-021** — Toda operação sobre dados acontece **dentro de uma empresa cliente** (o "contexto"). Para o usuário do cliente, o contexto é sempre a empresa dele. O membro da agência precisa dizer em qual empresa está operando.
-- ❓ **RN-022** — Como o membro da agência escolhe a empresa: por um parâmetro em cada chamada ou "selecionando uma empresa ativa" que vale até ser trocada (como a "marca ativa" do Dalea)? (Q-03)
+- ✅ **RN-022** — O membro da agência informa a empresa **por um parâmetro em cada chamada**. Não existe "empresa ativa" guardada entre chamadas: duas conversas abertas ao mesmo tempo, cada uma em um cliente, nunca se misturam. O usuário do cliente não informa a empresa; se informar outra que não a dele, recebe "Você não tem acesso a esta empresa." (RN-015).
 - ✅ **RN-023** — O protótipo aceita **os dois métodos de autenticação**, como o Dalea: **OAuth 2.1** (para conectar no Claude web/desktop e no ChatGPT) e **chave de API** (para Claude Code, Cursor e outros clientes). O fornecedor do OAuth está em aberto (❓ Q-31).
 - 📎 **RN-024** — Escopos de acesso: `leitura` e `escrita`. Uma conexão só de leitura recebe uma mensagem pedindo para reconectar com escrita quando chama uma ferramenta de escrita.
 - 📎 **RN-025** — Até 10 chaves de API ativas por conta; chaves e conexões OAuth podem ser revogadas a qualquer momento.
@@ -307,7 +307,7 @@ Os erros voltam como resultado normal da ferramenta, marcados como erro (📎 pa
 | Situação | Mensagem | Origem |
 |---|---|---|
 | Sem permissão para a empresa | "Você não tem acesso a esta empresa." | ✅ RN-015 |
-| Agência sem empresa selecionada | "Informe em qual empresa cliente você quer trabalhar." | ✅ RN-021 |
+| Agência sem empresa informada na chamada | "Informe em qual empresa cliente você quer trabalhar." | ✅ RN-021, RN-022 |
 | Conexão só de leitura | "Esta conexão é só de leitura. Reconecte com permissão de escrita." | 📎 |
 | Limite por minuto | "Muitas requisições. Tente de novo em um minuto." | 📎 |
 | Cota diária esgotada | "A cota diária de <ferramenta> desta empresa acabou (<n> por dia). Tente amanhã." | ✅ RN-301 |
@@ -329,7 +329,7 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 ### Acesso e organização
 - **Q-01** — Uma agência só (a de vocês), ou o sistema deve suportar várias agências no futuro?
 - **Q-02** — Existe um papel de "admin" na agência, diferente do membro comum?
-- **Q-03** — Como o membro da agência escolhe a empresa em que está trabalhando: parâmetro em cada chamada ou "empresa ativa"?
+- ~~**Q-03**~~ — Respondida em 12/11/2026: parâmetro em cada chamada (RN-022).
 - ~~**Q-04**~~ — Respondida em 12/11/2026: OAuth e chave de API (RN-023).
 - **Q-31** — Fornecedor do OAuth: serviço gerenciado (WorkOS AuthKit, Stytch, Clerk, Auth0...) ou servidor de autorização próprio (Better Auth, `oidc-provider`)? Ver `stack.md` §3.
 - **Q-06** — Como a agência cadastra empresas e usuários sem app: ferramentas MCP de administração, script interno ou painel mínimo?

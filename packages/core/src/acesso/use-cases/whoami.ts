@@ -1,20 +1,21 @@
-import type { ActorContext } from "../../shared/actor-context";
+import type { AuthenticatedUser } from "../authenticated-user";
 
 export type WhoamiResult = {
 	userId: string;
-	kind: ActorContext["kind"];
+	kind: AuthenticatedUser["kind"];
 	agencyId: string;
-	companyId: string;
-	scopes: ActorContext["scopes"];
+	/** null para o membro da agência, que informa a empresa em cada chamada (RN-022). */
+	companyId: string | null;
+	scopes: AuthenticatedUser["scopes"];
 };
 
-/** Devolve a identidade do ator e a empresa em que ele está operando (RN-020, RN-021). */
-export function whoami(actor: ActorContext): WhoamiResult {
+/** Devolve a identidade de quem está conectado (RN-020). */
+export function whoami(user: AuthenticatedUser): WhoamiResult {
 	return {
-		userId: actor.userId,
-		kind: actor.kind,
-		agencyId: actor.agencyId,
-		companyId: actor.companyId,
-		scopes: [...actor.scopes],
+		userId: user.userId,
+		kind: user.kind,
+		agencyId: user.agencyId,
+		companyId: user.kind === "client_user" ? user.companyId : null,
+		scopes: [...user.scopes],
 	};
 }
