@@ -1,8 +1,11 @@
 {
-	"name": "@convergia/mcp-server",
+	"name": "@convergia/server",
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",
+	"exports": {
+		"./app-api": "./src/app-api/index.ts"
+	},
 	"scripts": {
 		"dev": "tsx watch --env-file-if-exists=../../.env src/main.ts",
 		"start": "tsx --env-file-if-exists=../../.env src/main.ts",

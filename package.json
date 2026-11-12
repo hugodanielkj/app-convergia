@@ -7,7 +7,7 @@
 		"node": ">=26 <27"
 	},
 	"scripts": {
-		"dev": "pnpm --filter @convergia/mcp-server dev",
+		"dev": "pnpm --filter @convergia/server dev",
 		"db:generate": "pnpm --filter @convergia/infra db:generate",
 		"db:migrate": "pnpm --filter @convergia/infra db:migrate",
 		"db:seed": "pnpm --filter @convergia/infra db:seed",

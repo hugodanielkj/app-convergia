@@ -37,7 +37,7 @@ Os documentos de `rules/` são longos. **Não os leia inteiros.** Leia só as se
 Os arquivos de `.claude/rules/` também carregam sozinhos quando você lê ou escreve um arquivo que casa com o `paths` deles:
 
 - `modulos/`: mapa e invariantes de cada módulo.
-- `camadas/`: convenções de `core`, `mcp-server`, `infra` e worker, testes, dependências e documentos.
+- `camadas/`: convenções de `core`, `server`, `web`, `infra` e worker, testes, dependências e documentos.
 
 Tarefa que atravessa módulos (ex.: gerar roteiro dispara aprovação e cota): leia o mapa de cada módulo envolvido.
 
@@ -45,11 +45,11 @@ Tarefa com tela: leia também `rules/software_design.md` "## 13. App web: telas 
 
 ## 3. Estado atual e estrutura
 
-O esqueleto do monorepo existe: `packages/core`, `packages/config`, `packages/infra` (Drizzle, migrações e as tabelas de acesso: agências, empresas, usuários e chaves de API) e `apps/mcp-server` com a ferramenta `whoami`. A autenticação por chave de API funciona (RN-023); o OAuth espera o fornecedor (`Q-31`). O membro da agência informa a empresa no parâmetro `company_id` de cada chamada (RN-022) e lista as empresas com `list_companies`. Ainda não existem o `apps/worker` e o `apps/web` (o app web é o próximo passo, §12 do design). A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
+O esqueleto do monorepo existe: `packages/core`, `packages/config`, `packages/infra` (Drizzle, migrações e as tabelas de acesso: agências, empresas, usuários e chaves de API) e `apps/server`, com as ferramentas MCP `whoami` e `list_companies` e a API do app (`/api/app`). A autenticação por chave de API funciona (RN-023); o OAuth espera o fornecedor (`Q-31`). O membro da agência informa a empresa no parâmetro `company_id` de cada chamada (RN-022) e lista as empresas com `list_companies`. Ainda não existem o `apps/worker` e o `apps/web` (o app web é o próximo passo, §12 do design). A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
 
 ```text
 apps/web/          app web mobile first (PWA): telas React (ainda não criado)
-apps/mcp-server/   servidor HTTP: ferramentas e prompts MCP; vai virar apps/server com a API do app
+apps/server/       servidor HTTP: MCP (/api/mcp) e API do app (/api/app)
 apps/worker/       jobs em segundo plano
 packages/core/     domínio, casos de uso, políticas, portas (sem infraestrutura)
 packages/infra/    Postgres, fila, Instagram, IA, imagem, armazenamento
