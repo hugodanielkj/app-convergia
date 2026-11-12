@@ -43,7 +43,7 @@ Tarefa que atravessa módulos (ex.: gerar roteiro dispara aprovação e cota): l
 
 ## 3. Estado atual e estrutura
 
-O esqueleto do monorepo existe: `packages/core`, `packages/config`, `packages/infra` (só a conexão com o Postgres) e `apps/mcp-server` com a ferramenta `whoami`. Ainda não existem: `apps/worker`, Drizzle e migrações, tabelas e autenticação (`Q-04`). A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
+O esqueleto do monorepo existe: `packages/core`, `packages/config`, `packages/infra` (só a conexão com o Postgres) e `apps/mcp-server` com a ferramenta `whoami`. Ainda não existem: `apps/worker`, Drizzle e migrações, tabelas e autenticação (OAuth e chave de API, RN-023; fornecedor do OAuth em `Q-31`). A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
 
 ```text
 apps/mcp-server/   servidor HTTP + ferramentas e prompts MCP

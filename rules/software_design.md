@@ -152,7 +152,7 @@ type ActorContext = {
 ```
 
 Montagem do contexto (`resolve-actor.ts`):
-1. Valida o token (OAuth ou chave de API, ❓ Q-04) e encontra o usuário.
+1. Valida o token (OAuth ou chave de API, ✅ RN-023; fornecedor do OAuth ❓ Q-31) e encontra o usuário.
 2. **Usuário do cliente:** `companyId` = a empresa dele, sempre. Se a chamada pedir outra empresa → erro "sem acesso" (RN-015).
 3. **Membro da agência:** `companyId` vem de um parâmetro da chamada ou da "empresa ativa" (❓ Q-03). Se não houver → erro "informe a empresa".
 4. Toda consulta ao banco recebe o `companyId`. Além disso, o RLS do Postgres (`SET app.company_id`) bloqueia o vazamento mesmo que um repositório esqueça o filtro.
@@ -498,7 +498,7 @@ Regras ❓ têm teste que espera `NotDecidedYet`. Quando a pergunta é respondid
 
 ## 12. Ordem sugerida de implementação 💡
 
-1. Esqueleto: monorepo, Postgres, servidor MCP com `whoami`, autenticação (depois de Q-04).
+1. Esqueleto: monorepo, Postgres, servidor MCP com `whoami`, autenticação por chave de API e por OAuth (RN-023; o OAuth depois de Q-31).
 2. Multiempresa e permissões (§4) + testes de isolamento.
 3. Conexão do Instagram e sincronização de métricas (começar a revisão da Meta no dia 1).
 4. Cards, kanban e calendário (sem IA).

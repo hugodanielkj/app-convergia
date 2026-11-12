@@ -17,7 +17,7 @@
 | ORM e migrações | Drizzle | 💡 |
 | Filas e jobs | pg-boss (fila dentro do próprio Postgres) | 💡 |
 | Arquivos | Armazenamento compatível com S3 (ex.: Cloudflare R2) | 💡 |
-| Autenticação | OAuth 2.1 e/ou chave de API | ❓ Q-04 |
+| Autenticação | OAuth 2.1 **e** chave de API | ✅ (RN-023); fornecedor do OAuth ❓ Q-31 |
 | IA (texto, análise, PDF, visão) | Claude via `@anthropic-ai/sdk` | 💡 (você não tem preferência; ver seção 4) |
 | Geração de imagem (arte do carrossel) | Provedor à parte, a escolher | ❓ |
 | Transcrição de áudio (reels) | Provedor à parte, a escolher | ❓ |
@@ -41,9 +41,9 @@ Fora do stack (removido ou adiado, ver regra de negócio §2.2): FFmpeg e pipeli
 - **Ferramentas, prompts e erros** seguem o padrão do Dalea: erro de negócio volta como resultado com `isError: true` e mensagem em português, não como erro HTTP. Só "sem credencial" volta como HTTP 401.
 - **Ferramenta de inspeção:** MCP Inspector, para testar as ferramentas manualmente durante o desenvolvimento.
 
-## 3. Autenticação ❓ (Q-04)
+## 3. Autenticação ✅ (RN-023)
 
-O cliente MCP determina o método:
+O servidor aceita os dois métodos. O cliente MCP determina qual é usado:
 
 | Cliente | O que exige |
 |---|---|
@@ -51,18 +51,18 @@ O cliente MCP determina o método:
 | Claude Code | Aceita OAuth ou cabeçalho com chave de API. |
 | Cursor e outros | Chave de API no cabeçalho `Authorization: Bearer`. |
 
-Como os **clientes da agência não são técnicos** e devem usar Claude ou ChatGPT, na prática o OAuth é necessário. A decisão, porém, é sua.
+Os **clientes da agência não são técnicos** e usam Claude ou ChatGPT, por isso o OAuth é necessário. A chave de API atende quem usa Claude Code, Cursor e outros clientes técnicos.
 
-Duas formas de ter o OAuth:
+Duas formas de ter o OAuth (❓ Q-31):
 
 | Opção | Vantagem | Desvantagem |
 |---|---|---|
 | **Serviço gerenciado** (ex.: WorkOS AuthKit, Stytch, Clerk, Auth0, que já oferecem fluxos para servidores MCP) | Rápido, seguro, tela de login pronta | Custo mensal; dependência externa |
 | **Servidor de autorização próprio** (ex.: Better Auth com plugin MCP, ou `oidc-provider`) | Controle total, sem custo por usuário | Mais código e mais responsabilidade de segurança |
 
-💡 Recomendação para protótipo: **serviço gerenciado**, para não gastar o protótipo construindo autenticação. ❓ Escolha do fornecedor em aberto.
+💡 Recomendação para protótipo: **serviço gerenciado**, para não gastar o protótipo construindo autenticação. ❓ Escolha do fornecedor em aberto (Q-31).
 
-Chaves de API, se existirem: prefixo próprio (ex.: `ag_mcp_...`), guardadas **só como hash** e com limite de chaves ativas (📎 Dalea: 10).
+Chaves de API: prefixo próprio (ex.: `ag_mcp_...`), guardadas **só como hash** e com limite de chaves ativas (📎 Dalea: 10).
 
 ## 4. IA
 

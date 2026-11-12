@@ -14,6 +14,7 @@ export const resolveActor: ResolveActor = async (request) => {
 	if (!request.headers.get("authorization")) {
 		throw new MissingCredentialError();
 	}
-	// Q-04: OAuth 2.1, chave de API ou os dois. Sem decisão, nenhum token é aceito.
-	throw new NotDecidedYet("Q-04");
+	// RN-023: aceita OAuth 2.1 e chave de API. A validação da chave de API chega com a
+	// tabela de chaves; o token OAuth depende do fornecedor (Q-31). Até lá, nenhum token é aceito.
+	throw new NotDecidedYet("Q-31");
 };

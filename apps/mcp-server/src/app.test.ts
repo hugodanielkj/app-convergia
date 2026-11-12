@@ -44,7 +44,7 @@ describe("servidor HTTP", () => {
 		expect(response.headers.get("www-authenticate")).toBe("Bearer");
 	});
 
-	it("Q-04: enquanto a autenticação não for definida, nenhum token é aceito", async () => {
+	it("Q-31: enquanto o fornecedor do OAuth não for definido, nenhum token é aceito", async () => {
 		const response = await createApp({ resolveActor }).request("/api/mcp", {
 			method: "POST",
 			headers: { ...MCP_HEADERS, authorization: "Bearer qualquer-token" },
