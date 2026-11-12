@@ -2,6 +2,7 @@ import { NotDecidedYet } from "@convergia/core";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { Hono } from "hono";
 import {
+	InvalidCredentialError,
 	MissingCredentialError,
 	type ResolveActor,
 } from "./auth/resolve-actor";
@@ -28,11 +29,16 @@ export function createApp({ resolveActor }: AppDeps): Hono {
 					401,
 				);
 			}
+			if (error instanceof InvalidCredentialError) {
+				c.header("WWW-Authenticate", 'Bearer error="invalid_token"');
+				return c.json({ error: "invalid_token", message: error.message }, 401);
+			}
 			if (error instanceof NotDecidedYet) {
 				return c.json(
 					{
 						error: "not_decided_yet",
-						message: `Autenticação ainda não definida (${error.questionId}).`,
+						message: `Esta forma de acesso depende de uma regra ainda não definida (${error.questionId}).`,
+						questionId: error.questionId,
 					},
 					501,
 				);

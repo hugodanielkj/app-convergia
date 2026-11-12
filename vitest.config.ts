@@ -16,6 +16,7 @@ export default defineConfig({
 				test: {
 					name: "integration",
 					include: [`{apps,packages}/${integration}`],
+					globalSetup: ["packages/infra/src/db/test-global-setup.ts"],
 					exclude: ["**/node_modules/**"],
 				},
 			},

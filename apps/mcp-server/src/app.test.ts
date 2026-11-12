@@ -1,14 +1,26 @@
-import type { ActorContext } from "@convergia/core";
-import { describe, expect, it } from "vitest";
+import {
+	type ActorContext,
+	type AuthenticatedUser,
+	issueApiKey,
+} from "@convergia/core";
+import { InMemoryApiKeyRepository } from "@convergia/core/testing";
+import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "./app";
-import { resolveActor } from "./auth/resolve-actor";
+import { createResolveActor } from "./auth/resolve-actor";
 
-const actor: ActorContext = {
-	userId: "user-1",
+const clientUser: AuthenticatedUser = {
 	kind: "client_user",
+	userId: "user-1",
 	agencyId: "agency-1",
 	companyId: "company-1",
-	scopes: ["read", "write"],
+	scopes: [],
+};
+
+const agencyMember: AuthenticatedUser = {
+	kind: "agency_member",
+	userId: "user-2",
+	agencyId: "agency-1",
+	scopes: [],
 };
 
 const MCP_HEADERS = {
@@ -26,51 +38,124 @@ function callTool(name: string) {
 }
 
 describe("servidor HTTP", () => {
+	let apiKeys: InMemoryApiKeyRepository;
+	let app: ReturnType<typeof createApp>;
+
+	function callWhoami(authorization?: string) {
+		return app.request("/api/mcp", {
+			method: "POST",
+			headers: authorization ? { ...MCP_HEADERS, authorization } : MCP_HEADERS,
+			body: callTool("whoami"),
+		});
+	}
+
+	async function keyFor(userId: string, scopes: ActorContext["scopes"]) {
+		const { token } = await issueApiKey(
+			{ apiKeys },
+			{ userId, name: "teste", scopes },
+		);
+		return token;
+	}
+
+	beforeEach(() => {
+		apiKeys = new InMemoryApiKeyRepository(
+			new Map<string, AuthenticatedUser>([
+				[clientUser.userId, clientUser],
+				[agencyMember.userId, agencyMember],
+			]),
+		);
+		app = createApp({ resolveActor: createResolveActor({ apiKeys }) });
+	});
+
 	it("responde ao health check", async () => {
-		const response = await createApp({ resolveActor }).request("/health");
+		const response = await app.request("/health");
 
 		expect(response.status).toBe(200);
 		expect(await response.json()).toEqual({ status: "ok" });
 	});
 
 	it("RN-020: sem credencial devolve HTTP 401", async () => {
-		const response = await createApp({ resolveActor }).request("/api/mcp", {
-			method: "POST",
-			headers: MCP_HEADERS,
-			body: callTool("whoami"),
-		});
+		const response = await callWhoami();
 
 		expect(response.status).toBe(401);
 		expect(response.headers.get("www-authenticate")).toBe("Bearer");
 	});
 
-	it("Q-31: enquanto o fornecedor do OAuth não for definido, nenhum token é aceito", async () => {
-		const response = await createApp({ resolveActor }).request("/api/mcp", {
-			method: "POST",
-			headers: { ...MCP_HEADERS, authorization: "Bearer qualquer-token" },
-			body: callTool("whoami"),
-		});
+	it("RN-020: cabeçalho que não é Bearer conta como sem credencial", async () => {
+		const response = await callWhoami("Basic dXNlcjpzZW5oYQ==");
 
-		expect(response.status).toBe(501);
-		expect(await response.json()).toMatchObject({ error: "not_decided_yet" });
+		expect(response.status).toBe(401);
 	});
 
-	it("atende uma chamada de ferramenta por Streamable HTTP, sem sessão", async () => {
-		const app = createApp({ resolveActor: async () => actor });
+	it("RN-023: chave de API válida atende a chamada, sem sessão", async () => {
+		const token = await keyFor("user-1", ["read", "write"]);
 
-		const response = await app.request("/api/mcp", {
-			method: "POST",
-			headers: MCP_HEADERS,
-			body: callTool("whoami"),
-		});
+		const response = await callWhoami(`Bearer ${token}`);
 
 		expect(response.status).toBe(200);
 		expect(response.headers.get("mcp-session-id")).toBeNull();
 		expect(await response.json()).toMatchObject({
 			id: 1,
 			result: {
-				structuredContent: { userId: "user-1", companyId: "company-1" },
+				structuredContent: {
+					userId: "user-1",
+					kind: "client_user",
+					companyId: "company-1",
+					scopes: ["read", "write"],
+				},
 			},
+		});
+	});
+
+	it("RN-024: a conexão carrega as permissões da chave", async () => {
+		const token = await keyFor("user-1", ["read"]);
+
+		const response = await callWhoami(`Bearer ${token}`);
+
+		expect(await response.json()).toMatchObject({
+			result: { structuredContent: { scopes: ["read"] } },
+		});
+	});
+
+	it("chave de API desconhecida devolve HTTP 401 invalid_token", async () => {
+		const response = await callWhoami(`Bearer ag_mcp_${"0".repeat(64)}`);
+
+		expect(response.status).toBe(401);
+		expect(response.headers.get("www-authenticate")).toBe(
+			'Bearer error="invalid_token"',
+		);
+		expect(await response.json()).toMatchObject({ error: "invalid_token" });
+	});
+
+	it("RN-025: chave revogada devolve HTTP 401", async () => {
+		const token = await keyFor("user-1", ["read"]);
+		const stored = apiKeys.keys[0];
+		if (stored) stored.revoked = true;
+
+		const response = await callWhoami(`Bearer ${token}`);
+
+		expect(response.status).toBe(401);
+	});
+
+	it("Q-31: token OAuth depende do fornecedor ainda não escolhido", async () => {
+		const response = await callWhoami("Bearer token-oauth-qualquer");
+
+		expect(response.status).toBe(501);
+		expect(await response.json()).toMatchObject({
+			error: "not_decided_yet",
+			questionId: "Q-31",
+		});
+	});
+
+	it("Q-03: membro da agência depende de como escolhe a empresa", async () => {
+		const token = await keyFor("user-2", ["read"]);
+
+		const response = await callWhoami(`Bearer ${token}`);
+
+		expect(response.status).toBe(501);
+		expect(await response.json()).toMatchObject({
+			error: "not_decided_yet",
+			questionId: "Q-03",
 		});
 	});
 });
