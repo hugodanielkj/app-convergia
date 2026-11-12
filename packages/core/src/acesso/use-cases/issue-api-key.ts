@@ -14,7 +14,7 @@ export type IssuedApiKey = {
 
 /**
  * Emite uma chave de API para um usuário. Por enquanto só o script interno chama este caso
- * de uso, por isso ele não recebe ator: quem pode emitir chaves pelo MCP depende de Q-06.
+ * de uso, por isso ele não recebe ator. Quando a tela Conta do app web emitir chaves, passa a receber.
  */
 export async function issueApiKey(
 	deps: { apiKeys: ApiKeyRepository },

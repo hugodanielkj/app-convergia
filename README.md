@@ -1,6 +1,6 @@
 # ConvergIA
 
-Servidor MCP que ajuda os clientes da agência a planejar e produzir conteúdo orgânico para o Instagram, com aprovação do cliente sobre o que a agência cria.
+App web mobile first (instalável no celular) e servidor MCP que ajudam os clientes da agência a planejar e produzir conteúdo orgânico para o Instagram, com aprovação do cliente sobre o que a agência cria.
 
 Este README explica como pedir trabalho ao Claude Code neste projeto. O Claude trabalha com autonomia: decide sozinho os detalhes técnicos e só pergunta o que é seu de decidir.
 
@@ -8,7 +8,7 @@ Este README explica como pedir trabalho ao Claude Code neste projeto. O Claude t
 
 - **`rules/`**: as regras do produto. São os documentos que você lê e responde.
   - `regra_de_negocio.md`: o que o produto faz (regras `RN-xxx`, perguntas em aberto `Q-xx`).
-  - `software_design.md`: arquitetura e catálogo de ferramentas.
+  - `software_design.md`: arquitetura, catálogo de ferramentas e telas do app.
   - `stack.md`: tecnologias.
 - **`.claude/`**: instruções internas do Claude. Você não precisa ler.
 - O código (`apps/`, `packages/`) será criado pelo Claude a partir de `rules/`.

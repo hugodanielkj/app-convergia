@@ -7,7 +7,7 @@ import { agencies, companies, users } from "../db/schema";
 
 /**
  * Dados de desenvolvimento e uma chave de API nova para cada usuário de exemplo.
- * Enquanto a Q-06 não decide como a agência cadastra empresas e usuários, é o único
+ * Até existirem as telas Empresas e Conta do app web (RN-026, RN-025), é o único
  * jeito de conseguir uma chave. Só roda contra o Postgres local.
  */
 
