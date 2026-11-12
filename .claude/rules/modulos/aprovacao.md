@@ -12,7 +12,7 @@ Seções a ler (Grep pelo título, Read com offset/limit):
 - `rules/regra_de_negocio.md`: "### 3.3 Matriz de permissões", "## 5. Aprovação", "## 7. Erros de negócio"
 - `rules/software_design.md`: "### 5.2 Campos que todo item aprovável tem", "### 5.3 Solicitação de aprovação", "### Aprovação ⭐", "### 8.2 Aprovação", "## 9. Concorrência e consistência"
 
-Regras: RN-200 a RN-231. Em aberto: Q-15, Q-16, Q-19, Q-20, Q-22, Q-23, Q-26.
+Regras: RN-200 a RN-231. Em aberto: Q-16, Q-19, Q-20, Q-22, Q-23, Q-26.
 
 Invariantes:
 - Toda escrita de conteúdo chama `onContentChanged` na mesma transação da alteração (RN-203, RN-215, RN-216).

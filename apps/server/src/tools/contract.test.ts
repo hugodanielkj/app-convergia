@@ -1,5 +1,8 @@
 import type { AuthenticatedUser } from "@convergia/core";
-import { InMemoryCompanyRepository } from "@convergia/core/testing";
+import {
+	InMemoryCompanyRepository,
+	InMemoryContentRepository,
+} from "@convergia/core/testing";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { describe, expect, it } from "vitest";
@@ -31,7 +34,11 @@ async function connect(as: AuthenticatedUser) {
 		InMemoryTransport.createLinkedPair();
 	const client = new Client({ name: "contract-test", version: "0.0.0" });
 	await Promise.all([
-		buildMcpServer(as, { companies }).connect(serverTransport),
+		buildMcpServer(as, {
+			companies,
+			contents: new InMemoryContentRepository(),
+			now: () => new Date(),
+		}).connect(serverTransport),
 		client.connect(clientTransport),
 	]);
 	return client;
@@ -112,5 +119,56 @@ describe("contrato MCP", () => {
 				text: "- Padaria Beta (ID: company-b)\n- Loja Alfa (ID: company-a)",
 			},
 		]);
+	});
+
+	it("RN-022: create_content pede company_id só ao membro da agência", async () => {
+		const schemaOf = async (user: AuthenticatedUser) =>
+			(await (await connect(user)).listTools()).tools.find(
+				(t) => t.name === "create_content",
+			)?.inputSchema;
+
+		expect((await schemaOf(agencyMember))?.required).toContain("company_id");
+		expect((await schemaOf(clientUser))?.properties).not.toHaveProperty(
+			"company_id",
+		);
+	});
+
+	it("cria e lista cards pelo MCP, com o ID no texto", async () => {
+		const client = await connect(clientUser);
+
+		const created = await client.callTool({
+			name: "create_content",
+			arguments: { content: { title: "Reel de teste" } },
+		});
+		const listed = await client.callTool({
+			name: "list_contents",
+			arguments: {},
+		});
+
+		expect(created.isError).toBeFalsy();
+		expect(JSON.stringify(listed.content)).toMatch(
+			/Reel de teste \(ID: content-1\) · Ideia/,
+		);
+	});
+
+	it("erro de negócio sai como isError com a mensagem da regra", async () => {
+		const result = await (await connect(clientUser)).callTool({
+			name: "get_content",
+			arguments: { content_id: "nao-existe" },
+		});
+
+		expect(result.isError).toBe(true);
+		expect(result.content).toEqual([
+			{ type: "text", text: "Card não encontrado." },
+		]);
+	});
+
+	it("a agência sem company_id recebe o pedido de informar a empresa", async () => {
+		const result = await (await connect(agencyMember)).callTool({
+			name: "list_contents",
+			arguments: {},
+		});
+
+		expect(result.isError).toBe(true);
 	});
 });
