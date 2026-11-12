@@ -11,13 +11,20 @@
 | Runtime | Node.js 26 (LTS), fixado em `.nvmrc` | 💡 |
 | Protocolo | MCP via **Streamable HTTP** | 💡 (igual ao Dalea; é o que o Claude web/desktop e o ChatGPT aceitam) |
 | SDK MCP | `@modelcontextprotocol/sdk` (oficial) | 💡 |
-| Servidor HTTP | Hono | 💡 |
+| Servidor HTTP | Hono: um só servidor para o MCP (`/api/mcp`) e a API do app (`/api/app`) | 💡 |
+| App web | **PWA mobile first** (RN-005) | ✅ |
+| Front-end | React + Vite + TypeScript, app de página única (SPA) | 💡 |
+| Interface | Tailwind CSS + componentes acessíveis do shadcn/ui (Radix) | 💡 |
+| Rotas e dados no app | TanStack Router + TanStack Query | 💡 |
+| Formulários | React Hook Form + Zod (os mesmos schemas do servidor) | 💡 |
+| PWA | `vite-plugin-pwa` (manifesto, ícones e service worker) | 💡 |
+| API do app | Rotas Hono com cliente tipado (Hono RPC) | 💡 |
 | Validação | Zod (o mesmo schema serve para validar e para descrever a ferramenta MCP) | 💡 |
 | Banco | PostgreSQL | 💡 |
 | ORM e migrações | Drizzle | 💡 |
 | Filas e jobs | pg-boss (fila dentro do próprio Postgres) | 💡 |
 | Arquivos | Armazenamento compatível com S3 (ex.: Cloudflare R2) | 💡 |
-| Autenticação | OAuth 2.1 **e** chave de API | ✅ (RN-023); fornecedor do OAuth ❓ Q-31 |
+| Autenticação | App web: sessão por cookie, forma de login ❓ Q-32. MCP: OAuth 2.1 **e** chave de API ✅ (RN-023) | Fornecedor ❓ Q-31 |
 | IA (texto, análise, PDF, visão) | Claude via `@anthropic-ai/sdk` | 💡 (você não tem preferência; ver seção 4) |
 | Geração de imagem (arte do carrossel) | Provedor à parte, a escolher | ❓ |
 | Transcrição de áudio (reels) | Provedor à parte, a escolher | ❓ |
@@ -26,14 +33,43 @@
 | Render do carrossel | Satori + Resvg (HTML/JSX → SVG → PNG 1080×1350) | 💡 |
 | Hospedagem | A escolher | ❓ |
 | Observabilidade | Logs estruturados (pino) + Sentry | 💡 |
-| Testes | Vitest + MCP Inspector | 💡 |
+| Testes | Vitest + Testing Library + Playwright (ponta a ponta em tela de celular) + MCP Inspector | 💡 |
 | Monorepo | pnpm workspaces | 💡 |
 
-Fora do stack (removido ou adiado, ver regra de negócio §2.2): FFmpeg e pipeline de edição de vídeo, Stripe e cobrança, framework de front-end (Next.js) e API de anúncios.
+Fora do stack (removido ou adiado, ver regra de negócio §2.2): FFmpeg e pipeline de edição de vídeo, Stripe e cobrança, app nativo de loja (React Native, Swift, Kotlin) e API de anúncios.
 
 ---
 
-## 2. Servidor MCP
+## 2. Canais de acesso
+
+O produto tem dois canais com as mesmas regras e os mesmos dados (✅ RN-003): o app web, que é o principal, e o servidor MCP. Os dois chamam os mesmos casos de uso do `core`; nenhuma regra de negócio mora no canal.
+
+### 2.1 App web (mobile first) ✅
+
+Decidido (RN-005 a RN-007): app web **mobile first**, **instalável como PWA**, usado pelo **cliente e pela agência**, com a IA acionada por **telas com botões**.
+
+💡 Tecnologia:
+
+- **React + Vite, app de página única (SPA)** em `apps/web`. Não usamos Next.js porque o app é todo atrás de login (não precisa de SEO nem de renderização no servidor) e o back-end já existe em Hono. Um SPA é só um conjunto de arquivos estáticos: simples de hospedar e de transformar em PWA.
+- **Tailwind CSS**, que já é mobile first: o estilo sem prefixo vale para o celular, e `md:` e `lg:` ampliam para tablet e computador. Os componentes vêm do **shadcn/ui** (Radix por baixo), com acessibilidade pronta e o código dentro do repositório, sem tema fechado.
+- **TanStack Router** para rotas tipadas e **TanStack Query** para os dados: cache, carregamento, nova busca ao voltar para o app e acompanhamento de jobs lentos.
+- **React Hook Form + Zod** nos formulários, com os mesmos schemas que o servidor usa para validar.
+- **PWA com `vite-plugin-pwa`**: manifesto, ícones, abertura em tela cheia e service worker que guarda só a "casca" do app, para ele abrir rápido. Os dados vêm sempre do servidor; não há modo offline de dados no protótipo.
+- **API do app:** o mesmo servidor Hono expõe `/api/app/*` em JSON, além de `/api/mcp`. Com o Hono RPC, o app conhece os tipos de entrada e de saída de cada rota sem gerar código.
+- **Mesmo domínio para o app e a API** (ex.: `app.dominio.com` e `app.dominio.com/api`), para a sessão funcionar com cookie `httpOnly` sem depender de cookies de terceiros, que o Safari do iPhone bloqueia.
+
+💡 Metas de mobile first, conferidas no CI ou na revisão:
+
+| Meta | Valor |
+|---|---|
+| Largura de referência do layout | 360 a 430 px (celular); depois 768 px (tablet) e 1024 px (computador) |
+| Área de toque | Mínimo de 44 × 44 px |
+| Fonte nos campos de texto | Mínimo de 16 px (evita o zoom automático do iPhone) |
+| JavaScript inicial | Até ~200 KB comprimidos |
+| Primeira tela útil (LCP) | Menos de 2,5 s num celular médio em 4G |
+| Acessibilidade | Contraste AA, foco visível, leitura por leitor de tela |
+
+### 2.2 Servidor MCP
 
 - **Transporte: Streamable HTTP.** É o transporte remoto atual do MCP. É o que o Claude web/desktop ("conector personalizado") e o ChatGPT (modo desenvolvedor) usam. O Claude Code e o Cursor também aceitam. Não vamos oferecer stdio: o servidor é remoto e multiusuário.
 - **URL única**, no formato do Dalea: `https://<dominio>/api/mcp`.
@@ -41,7 +77,15 @@ Fora do stack (removido ou adiado, ver regra de negócio §2.2): FFmpeg e pipeli
 - **Ferramentas, prompts e erros** seguem o padrão do Dalea: erro de negócio volta como resultado com `isError: true` e mensagem em português, não como erro HTTP. Só "sem credencial" volta como HTTP 401.
 - **Ferramenta de inspeção:** MCP Inspector, para testar as ferramentas manualmente durante o desenvolvimento.
 
-## 3. Autenticação ✅ (RN-023)
+## 3. Autenticação
+
+### App web
+
+O app web usa **sessão por cookie** (`httpOnly`, `Secure`, `SameSite=Lax`). A sessão dá acesso de leitura e escrita; os escopos de leitura e escrita (📎 RN-024) valem para as conexões MCP. A forma de login está em aberto (❓ Q-32: e-mail e senha, link por e-mail, Google...).
+
+Um **fornecedor gerenciado** costuma resolver as duas coisas juntas: a tela de login do app e o OAuth do MCP. Por isso a escolha do fornecedor (❓ Q-31) vale para os dois canais.
+
+### MCP ✅ (RN-023)
 
 O servidor aceita os dois métodos. O cliente MCP determina qual é usado:
 
@@ -53,7 +97,7 @@ O servidor aceita os dois métodos. O cliente MCP determina qual é usado:
 
 Os **clientes da agência não são técnicos** e usam Claude ou ChatGPT, por isso o OAuth é necessário. A chave de API atende quem usa Claude Code, Cursor e outros clientes técnicos.
 
-Duas formas de ter o OAuth (❓ Q-31):
+Duas formas de ter o login do app e o OAuth do MCP (❓ Q-31):
 
 | Opção | Vantagem | Desvantagem |
 |---|---|---|
@@ -117,7 +161,7 @@ Os tokens OAuth do Instagram de cada empresa ficam **criptografados no banco** e
 
 ## 7. Hospedagem ❓
 
-Requisitos: um processo HTTP (servidor MCP), um processo worker (jobs), Postgres gerenciado, armazenamento S3 e HTTPS com domínio próprio (o OAuth exige HTTPS).
+Requisitos: um processo HTTP (servidor MCP e API do app), um processo worker (jobs), os arquivos estáticos do app web (de preferência numa CDN), Postgres gerenciado, armazenamento S3 e HTTPS com domínio próprio. O OAuth e o PWA exigem HTTPS, e o app e a API ficam no mesmo domínio (§2.1).
 
 Opções que atendem sem complicação: Railway, Render, Fly.io, ou AWS/GCP se a agência já usa. ❓ **Decisão sua.**
 
@@ -125,7 +169,9 @@ Opções que atendem sem complicação: Railway, Render, Fly.io, ou AWS/GCP se a
 
 | Ferramenta | Uso |
 |---|---|
-| pnpm workspaces | Monorepo (servidor, worker, pacotes compartilhados) |
+| pnpm workspaces | Monorepo (servidor, worker, app web, pacotes compartilhados) |
+| Vite | Servidor de desenvolvimento do app web, com recarga instantânea |
+| Playwright | Testes de ponta a ponta do app em tela de celular (iPhone e Android) e de computador |
 | Vitest | Testes unitários (regras de domínio) e de integração (Postgres de teste) |
 | MCP Inspector | Testar as ferramentas na mão |
 | Biome | Lint e formatação |
@@ -140,3 +186,5 @@ Opções que atendem sem complicação: Railway, Render, Fly.io, ou AWS/GCP se a
 | Scraping bloqueado ou quebrado | Referências e contas não conectadas param | Fornecedor gerenciado, atrás de uma interface trocável |
 | Custo de IA por empresa | Custo sem cobrança no protótipo | Cotas por empresa (RN-300); log de tokens por geração |
 | Vazamento de dados entre empresas | Grave: são clientes diferentes da agência | `company_id` obrigatório + RLS + testes de isolamento |
+| App e MCP se comportarem diferente | O cliente vê uma coisa no app e outra no Claude | Regra só no `core`; app e MCP só traduzem; testes de contrato nos dois canais |
+| Limites do PWA no iPhone | Notificação só com o app instalado na tela inicial; o sistema pode limpar dados guardados no aparelho | Não depender de dados offline; notificação como extra, nunca como único aviso (Q-20) |

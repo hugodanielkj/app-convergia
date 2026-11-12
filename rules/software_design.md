@@ -5,28 +5,34 @@
 
 ## 1. Princípios
 
-1. **As regras de negócio moram no domínio, não nas ferramentas MCP.** A ferramenta MCP só traduz a chamada (valida a entrada e formata a saída). Quem decide se pode, quanto custa e o que muda é o domínio. Assim, quando o app web chegar, ele reaproveita tudo.
+1. **As regras de negócio moram no domínio, não nos canais.** A ferramenta MCP e a rota da API do app só traduzem a chamada (validam a entrada e formatam a saída). Quem decide se pode, quanto custa e o que muda é o domínio. **Uma regra, dois canais:** o app web e o MCP chamam o mesmo caso de uso (✅ RN-003).
 2. **Toda operação tem um contexto:** quem é o ator e em qual empresa ele está (RN-020, RN-021). Nenhum caso de uso roda sem esse contexto.
 3. **As regras em aberto ficam isoladas** em políticas (`policies/`) com um ponto único de decisão. Quando você responder uma pergunta `Q-xx`, muda uma política, não o sistema inteiro.
 4. **O que é lento roda em segundo plano** (scraping, IA longa, render) e a ferramenta devolve um status para consultar, como no Dalea.
 5. **Tudo que vem de fora fica atrás de uma interface** (Instagram, scraping, IA, imagem, transcrição, armazenamento). Trocar de fornecedor muda um adaptador.
+6. **O app é mobile first** (✅ RN-005): cada tela nasce para o celular e depois ganha o layout de tablet e de computador. As telas e os padrões estão no §13.
 
 ## 2. Arquitetura
 
-Arquitetura em camadas (hexagonal), com dois processos: o servidor MCP e o worker.
+Arquitetura em camadas (hexagonal), com dois processos (o servidor e o worker) e o app web, que é um conjunto de arquivos estáticos (PWA). O servidor tem duas portas de entrada: `/api/mcp` para os clientes MCP e `/api/app` para o app web.
 
 ```mermaid
 flowchart TB
+    subgraph "apps/web (PWA mobile first)"
+      WEB[Telas React<br/>celular primeiro]
+    end
+
     subgraph Clientes MCP
       A1[Claude web/desktop]
       A2[ChatGPT]
       A3[Claude Code / Cursor]
     end
 
-    subgraph "apps/mcp-server"
-      H[HTTP + Streamable HTTP]
-      AU[Autenticação → Contexto do ator]
-      T[Ferramentas e prompts MCP<br/>entrada/saída com Zod]
+    subgraph "apps/server"
+      API[API do app /api/app<br/>sessão por cookie]
+      H[MCP /api/mcp<br/>Streamable HTTP]
+      AU[Autenticação → usuário<br/>empresa → Contexto do ator]
+      T[Rotas da API e ferramentas MCP<br/>entrada/saída com Zod]
     end
 
     subgraph "packages/core"
@@ -49,7 +55,9 @@ flowchart TB
 
     W[apps/worker<br/>jobs em segundo plano]
 
-    A1 & A2 & A3 --> H --> AU --> T --> UC
+    WEB --> API --> AU
+    A1 & A2 & A3 --> H --> AU
+    AU --> T --> UC
     UC --> PO --> DM
     UC --> PT
     PT -.implementado por.-> DB & Q & IG & SC & LLM & IMG & TR & S3
@@ -63,9 +71,23 @@ Regra de dependência: `apps → core ← infra`. O `core` não importa nada de 
 ```text
 convergia/
 ├── apps/
-│   ├── mcp-server/
+│   ├── web/                              # app web mobile first, instalável (PWA) ✅ RN-005
+│   │   ├── public/                       # ícones e manifesto do PWA
 │   │   └── src/
-│   │       ├── main.ts                   # sobe o Hono e o transporte Streamable HTTP
+│   │       ├── main.tsx
+│   │       ├── routes/                   # uma rota por tela (TanStack Router), ver §13
+│   │       │   ├── login.tsx
+│   │       │   ├── index.tsx             # Início: atalhos (RN-006)
+│   │       │   └── empresas/$companyId/  # telas dentro de uma empresa (RN-021, RN-022)
+│   │       ├── features/                 # telas e componentes por módulo: conteudo, roteiros, aprovacao...
+│   │       ├── components/ui/            # componentes base (shadcn/ui), pensados para toque
+│   │       ├── api/client.ts             # cliente tipado da API do app (Hono RPC)
+│   │       └── styles/
+│   ├── server/                           # hoje apps/mcp-server; renomeado quando a API do app entrar (§12)
+│   │   └── src/
+│   │       ├── main.ts                   # sobe o Hono: /api/app, /api/mcp e /health
+│   │       ├── app-api/                  # API do app: uma pasta por módulo; cada arquivo = 1 caso de uso
+│   │       │   └── session.ts            # sessão do app web (❓ Q-31, Q-32)
 │   │       ├── auth/                     # valida token → monta o ContextoDoAtor
 │   │       │   ├── oauth-metadata.ts     # /.well-known/oauth-protected-resource
 │   │       │   └── authenticate.ts       # valida o token → usuário autenticado
@@ -150,6 +172,8 @@ type ActorContext = {
   scopes: ("read" | "write")[];              // 📎 RN-024
 };
 ```
+
+No app web, a sessão identifica o usuário. O membro da agência escolhe a empresa num seletor no topo da tela, e o ID dela fica **na URL** (`/empresas/:companyId/...`) e vai em cada chamada à API. Isso cumpre a RN-022: não existe empresa ativa guardada no servidor, e duas abas abertas em clientes diferentes não se misturam. O usuário do cliente entra direto na própria empresa.
 
 Montagem do contexto (`auth/authenticate.ts` identifica o usuário; `tools/company-input.ts` e `permission.policy.resolveActorContext` resolvem a empresa em cada ferramenta):
 1. Valida o token (OAuth ou chave de API, ✅ RN-023; fornecedor do OAuth ❓ Q-31) e encontra o usuário.
@@ -286,6 +310,8 @@ Análise de post já salva **não reserva cota** (📎 RN-050).
 Base: as ferramentas do Dalea, **sem** editor de vídeo, módulo de marca, catálogo viral, TikTok e agendamento (regra de negócio §2.2), **com** o módulo de aprovação novo.
 Colunas: **E** = escrita · **C** = consome cota · **J** = cria job em segundo plano.
 
+Cada ferramenta corresponde a um caso de uso do `core`. O app web chama os mesmos casos de uso pela API do app (`/api/app`), e as telas estão no §13.
+
 ### Acesso e administração
 
 Toda ferramenta que opera dentro de uma empresa recebe o parâmetro `company_id` quando quem chama é membro da agência (RN-022). Para o usuário do cliente, o parâmetro não aparece: a empresa é sempre a dele.
@@ -294,7 +320,7 @@ Toda ferramenta que opera dentro de uma empresa recebe o parâmetro `company_id`
 |---|---|---|---|
 | `whoami` | Quem sou eu, meu papel e minha empresa (o membro da agência não tem empresa fixa) | | |
 | `list_companies` | (agência) Lista as empresas clientes | | |
-| `create_company`, `create_client_user` | (agência) Cadastro. ❓ Q-06 | ✔ | |
+| `create_company`, `create_client_user` | (agência) Cadastro. Feito pelo app web, na tela Empresas (✅ RN-026). 💡 No MCP, fica fora do protótipo | ✔ | |
 | `get_quota_usage` | Consumo do dia e limites | | |
 | `set_quota_limit` | (agência) Define cota por ferramenta (RN-302) | ✔ | |
 
@@ -430,8 +456,8 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant AG as Agência (MCP)
-    participant CL as Cliente (MCP)
+    participant AG as Agência (app ou MCP)
+    participant CL as Cliente (app ou MCP)
     participant S as Sistema
 
     AG->>S: generate_scripts / create_carousel (mexida no conteúdo)
@@ -494,18 +520,73 @@ sequenceDiagram
 | **Isolamento** | Usuário da empresa A nunca lê nem altera dados da empresa B, ferramenta por ferramenta | ⭐ Máxima |
 | **Integração** | Casos de uso com Postgres real (Docker), filas e cota concorrente | Alta |
 | **Contrato MCP** | Cada ferramenta lista schema e descrição válidos; erros saem como `isError` | Média |
+| **Contrato da API do app** | Cada rota valida a entrada e devolve erro de negócio com a mensagem do §7 da regra de negócio | Média |
+| **Componentes do app** | Telas e componentes com Vitest + Testing Library: estados de carregamento, vazio e erro | Média |
+| **Ponta a ponta no celular** | Playwright em tela de iPhone e de Android: entrar, criar roteiro, aprovar, agência trocar de empresa. Inclui a checagem de isolamento pela interface | Alta |
 | **IA** | Conjunto pequeno de cards reais por segmento (móveis, roupa, personal...) para comparar a qualidade do roteiro ao trocar modelo ou prompt | Média |
 
 Regras ❓ têm teste que espera `NotDecidedYet`. Quando a pergunta é respondida, o teste é reescrito com a regra nova.
 
 ## 12. Ordem sugerida de implementação 💡
 
-1. Esqueleto: monorepo, Postgres, servidor MCP com `whoami`, autenticação por chave de API e por OAuth (RN-023; o OAuth depois de Q-31).
-2. Multiempresa e permissões (§4) + testes de isolamento.
-3. Conexão do Instagram e sincronização de métricas (começar a revisão da Meta no dia 1).
-4. Cards, kanban e calendário (sem IA).
-5. LLM gateway + cotas + geração e refino de roteiro.
-6. **Aprovação** (regras definidas; falta só Q-26, sobre o cliente editar).
-7. Brainstorm, referências, fontes.
-8. Carrossel (depois de escolher o provedor de imagem).
-9. Insights e análise de post (depois de escolher o provedor de transcrição).
+1. ✅ Esqueleto: monorepo, Postgres, servidor MCP com `whoami`, autenticação por chave de API (RN-023).
+2. ✅ Multiempresa: empresa por parâmetro (RN-022) e `list_companies`. Os testes de isolamento acompanham cada módulo.
+3. **Esqueleto do app web** (RN-005 a RN-007): `apps/web` como PWA mobile first, navegação inferior, tela Início, seletor de empresa para a agência, API do app (`/api/app`) e renomear `apps/mcp-server` para `apps/server`. O login depende de Q-31 e Q-32; até lá, entrada de desenvolvimento só no ambiente local. Depois: tela Empresas para o cadastro (RN-026) e tela Conta com as chaves de API do MCP (RN-025).
+4. Conexão do Instagram e sincronização de métricas (começar a revisão da Meta no dia 1).
+5. Cards, kanban e calendário (sem IA).
+6. LLM gateway + cotas + geração e refino de roteiro, com o fluxo guiado "Criar roteiro" no app (RN-006).
+7. **Aprovação** (regras definidas; falta só Q-26, sobre o cliente editar).
+8. Brainstorm, referências, fontes.
+9. Carrossel (depois de escolher o provedor de imagem).
+10. Insights e análise de post (depois de escolher o provedor de transcrição).
+
+Do passo 4 em diante, cada módulo é entregue completo nos dois canais: caso de uso no `core`, rota da API do app, tela mobile first e ferramenta MCP.
+
+## 13. App web: telas e padrões mobile first
+
+Decidido: mobile first e PWA (✅ RN-005), telas com botões (✅ RN-006), cliente e agência no mesmo app (✅ RN-007). O resto desta seção é 💡 recomendação de design.
+
+### 13.1 Navegação
+
+- **No celular:** barra fixa no rodapé com até cinco itens: **Início**, **Calendário**, **Criar** (botão central), **Aprovações** (com contador de pendências) e **Mais** (Desempenho, Ideias, Referências, Carrossel, Conta).
+- **No computador:** a mesma navegação vira uma barra lateral.
+- **Agência:** um seletor de empresa no topo, com busca, mostra em qual cliente ela está. Trocar de empresa muda a URL (§4). A agência também tem a tela **Empresas**.
+- **Cliente:** não vê seletor; entra direto na própria empresa.
+
+### 13.2 Telas
+
+| Tela | Para quem | O que tem |
+|---|---|---|
+| Entrar | Todos | Login (❓ Q-32) |
+| Início | Todos | Atalhos grandes: **Criar roteiro**, **Ideias para a semana**, **Aprovações pendentes**; próximos posts do calendário |
+| Criar | Todos | Menu do botão central: novo card, criar roteiro, gerar ideias, criar carrossel, salvar referência |
+| Calendário | Todos | No celular, lista por semana com os dias empilhados; no computador, mês e kanban. No celular, o kanban vira abas por coluna, e mover um card é feito pelo botão "Mover para..." em vez de arrastar |
+| Card | Todos | Roteiro, fontes e referências; botão **Gerar roteiro**; **Refinar** abre uma conversa com a IA dentro do card (RN-006); estado de aprovação |
+| Criar roteiro | Todos | Fluxo guiado em passos curtos: tema ou fonte (texto, link ou PDF) → gerar → revisar → salvar no card |
+| Ideias | Todos | Sugestões do brainstorm, com o botão "Virar card" |
+| Aprovações | Cliente | Itens enviados pela agência, com a prévia do conteúdo e os botões **Aprovar** e **Recusar** (motivo opcional) |
+| Aprovações | Agência | Itens enviados, recusados e aprovados; cancelar envio; aprovar em nome do cliente, com motivo (RN-214) |
+| Desempenho | Todos | Métricas e insights; conectar o Instagram (❓ Q-05) |
+| Referências | Todos | Salvar por link, lista e análise de criadores |
+| Carrossel | Todos | Planejar, escrever e gerar; prévia das lâminas que se desliza com o dedo, como no Instagram |
+| Empresas | Agência | Lista de clientes; cadastro de empresa e de usuário (RN-026) |
+| Conta | Todos | Dados da pessoa, sair, instalar o app; chaves de API para usar o MCP (RN-025) |
+
+### 13.3 Padrões de interação
+
+- **Ação principal ao alcance do polegar:** um botão fixo no rodapé da tela, acima da navegação.
+- **Folhas que sobem do rodapé** (bottom sheets) no celular, no lugar de janelas no meio da tela.
+- **Trabalho lento da IA** (roteiro, carrossel, análise): a tela mostra o progresso e se atualiza sozinha. A pessoa pode sair e voltar, porque o resultado fica salvo no item (§8.3).
+- **Estados vazios que ensinam o próximo passo** (ex.: "Nenhum card ainda. Toque em Criar.").
+- **Erros de negócio** com a mesma mensagem do §7 da regra de negócio, nas duas telas e no MCP.
+- **Confirmação** antes de ações irreversíveis (excluir, recusar, cancelar envio).
+- **Carregamento com esqueleto** (blocos cinza no lugar do conteúdo), em vez de uma tela branca.
+- **Teclado certo para cada campo** (e-mail, número, link) e respeito às bordas do aparelho (notch e barra de gestos).
+
+### 13.4 PWA
+
+- Abre em tela cheia, sem a barra do navegador, com ícone e tela de abertura próprios.
+- Na tela Conta e na primeira visita pelo celular, um convite discreto para instalar o app. No iPhone, o convite mostra o passo a passo, porque o Safari não oferece o botão automático.
+- O service worker guarda só a casca do app (HTML, CSS, JS, ícones). Sem conexão, o app mostra um aviso e não deixa editar.
+- Notificação no celular depende da Q-20.
+

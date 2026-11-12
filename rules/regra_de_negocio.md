@@ -21,7 +21,10 @@ Regras 📎 e ❓ não devem ser implementadas sem confirmação.
 
 - ✅ **RN-001** — Quem opera a ferramenta é uma **agência de tráfego e marketing**.
 - ✅ **RN-002** — A agência oferece a ferramenta aos **seus clientes**, que são empresas de qualquer segmento (loja de móveis, criador de conteúdo, personal trainer, loja de roupas etc.). O produto **não** é segmentado por nicho.
-- ✅ **RN-003** — A ferramenta é acessada por **clientes MCP** (Claude, ChatGPT, Claude Code, Cursor...). **Não há app web próprio no protótipo.**
+- ✅ **RN-003** — A ferramenta tem **dois canais de acesso**, com as mesmas regras e os mesmos dados: o **app web**, que é o canal principal, e os **clientes MCP** (Claude, ChatGPT, Claude Code, Cursor...). *(Mudada em 12/11/2026: antes, só clientes MCP e sem app web.)*
+- ✅ **RN-005** — O app web é **mobile first**: é pensado primeiro para a tela do celular e pode ser **instalado na tela inicial como um app (PWA)**, sem passar por loja. No computador, o mesmo app funciona com o layout ampliado.
+- ✅ **RN-006** — No app web, a IA é usada por **telas com botões e ações guiadas** (ex.: tocar em "Criar roteiro", informar o tema e receber o roteiro). A conversa com a IA fica para refinar o conteúdo dentro do item (refino de roteiro).
+- ✅ **RN-007** — O app web é usado pelo **cliente e pela agência**. O membro da agência escolhe no app a empresa cliente em que vai trabalhar e pode trocar a qualquer momento (RN-022).
 - ✅ **RN-004** — **Não há cobrança no protótipo.** Haverá cobrança no futuro; o modelo ainda não foi definido (❓ Q-30).
 
 ### O que a ferramenta faz (protótipo)
@@ -42,6 +45,7 @@ Ajuda cada empresa cliente a **planejar e produzir conteúdo orgânico para Inst
 | **Referências** | Salvar posts e perfis de referência por URL, analisar criadores de referência |
 | **Carrossel** | Criar carrossel (planejar, escrever lâminas, gerar arte) e renderizar as imagens |
 | **Aprovação** | Fluxo novo, que o Dalea não tem (seção 5) |
+| **App web** | Telas mobile first para todos os módulos acima, instalável como PWA (RN-005 a RN-007) |
 | **Cotas** | Limite diário de uso das ferramentas de IA e de scraping |
 
 ### 2.2 Fora do protótipo
@@ -57,7 +61,7 @@ Ajuda cada empresa cliente a **planejar e produzir conteúdo orgânico para Inst
 | Agendamento e publicação de carrossel no Instagram | Depois | ✅ |
 | Aprovação da data de planejamento no calendário | Depois | ✅ |
 | Cobrança e assinatura | Futuro | ✅ |
-| App web | Futuro | ✅ |
+| App nativo nas lojas (App Store, Google Play) | Não planejado: o app web instalável cobre o celular (RN-005) | ✅ |
 
 ---
 
@@ -117,10 +121,11 @@ Legenda: ✔ pode · ✘ não pode · ❓ em aberto
 - ✅ **RN-020** — Toda chamada de ferramenta é feita **em nome de um usuário autenticado** (membro da agência ou usuário do cliente).
 - ✅ **RN-021** — Toda operação sobre dados acontece **dentro de uma empresa cliente** (o "contexto"). Para o usuário do cliente, o contexto é sempre a empresa dele. O membro da agência precisa dizer em qual empresa está operando.
 - ✅ **RN-022** — O membro da agência informa a empresa **por um parâmetro em cada chamada**. Não existe "empresa ativa" guardada entre chamadas: duas conversas abertas ao mesmo tempo, cada uma em um cliente, nunca se misturam. O usuário do cliente não informa a empresa; se informar outra que não a dele, recebe "Você não tem acesso a esta empresa." (RN-015).
-- ✅ **RN-023** — O protótipo aceita **os dois métodos de autenticação**, como o Dalea: **OAuth 2.1** (para conectar no Claude web/desktop e no ChatGPT) e **chave de API** (para Claude Code, Cursor e outros clientes). O fornecedor do OAuth está em aberto (❓ Q-31).
+- ✅ **RN-023** — No MCP, o protótipo aceita **os dois métodos de autenticação**, como o Dalea: **OAuth 2.1** (para conectar no Claude web/desktop e no ChatGPT) e **chave de API** (para Claude Code, Cursor e outros clientes). O fornecedor da autenticação está em aberto (❓ Q-31).
 - 📎 **RN-024** — Escopos de acesso: `leitura` e `escrita`. Uma conexão só de leitura recebe uma mensagem pedindo para reconectar com escrita quando chama uma ferramenta de escrita.
 - 📎 **RN-025** — Até 10 chaves de API ativas por conta; chaves e conexões OAuth podem ser revogadas a qualquer momento.
-- ❓ **RN-026** — Como a agência cadastra empresas e usuários sem app web: ferramentas MCP de administração, script interno ou painel mínimo? (Q-06)
+- ✅ **RN-026** — A agência cadastra empresas clientes e usuários **pelo app web**.
+- ❓ **RN-027** — Como a pessoa entra no app web: e-mail e senha, link de acesso enviado por e-mail, login com Google, ou uma combinação? (Q-32)
 
 ### 4.2 Instagram e contexto da IA
 
@@ -233,7 +238,7 @@ Esta é a regra que mais diferencia o nosso produto do Dalea.
 - ✅ **RN-218** — **A agência pode cancelar um envio pendente.** O item volta para a agência como se não tivesse sido enviado.
 - ❓ **RN-222** — O cliente perde o direito de editar o próprio card quando a agência mexe no conteúdo dele? E pode editar um item da agência **depois** de aprová-lo? Se puder, o que acontece com a aprovação? (Q-26)
 - ❓ **RN-219** — Há **prazo** para aprovar? O que acontece se o cliente não responder? (Q-19)
-- ❓ **RN-220** — Como o cliente fica sabendo que tem algo para aprovar, já que não há app? Só consultando pelo MCP ("o que tenho para aprovar?"), ou também por e-mail ou WhatsApp? (Q-20)
+- ❓ **RN-220** — Como o cliente fica sabendo que tem algo para aprovar? Só vendo no app (contador de pendências) e consultando pelo MCP, ou também por notificação no celular (o app instalado permite), e-mail ou WhatsApp? (Q-20)
 - ❓ **RN-221** — Aprovação **parcial**: o cliente pode aprovar só o gancho de um roteiro ou só algumas lâminas de um carrossel? Ou é sempre o item inteiro? (Q-22)
 
 ### 5.4 Estados da aprovação
@@ -331,8 +336,9 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 - **Q-02** — Existe um papel de "admin" na agência, diferente do membro comum?
 - ~~**Q-03**~~ — Respondida em 12/11/2026: parâmetro em cada chamada (RN-022).
 - ~~**Q-04**~~ — Respondida em 12/11/2026: OAuth e chave de API (RN-023).
-- **Q-31** — Fornecedor do OAuth: serviço gerenciado (WorkOS AuthKit, Stytch, Clerk, Auth0...) ou servidor de autorização próprio (Better Auth, `oidc-provider`)? Ver `stack.md` §3.
-- **Q-06** — Como a agência cadastra empresas e usuários sem app: ferramentas MCP de administração, script interno ou painel mínimo?
+- **Q-31** — Fornecedor da autenticação, que atende o login do app web e o OAuth do MCP: serviço gerenciado (WorkOS AuthKit, Stytch, Clerk, Auth0...) ou servidor próprio (Better Auth, `oidc-provider`)? Ver `stack.md` §3.
+- **Q-32** — Como a pessoa entra no app web: e-mail e senha, link de acesso por e-mail, login com Google, ou uma combinação? (RN-027)
+- ~~**Q-06**~~ — Respondida em 12/11/2026: pelo app web (RN-026).
 
 ### Instagram e IA
 - **Q-05** — Quem conecta o Instagram da empresa: o cliente, a agência ou ambos?
@@ -345,7 +351,7 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 - **Q-26** — O cliente perde o direito de editar o próprio card quando a agência mexe no conteúdo dele? E pode editar um item da agência depois de aprová-lo?
 - **Q-16** — Ideia aprovada vira card automaticamente?
 - **Q-19** — Prazo de aprovação e o que acontece sem resposta.
-- **Q-20** — Como o cliente é avisado de que há itens pendentes?
+- **Q-20** — Como o cliente é avisado de que há itens pendentes? (Com o app instalado, notificação no celular passa a ser uma opção.)
 - **Q-22** — Aprovação parcial ou sempre do item inteiro?
 - **Q-23** — O cliente vê o histórico de trabalho da agência ou só o resultado enviado?
 
@@ -373,5 +379,4 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 | Depois | TikTok |
 | Fase 2 | Catálogo viral compartilhado, benchmarks de nicho, feed "para você" |
 | Fase 2 | Tráfego pago (plataformas a definir) |
-| Futuro | App web |
 | Futuro | Cobrança |

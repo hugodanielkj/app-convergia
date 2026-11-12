@@ -4,7 +4,7 @@ paths:
 ---
 # Camada: servidor MCP
 
-Referência: `rules/software_design.md` "## 6. Catálogo de ferramentas MCP do protótipo", "## 7. Prompts MCP"; `rules/stack.md` "## 2. Servidor MCP". Para criar ou alterar ferramenta, use a skill `nova-ferramenta-mcp`.
+Referência: `rules/software_design.md` "## 6. Catálogo de ferramentas MCP do protótipo", "## 7. Prompts MCP"; `rules/stack.md` "### 2.2 Servidor MCP". Para criar ou alterar ferramenta, use a skill `nova-ferramenta-mcp`.
 
 - Uma ferramenta = um arquivo = um caso de uso, com cerca de 30 linhas: valida (Zod), chama o caso de uso, formata a saída.
 - Nome em inglês `snake_case`; descrição e `describe` dos campos em português.

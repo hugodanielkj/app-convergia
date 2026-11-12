@@ -1,6 +1,6 @@
 # ConvergIA — guia do repositório para o Claude Code
 
-Servidor MCP remoto que ajuda os clientes de uma agência de marketing a planejar e produzir conteúdo orgânico para o Instagram. O conteúdo que a agência cria para um cliente passa pela aprovação desse cliente.
+App web **mobile first** (PWA) e servidor MCP remoto que ajudam os clientes de uma agência de marketing a planejar e produzir conteúdo orgânico para o Instagram. Os dois canais usam as mesmas regras e os mesmos dados (RN-003); o app é o canal principal. O conteúdo que a agência cria para um cliente passa pela aprovação desse cliente.
 
 Este arquivo diz como o repositório está organizado, o que você pode decidir sozinho, o que exige permissão e como o trabalho chega à `main`. O projeto é compartilhado com outros colaboradores: tudo o que você fizer precisa funcionar em qualquer máquina, não só nesta.
 
@@ -41,12 +41,15 @@ Os arquivos de `.claude/rules/` também carregam sozinhos quando você lê ou es
 
 Tarefa que atravessa módulos (ex.: gerar roteiro dispara aprovação e cota): leia o mapa de cada módulo envolvido.
 
+Tarefa com tela: leia também `rules/software_design.md` "## 13. App web: telas e padrões mobile first" e `rules/stack.md` "### 2.1 App web (mobile first) ✅". Uma funcionalidade só está pronta quando funciona no celular.
+
 ## 3. Estado atual e estrutura
 
-O esqueleto do monorepo existe: `packages/core`, `packages/config`, `packages/infra` (Drizzle, migrações e as tabelas de acesso: agências, empresas, usuários e chaves de API) e `apps/mcp-server` com a ferramenta `whoami`. A autenticação por chave de API funciona (RN-023); o OAuth espera o fornecedor (`Q-31`). O membro da agência informa a empresa no parâmetro `company_id` de cada chamada (RN-022) e lista as empresas com `list_companies`. Ainda não existe o `apps/worker`. A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
+O esqueleto do monorepo existe: `packages/core`, `packages/config`, `packages/infra` (Drizzle, migrações e as tabelas de acesso: agências, empresas, usuários e chaves de API) e `apps/mcp-server` com a ferramenta `whoami`. A autenticação por chave de API funciona (RN-023); o OAuth espera o fornecedor (`Q-31`). O membro da agência informa a empresa no parâmetro `company_id` de cada chamada (RN-022) e lista as empresas com `list_companies`. Ainda não existem o `apps/worker` e o `apps/web` (o app web é o próximo passo, §12 do design). A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
 
 ```text
-apps/mcp-server/   servidor HTTP + ferramentas e prompts MCP
+apps/web/          app web mobile first (PWA): telas React (ainda não criado)
+apps/mcp-server/   servidor HTTP: ferramentas e prompts MCP; vai virar apps/server com a API do app
 apps/worker/       jobs em segundo plano
 packages/core/     domínio, casos de uso, políticas, portas (sem infraestrutura)
 packages/infra/    Postgres, fila, Instagram, IA, imagem, armazenamento
@@ -126,7 +129,8 @@ Essa lista vale mesmo quando a ferramenta não bloqueia o comando tecnicamente.
 As convenções de cada camada estão em `.claude/rules/camadas/`. Valem para todo o código:
 
 - **Dependência só em uma direção:** `apps → core ← infra`.
-- **Regra de negócio mora no `core`**; a ferramenta MCP só traduz.
+- **Regra de negócio mora no `core`**; a ferramenta MCP e a rota da API do app só traduzem.
+- **Mobile first:** toda tela nasce para a largura do celular (360 a 430 px) e depois ganha `md:` e `lg:`.
 - **Todo caso de uso recebe o `ActorContext`** e toda consulta filtra por `company_id`.
 - **Toda escrita de conteúdo passa por `approval.policy.onContentChanged`** na mesma transação.
 - **Código em inglês; mensagens ao usuário e descrições de ferramenta em português.**
