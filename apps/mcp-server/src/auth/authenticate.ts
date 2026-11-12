@@ -1,14 +1,16 @@
 import {
-	type ActorContext,
 	type ApiKeyRepository,
+	type AuthenticatedUser,
 	authenticateApiKey,
-	buildActorContext,
 	isApiKeyFormat,
 	NotDecidedYet,
 } from "@convergia/core";
 
-/** Valida a credencial da requisição e monta o contexto do ator (RN-020). */
-export type ResolveActor = (request: Request) => Promise<ActorContext>;
+/**
+ * Valida a credencial da requisição e identifica o usuário (RN-020). A empresa só é
+ * resolvida em cada ferramenta, porque o membro da agência a informa por chamada (RN-022).
+ */
+export type Authenticate = (request: Request) => Promise<AuthenticatedUser>;
 
 export class MissingCredentialError extends Error {
 	constructor() {
@@ -30,9 +32,9 @@ function bearerToken(header: string | null): string | null {
 }
 
 /** RN-023: aceita chave de API e OAuth 2.1. */
-export function createResolveActor(deps: {
+export function createAuthenticate(deps: {
 	apiKeys: ApiKeyRepository;
-}): ResolveActor {
+}): Authenticate {
 	return async (request) => {
 		const token = bearerToken(request.headers.get("authorization"));
 		if (!token) {
@@ -46,6 +48,6 @@ export function createResolveActor(deps: {
 		if (!user) {
 			throw new InvalidCredentialError();
 		}
-		return buildActorContext(user);
+		return user;
 	};
 }

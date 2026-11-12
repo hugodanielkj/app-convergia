@@ -9,14 +9,19 @@ export type {
 	ApiKeyRepository,
 	NewApiKey,
 } from "./acesso/ports/api-key-repository";
+export type {
+	Company,
+	CompanyRepository,
+} from "./acesso/ports/company-repository";
 export { authenticateApiKey } from "./acesso/use-cases/authenticate-api-key";
 export {
 	type IssuedApiKey,
 	issueApiKey,
 	MAX_ACTIVE_API_KEYS,
 } from "./acesso/use-cases/issue-api-key";
+export { listCompanies } from "./acesso/use-cases/list-companies";
 export { type WhoamiResult, whoami } from "./acesso/use-cases/whoami";
-export { buildActorContext } from "./policies/permission.policy";
+export { resolveActorContext } from "./policies/permission.policy";
 export type {
 	ActorContext,
 	ActorKind,

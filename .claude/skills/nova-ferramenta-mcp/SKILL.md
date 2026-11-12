@@ -39,6 +39,7 @@ Interface para cada coisa externa de que o caso de uso precisa (repositório, fi
 
 - Nome em inglês `snake_case`; descrição em português, dizendo o que faz, quando usar e se consome cota.
 - Schema de entrada em Zod, com `describe` em português nos campos.
+- Ferramenta que opera dentro de uma empresa: inclua `companyIdInput(user)` no schema e monte o `ActorContext` com `resolveActorContext` (RN-022). O parâmetro `company_id` só aparece para o membro da agência.
 - Corpo: validar, chamar o caso de uso, formatar a saída (texto + dados estruturados). Cerca de 30 linhas.
 - Erros passam por `errors/to-mcp-result.ts` e saem com `isError: true` e a mensagem da tabela de `regra_de_negocio.md` §7.
 - Ferramenta de escrita exige o escopo `write`.

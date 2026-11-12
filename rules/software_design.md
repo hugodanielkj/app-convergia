@@ -68,7 +68,7 @@ convergia/
 │   │       ├── main.ts                   # sobe o Hono e o transporte Streamable HTTP
 │   │       ├── auth/                     # valida token → monta o ContextoDoAtor
 │   │       │   ├── oauth-metadata.ts     # /.well-known/oauth-protected-resource
-│   │       │   └── resolve-actor.ts
+│   │       │   └── authenticate.ts       # valida o token → usuário autenticado
 │   │       ├── tools/                    # uma pasta por módulo; cada arquivo = 1 ferramenta MCP
 │   │       │   ├── acesso/
 │   │       │   ├── desempenho/
@@ -151,10 +151,10 @@ type ActorContext = {
 };
 ```
 
-Montagem do contexto (`resolve-actor.ts`):
+Montagem do contexto (`auth/authenticate.ts` identifica o usuário; `tools/company-input.ts` e `permission.policy.resolveActorContext` resolvem a empresa em cada ferramenta):
 1. Valida o token (OAuth ou chave de API, ✅ RN-023; fornecedor do OAuth ❓ Q-31) e encontra o usuário.
 2. **Usuário do cliente:** `companyId` = a empresa dele, sempre. Se a chamada pedir outra empresa → erro "sem acesso" (RN-015).
-3. **Membro da agência:** `companyId` vem de um parâmetro da chamada ou da "empresa ativa" (❓ Q-03). Se não houver → erro "informe a empresa".
+3. **Membro da agência:** `companyId` vem do parâmetro `company_id` da chamada (✅ RN-022). Se não houver → erro "informe a empresa". Empresa de outra agência ou inexistente → "sem acesso" (RN-010, RN-015).
 4. Toda consulta ao banco recebe o `companyId`. Além disso, o RLS do Postgres (`SET app.company_id`) bloqueia o vazamento mesmo que um repositório esqueça o filtro.
 
 ## 5. Modelo de domínio
@@ -287,11 +287,13 @@ Base: as ferramentas do Dalea, **sem** editor de vídeo, módulo de marca, catá
 Colunas: **E** = escrita · **C** = consome cota · **J** = cria job em segundo plano.
 
 ### Acesso e administração
+
+Toda ferramenta que opera dentro de uma empresa recebe o parâmetro `company_id` quando quem chama é membro da agência (RN-022). Para o usuário do cliente, o parâmetro não aparece: a empresa é sempre a dele.
+
 | Ferramenta | Descrição | E | C |
 |---|---|---|---|
-| `whoami` | Quem sou eu, meu papel e minha empresa (ou empresa ativa) | | |
+| `whoami` | Quem sou eu, meu papel e minha empresa (o membro da agência não tem empresa fixa) | | |
 | `list_companies` | (agência) Lista as empresas clientes | | |
-| `set_active_company` | (agência) Seleciona a empresa ativa. ❓ Só existe se Q-03 = "empresa ativa" | ✔ | |
 | `create_company`, `create_client_user` | (agência) Cadastro. ❓ Q-06 | ✔ | |
 | `get_quota_usage` | Consumo do dia e limites | | |
 | `set_quota_limit` | (agência) Define cota por ferramenta (RN-302) | ✔ | |
