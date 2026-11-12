@@ -72,6 +72,8 @@ O Postgres local fica na porta **54320**. Sem `.env`, passe a variável na linha
 
 O CI (`.github/workflows/ci.yml`) roda em todo PR e na `main`: título do PR, lint, tipos, testes, integração com Postgres e auditoria de dependências. O job `CI` resume todos e é o check obrigatório. Ao criar um script de verificação novo, adicione-o ao CI no mesmo PR.
 
+A `main` é protegida no GitHub pelo ruleset `proteger-main`, sem exceções (nem para administradores): só entra por PR, só merge squash, histórico linear, sem force push nem exclusão, e os checks `CI` e `Auditoria de dependências` precisam passar. Se um push ou merge for recusado por essa regra, corrija a causa; nunca peça para desativá-la.
+
 Nunca relate uma verificação como aprovada sem tê-la executado.
 
 ## 4. Autonomia
