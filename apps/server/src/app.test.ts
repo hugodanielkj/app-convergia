@@ -6,6 +6,7 @@ import {
 import {
 	InMemoryApiKeyRepository,
 	InMemoryCompanyRepository,
+	InMemoryContentRepository,
 } from "@convergia/core/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "./app";
@@ -69,6 +70,8 @@ describe("servidor HTTP", () => {
 		);
 		app = createApp({
 			authenticate: createAuthenticate({ apiKeys }),
+			contents: new InMemoryContentRepository(),
+			now: () => new Date(),
 			companies: new InMemoryCompanyRepository([
 				{ id: "company-1", agencyId: "agency-1", name: "Empresa 1" },
 			]),

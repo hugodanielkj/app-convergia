@@ -1,27 +1,30 @@
 import {
-	type AuthenticatedUser,
 	type CompanyRepository,
+	type ContentRepository,
 	listCompanies,
 	resolveActorContext,
 	whoami,
 } from "@convergia/core";
 import { Hono } from "hono";
 import type { Authenticate } from "../auth/authenticate";
+import { contentRoutes } from "./conteudo";
+import type { AppEnv } from "./env";
 import { toAppError } from "./errors";
 
 export type AppApiDeps = {
 	authenticate: Authenticate;
 	companies: CompanyRepository;
+	contents: ContentRepository;
+	now: () => Date;
 };
-
-type Env = { Variables: { user: AuthenticatedUser } };
 
 /**
  * API JSON do app web (RN-003). Chama os mesmos casos de uso das ferramentas MCP.
  * Até o login ser definido (Q-31, Q-32), autentica pela chave de API, como o MCP.
  */
-export function createAppApi({ authenticate, companies }: AppApiDeps) {
-	return new Hono<Env>()
+export function createAppApi(deps: AppApiDeps) {
+	const { authenticate, companies } = deps;
+	return new Hono<AppEnv>()
 		.onError((error, c) => {
 			const { status, body } = toAppError(error);
 			return c.json(body, status);
@@ -50,7 +53,8 @@ export function createAppApi({ authenticate, companies }: AppApiDeps) {
 				throw new Error(`Empresa ${actor.companyId} sumiu durante a chamada.`);
 			}
 			return c.json({ id: company.id, name: company.name });
-		});
+		})
+		.route("/", contentRoutes(deps));
 }
 
 export type AppApi = ReturnType<typeof createAppApi>;

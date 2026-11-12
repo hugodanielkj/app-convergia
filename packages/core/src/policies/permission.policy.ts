@@ -2,6 +2,7 @@ import type { AuthenticatedUser } from "../acesso/authenticated-user";
 import { companyRequired, noAccessToCompany } from "../acesso/errors";
 import type { CompanyRepository } from "../acesso/ports/company-repository";
 import type { ActorContext } from "../shared/actor-context";
+import { DomainError } from "../shared/domain-error";
 
 /**
  * Monta o contexto do ator para uma chamada que opera dentro de uma empresa (RN-020, RN-021).
@@ -46,4 +47,14 @@ async function operatingCompany(
 		throw noAccessToCompany();
 	}
 	return company.id;
+}
+
+/** 📎 RN-024: conexão só de leitura não escreve. */
+export function assertCanWrite(actor: ActorContext): void {
+	if (!actor.scopes.includes("write")) {
+		throw new DomainError(
+			"read_only",
+			"Esta conexão é só de leitura. Reconecte com permissão de escrita.",
+		);
+	}
 }

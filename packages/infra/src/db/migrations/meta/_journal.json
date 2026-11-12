@@ -8,6 +8,20 @@
       "when": 1794506968110,
       "tag": "0000_acesso",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794513833683,
+      "tag": "0001_conteudo",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794513834084,
+      "tag": "0002_conteudo_rls_force",
+      "breakpoints": true
     }
   ]
 }

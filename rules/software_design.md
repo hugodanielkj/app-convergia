@@ -221,7 +221,7 @@ Roteiro (do card), carrossel e sugestão de ideia (RN-201) têm:
 | `company_id` | Isolamento (RN-015) |
 | `created_by_user_id` / `created_by_kind` (`agency` \| `client`) | Quem criou o item. **Não decide a aprovação sozinho** (RN-203). |
 | `content_version` (inteiro) | Incrementa **só** quando o conteúdo muda (roteiro, lâminas, texto da ideia). Mover no kanban, mudar a data ou anexar referência não incrementa (RN-203). Também serve à concorrência otimista (📎 RN-074). |
-| `approval_status` (`none` \| `in_preparation` \| `pending` \| `approved` \| `rejected`) | Estado de aprovação (§5.4 da regra de negócio), independente da coluna do kanban (❓ Q-15) |
+| `approval_status` (`none` \| `in_preparation` \| `pending` \| `approved` \| `rejected`) | Estado de aprovação (§5.4 da regra de negócio), independente da coluna do kanban, exceto que card com `approval_status` diferente de `none` só vai para `published` aprovado (✅ RN-061) |
 | `current_approval_request_id` | Aponta para a solicitação vigente |
 
 `approval_status = none` é o `SemAprovacao` da regra de negócio (conteúdo só do cliente). A primeira mexida da agência no conteúdo leva o item para `in_preparation` (RN-203), e ele nunca mais volta para `none`.
@@ -348,9 +348,10 @@ Toda ferramenta que opera dentro de uma empresa recebe o parâmetro `company_id`
 | `create_content` / `bulk_create_contents` | Criar 1 card ou de 1 a 20 (sem IA) | ✔ | | |
 | `update_content` | Editar campos editoriais. Se mudar conteúdo, aciona `approval.policy.onContentChanged` | ✔ | | |
 | `duplicate_content` | Copiar card (sem data, coluna ideia) | ✔ | | |
-| `move_content` / `reorder_contents` | Kanban | ✔ | | |
+| `move_content` | Kanban: muda de coluna e/ou de posição (cobre o `reorder_contents` do Dalea). Para `published`, ver RN-061 | ✔ | | |
 | `schedule_content` / `unschedule_content` | Data no calendário (não publica, RN-062) | ✔ | | |
-| `delete_content` | ❓ Q-14, Q-24 | ✔ | | |
+| `delete_content` | Manda para a lixeira (RN-069). Cliente só exclui o que criou (RN-018) | ✔ | | |
+| `list_deleted_contents` / `restore_content` | Lixeira: cards excluídos há até 30 dias e restauração (RN-069) | ✔ | | |
 | `get_calendar` | Calendário por intervalo de datas | | | |
 | `generate_title` | Título com IA | ✔ | ✔ | |
 | `attach_content_reference` / `detach_content_reference` / `list_content_references` | Referências do card | ✔ | | |

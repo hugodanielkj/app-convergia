@@ -87,7 +87,7 @@ Ajuda cada empresa cliente a **planejar e produzir conteúdo orgânico para Inst
 - ✅ **RN-015** — O usuário do cliente **só enxerga os dados da própria empresa**. Nenhuma ferramenta pode devolver dados de outra empresa.
 - ✅ **RN-016** — No protótipo, **cada empresa cliente tem exatamente um usuário**.
 - ❓ **RN-017** — Existe diferença entre "admin da agência" e "membro comum" (por exemplo, só o admin cadastra clientes e muda cotas)? (Q-02)
-- ❓ **RN-018** — O usuário do cliente pode excluir conteúdo criado pela agência? E a agência pode excluir conteúdo criado pelo cliente? (Q-14)
+- ✅ **RN-018** — **A agência pode excluir qualquer card da empresa.** O usuário do cliente **só exclui os cards que ele mesmo criou**. A exclusão manda o card para a lixeira (RN-069).
 
 ### 3.3 Matriz de permissões
 
@@ -110,7 +110,7 @@ Legenda: ✔ pode · ✘ não pode · ❓ em aberto
 | **Aprovar** | ✔ só **em nome do cliente**, com **motivo obrigatório** (RN-214) | ✔ |
 | **Recusar** | ✘ | ✔ |
 | Editar conteúdo criado pelo outro lado | ✔ (o item passa a exigir aprovação, RN-203) | ✘ para item enviado pela agência (RN-217); ❓ outros casos (Q-26) |
-| Excluir item criado pelo outro lado | ❓ (Q-14) | ❓ (Q-14) |
+| Excluir item criado pelo outro lado | ✔ (vai para a lixeira, RN-018) | ✘ (RN-018) |
 
 ---
 
@@ -159,7 +159,8 @@ Todas as regras desta seção são 📎 **Referência Dalea**, a confirmar (Q-09
 ### 4.4 Conteúdo (cards, kanban, calendário)
 
 - 📎 **RN-060** — O **card** é a unidade de conteúdo: título, ideia, roteiro (gancho, corpo, CTA, legenda), plataforma, tipo de mídia, formato, categoria, etapa do funil, duração alvo.
-- 📎 **RN-061** — Colunas do kanban (status do card): `ideia` → `rascunho` → `editado` → `publicado`. (❓ Q-15: o status do kanban e o status de aprovação são independentes?)
+- 📎 **RN-061** — Colunas do kanban (status do card): `ideia` → `rascunho` → `editado` → `publicado`.
+  - ✅ A coluna do kanban e o estado de aprovação são **independentes**: o card se move livremente entre as colunas. **Exceção:** um card cujo roteiro passou pela agência (estado de aprovação diferente de `SemAprovacao`) **só vai para `publicado` com o roteiro aprovado**.
 - 📎 **RN-062** — **A data no calendário só organiza o planejamento. Nunca publica nada no Instagram.**
 - ✅ **RN-063** — **Aprovar a data de planejamento fica para depois.** No protótipo, a data não passa por aprovação.
 - 📎 **RN-064** — Criar card manualmente não usa IA e não consome cota. Criação em lote: de 1 a 20 cards por chamada.
@@ -167,7 +168,7 @@ Todas as regras desta seção são 📎 **Referência Dalea**, a confirmar (Q-09
 - 📎 **RN-066** — **Fontes** de um card: URL de artigo, texto (200 a 150.000 caracteres) ou PDF (até 10 MiB). No máximo **5 fontes por card, sendo até 3 PDFs**. A extração roda em segundo plano e pode ser repetida se falhar ou travar.
 - 📎 **RN-067** — O link de envio de PDF é privado e **expira em 2 horas**.
 - 📎 **RN-068** — **Referências** podem ser anexadas a um card (post, criador, link, documento). Anexar não gera análise.
-- ❓ **RN-069** — Excluir card: exclusão definitiva ou lixeira? (Q-24)
+- ✅ **RN-069** — **Excluir card manda para a lixeira.** O card some das telas e pode ser **restaurado por 30 dias**; depois disso, é apagado de vez.
 
 ### 4.5 Roteiros
 
@@ -321,6 +322,11 @@ Os erros voltam como resultado normal da ferramenta, marcados como erro (📎 pa
 | Agência aprova em nome do cliente sem motivo | "Informe o motivo da aprovação em nome do cliente (ex.: aprovado por WhatsApp em 10/11)." | ✅ RN-214 |
 | Agência tenta recusar | "Só o cliente pode recusar." | ✅ RN-214 |
 | Cliente tenta editar item enviado pela agência | "Este item foi enviado pela agência. Aprove ou recuse com um comentário." | ✅ RN-217 |
+| Card de outra empresa, inexistente ou na lixeira | "Card não encontrado." | ✅ RN-015 |
+| Card com roteiro não aprovado indo para publicado | "Este card só pode ir para publicado depois que o cliente aprovar o roteiro." | ✅ RN-061 |
+| Cliente excluindo card criado pela agência | "Só a agência pode excluir um card criado por ela." | ✅ RN-018 |
+| Restaurar card fora do prazo da lixeira | "Este card ficou mais de 30 dias na lixeira e não pode mais ser restaurado." | ✅ RN-069 |
+| Criação em lote fora do limite | "Crie de 1 a 20 cards por vez." | 📎 RN-064 |
 | Aplicar prévia em card alterado | "O card mudou depois desta prévia. Gere uma nova." | 📎 RN-074 |
 | Instagram não conectado | "Conecte o Instagram desta empresa para usar esta ferramenta." | ❓ texto final depende de Q-05 |
 | Erro inesperado | "Ocorreu um erro inesperado. Tente de novo em instantes." | 📎 |
@@ -356,11 +362,11 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 - **Q-23** — O cliente vê o histórico de trabalho da agência ou só o resultado enviado?
 
 ### Conteúdo
-- **Q-14** — Quem pode excluir o conteúdo criado pelo outro lado?
-- **Q-15** — O status do kanban e o status de aprovação são independentes?
+- ~~**Q-14**~~ — Respondida em 12/11/2026: a agência exclui qualquer card; o cliente, só os que criou (RN-018).
+- ~~**Q-15**~~ — Respondida em 12/11/2026: independentes, exceto que card com roteiro da agência só vai para publicado aprovado (RN-061).
 - **Q-17** — Limite de criadores de referência por empresa?
 - **Q-18** — "Nunca publicar sem aprovação" vale também para carrossel criado pelo cliente?
-- **Q-24** — Exclusão definitiva ou lixeira?
+- ~~**Q-24**~~ — Respondida em 12/11/2026: lixeira por 30 dias (RN-069).
 
 ### Cotas, dados e cobrança
 - **Q-21** — Valores das cotas, horário em que zeram, se falha consome cota, limite por minuto por usuário ou por empresa, cota total da agência, e se o cliente vê o próprio consumo.

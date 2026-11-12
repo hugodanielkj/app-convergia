@@ -2,6 +2,7 @@ import { type AuthenticatedUser, issueApiKey } from "@convergia/core";
 import {
 	InMemoryApiKeyRepository,
 	InMemoryCompanyRepository,
+	InMemoryContentRepository,
 } from "@convergia/core/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../app";
@@ -47,6 +48,8 @@ describe("API do app", () => {
 		);
 		app = createApp({
 			authenticate: createAuthenticate({ apiKeys }),
+			contents: new InMemoryContentRepository(),
+			now: () => new Date(),
 			companies: new InMemoryCompanyRepository([
 				{ id: "company-b", agencyId: "agency-1", name: "Padaria Beta" },
 				{ id: "company-a", agencyId: "agency-1", name: "Loja Alfa" },
