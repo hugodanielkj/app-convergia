@@ -1,0 +1,17 @@
+name: Preparar ambiente
+description: Instala pnpm e Node nas versões fixadas no repositório e as dependências do lockfile.
+
+runs:
+  using: composite
+  steps:
+    # A versão do pnpm vem de "packageManager" no package.json.
+    - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version-file: .nvmrc
+        cache: pnpm
+
+    # Falha se package.json e pnpm-lock.yaml divergirem.
+    - run: pnpm install --frozen-lockfile
+      shell: bash

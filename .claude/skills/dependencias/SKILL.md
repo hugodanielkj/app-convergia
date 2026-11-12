@@ -11,9 +11,10 @@ O projeto roda nas máquinas de vários colaboradores e no CI. O objetivo é que
 
 | Item | Onde | Regra |
 |---|---|---|
-| Gerenciador de pacotes | `packageManager` no `package.json` da raiz (ex.: `pnpm@x.y.z`) | Versão exata. O Corepack usa esse campo. Só pnpm: nunca `npm install` nem `yarn`. |
+| Gerenciador de pacotes | `packageManager` no `package.json` da raiz (ex.: `pnpm@x.y.z`) | Versão exata. O próprio pnpm troca para essa versão ao rodar. Só pnpm: nunca `npm install` nem `yarn`. |
 | Versão do Node | `.nvmrc` e `engines.node` no `package.json` da raiz | A mesma nos dois e no CI. Use a LTS vigente na criação do esqueleto. |
-| Recusar Node errado | `engine-strict=true` no `.npmrc` | A instalação falha em vez de gerar um ambiente diferente. |
+| Recusar Node errado | `engineStrict: true` em `pnpm-workspace.yaml` | A instalação falha em vez de gerar um ambiente diferente. |
+| Scripts de instalação de dependências | `allowBuilds` em `pnpm-workspace.yaml` | O pnpm bloqueia scripts de pós-instalação por padrão. Libere um pacote (`true`) só se ele não funcionar sem o script; caso contrário, `false`. |
 | Versões dos pacotes | `pnpm-lock.yaml` | Sempre commitado. Nunca editado à mão. Nunca no `.gitignore`. |
 | Serviços locais | `docker-compose.yml` | Imagem com versão explícita (`postgres:<major>.<minor>`), nunca `latest`. |
 | Variáveis de ambiente | `.env.example` + schema Zod em `packages/config` | Toda variável existe nos dois. `.env` nunca é commitado. |
@@ -68,8 +69,8 @@ Você não lê nem escreve o `.env` real: isso exige permissão do usuário.
 
 ## 5. Ao criar o esqueleto do monorepo
 
-Entregue no mesmo PR: `package.json` da raiz com `packageManager`, `engines` e os scripts `lint`, `typecheck` e `test`; `pnpm-workspace.yaml`; `.nvmrc`; `.npmrc`; `pnpm-lock.yaml`; `docker-compose.yml`; `.env.example`; workflow de CI que roda `pnpm install --frozen-lockfile`, lint, tipos e testes; e um `README.md` com o passo a passo de instalação para um colaborador novo.
+Entregue no mesmo PR: `package.json` da raiz com `packageManager`, `engines` e os scripts `lint`, `typecheck` e `test`; `pnpm-workspace.yaml`; `.nvmrc`; `pnpm-lock.yaml`; `docker-compose.yml`; `.env.example`; workflow de CI que roda `pnpm install --frozen-lockfile`, lint, tipos e testes; e um `README.md` com o passo a passo de instalação para um colaborador novo.
 
 ## 6. Diagnóstico de "funciona só na minha máquina"
 
-Confira, nesta ordem: versão do Node contra `.nvmrc`; versão do pnpm contra `packageManager`; `pnpm install --frozen-lockfile` passa; variável presente no `.env` local e ausente de `.env.example`; serviço ou ferramenta instalada globalmente que o projeto usa sem declarar; caminho absoluto ou diferença de maiúsculas em nome de arquivo (macOS não diferencia, Linux e o CI diferenciam).
+Confira, nesta ordem: versão do Node contra `.nvmrc`; versão do pnpm contra `packageManager`; `pnpm install --frozen-lockfile` passa; variável presente no `.env` local e ausente de `.env.example`; serviço ou ferramenta instalada globalmente que o projeto usa sem declarar; porta já ocupada por um serviço da máquina (por isso o Postgres do projeto usa a 54320); caminho absoluto ou diferença de maiúsculas em nome de arquivo (macOS não diferencia, Linux e o CI diferenciam).
