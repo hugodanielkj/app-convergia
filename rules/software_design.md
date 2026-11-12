@@ -83,7 +83,7 @@ convergia/
 │   │       ├── components/ui/            # componentes base (shadcn/ui), pensados para toque
 │   │       ├── api/client.ts             # cliente tipado da API do app (Hono RPC)
 │   │       └── styles/
-│   ├── server/                           # hoje apps/mcp-server; renomeado quando a API do app entrar (§12)
+│   ├── server/                           # servidor HTTP: MCP e API do app
 │   │   └── src/
 │   │       ├── main.ts                   # sobe o Hono: /api/app, /api/mcp e /health
 │   │       ├── app-api/                  # API do app: uma pasta por módulo; cada arquivo = 1 caso de uso
@@ -531,7 +531,7 @@ Regras ❓ têm teste que espera `NotDecidedYet`. Quando a pergunta é respondid
 
 1. ✅ Esqueleto: monorepo, Postgres, servidor MCP com `whoami`, autenticação por chave de API (RN-023).
 2. ✅ Multiempresa: empresa por parâmetro (RN-022) e `list_companies`. Os testes de isolamento acompanham cada módulo.
-3. **Esqueleto do app web** (RN-005 a RN-007): `apps/web` como PWA mobile first, navegação inferior, tela Início, seletor de empresa para a agência, API do app (`/api/app`) e renomear `apps/mcp-server` para `apps/server`. O login depende de Q-31 e Q-32; até lá, entrada de desenvolvimento só no ambiente local. Depois: tela Empresas para o cadastro (RN-026) e tela Conta com as chaves de API do MCP (RN-025).
+3. **Esqueleto do app web** (RN-005 a RN-007): `apps/web` como PWA mobile first, navegação inferior, tela Início, seletor de empresa para a agência, API do app (`/api/app`) e `apps/mcp-server` renomeado para `apps/server`. O login depende de Q-31 e Q-32; até lá, entrada de desenvolvimento só no ambiente local. Depois: tela Empresas para o cadastro (RN-026) e tela Conta com as chaves de API do MCP (RN-025).
 4. Conexão do Instagram e sincronização de métricas (começar a revisão da Meta no dia 1).
 5. Cards, kanban e calendário (sem IA).
 6. LLM gateway + cotas + geração e refino de roteiro, com o fluxo guiado "Criar roteiro" no app (RN-006).

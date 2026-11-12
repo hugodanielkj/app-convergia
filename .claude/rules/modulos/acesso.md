@@ -1,7 +1,7 @@
 ---
 paths:
   - "**/acesso/**"
-  - "apps/mcp-server/src/auth/**"
+  - "apps/server/src/auth/**"
   - "**/permission.policy.ts"
   - "**/actor-context.ts"
 ---

@@ -35,7 +35,7 @@ Interface para cada coisa externa de que o caso de uso precisa (repositório, fi
 - IA: só pelo `llm-gateway`, com saída estruturada validada por schema e registro em `ai_call_log`.
 - Job (J): a ferramenta cria o registro como `queued`, enfileira e devolve o ID com a instrução "consulte com `get_...`". O job tem chave de idempotência.
 
-**d) Ferramenta** — `apps/mcp-server/src/tools/<modulo>/<nome_da_ferramenta>.ts`
+**d) Ferramenta** — `apps/server/src/tools/<modulo>/<nome_da_ferramenta>.ts`
 
 - Nome em inglês `snake_case`; descrição em português, dizendo o que faz, quando usar e se consome cota.
 - Schema de entrada em Zod, com `describe` em português nos campos.
@@ -44,7 +44,7 @@ Interface para cada coisa externa de que o caso de uso precisa (repositório, fi
 - Erros passam por `errors/to-mcp-result.ts` e saem com `isError: true` e a mensagem da tabela de `regra_de_negocio.md` §7.
 - Ferramenta de escrita exige o escopo `write`.
 
-**e) Registro** — adicione em `apps/mcp-server/src/registry.ts`.
+**e) Registro** — adicione em `apps/server/src/registry.ts`.
 
 ## 3. Testes obrigatórios
 
@@ -53,7 +53,7 @@ Interface para cada coisa externa de que o caso de uso precisa (repositório, fi
 | Unitário de política | `packages/core`, ao lado do código | Um teste por RN ✅ aplicada, com o ID no nome. Regras ❓ esperam `NotDecidedYet`. |
 | Isolamento | integração | Usuário da empresa A não lê nem altera dado da empresa B por esta ferramenta. Agência sem empresa informada recebe o erro correto. |
 | Integração | Postgres local | Caminho feliz, cota esgotada e, se houver, concorrência por `version`. |
-| Contrato MCP | `apps/mcp-server` | Schema e descrição válidos; erro de negócio sai como `isError`. |
+| Contrato MCP | `apps/server` | Schema e descrição válidos; erro de negócio sai como `isError`. |
 
 IA, scraping, imagem e transcrição entram nos testes como dublês das portas. Chamada real a API paga exige permissão do usuário.
 
