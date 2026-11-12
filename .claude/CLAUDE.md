@@ -1,0 +1,161 @@
+# ConvergIA — guia do repositório para o Claude Code
+
+Servidor MCP remoto que ajuda os clientes de uma agência de marketing a planejar e produzir conteúdo orgânico para o Instagram. O conteúdo que a agência cria para um cliente passa pela aprovação desse cliente.
+
+Este arquivo diz como o repositório está organizado, o que você pode decidir sozinho, o que exige permissão e como o trabalho chega à `main`. O projeto é compartilhado com outros colaboradores: tudo o que você fizer precisa funcionar em qualquer máquina, não só nesta.
+
+## 1. Fontes da verdade
+
+| Arquivo | Responde |
+|---|---|
+| `rules/regra_de_negocio.md` | O que o produto faz. Regras com ID `RN-xxx` e perguntas em aberto `Q-xx`. É o documento principal. |
+| `rules/software_design.md` | Arquitetura, pastas, modelo de domínio, catálogo de ferramentas MCP, testes e ordem de implementação. |
+| `rules/stack.md` | Tecnologias de cada camada e riscos técnicos. |
+
+Onde `software_design.md` menciona a pasta `docs/`, entenda `rules/`.
+
+### Como tratar as marcações
+
+| Marca | Significado | O que fazer |
+|---|---|---|
+| ✅ | Confirmado pelo dono do produto | Implemente. |
+| 💡 | Recomendação de stack ou design | Implemente como padrão. Não precisa perguntar. |
+| 📎 | Regra copiada do Dalea | Implemente como padrão. Não precisa perguntar. |
+| ❓ | Em aberto (`Q-xx`) | **Não deduza.** Isole em `packages/core/src/policies/` lançando `NotDecidedYet("Q-xx")`, com um teste que espera esse erro, e siga com o restante. Pergunte só quando a tarefa não puder avançar sem a resposta. |
+
+Essa tabela substitui a frase "regras 📎 e ❓ não devem ser implementadas sem confirmação" de `regra_de_negocio.md`.
+
+## 2. Como carregar contexto
+
+Os documentos de `rules/` são longos. **Não os leia inteiros.** Leia só as seções da tarefa:
+
+1. Identifique o módulo da tarefa e leia o mapa dele em `.claude/rules/modulos/<modulo>.md`: `acesso`, `desempenho`, `conteudo`, `roteiros`, `ideias`, `referencias`, `carrossel`, `aprovacao`, `cotas`, `busca`.
+2. O mapa lista os títulos das seções relevantes. Ache a linha com Grep (`-n`) e leia com Read usando `offset` e `limit`, até o próximo título do mesmo nível.
+3. Para uma pergunta pontual, procure o ID direto: Grep por `RN-214` ou `Q-21` em `rules/`.
+4. Leia um documento inteiro só quando a tarefa for sobre o próprio documento.
+
+Os arquivos de `.claude/rules/` também carregam sozinhos quando você lê ou escreve um arquivo que casa com o `paths` deles:
+
+- `modulos/`: mapa e invariantes de cada módulo.
+- `camadas/`: convenções de `core`, `mcp-server`, `infra` e worker, testes, dependências e documentos.
+
+Tarefa que atravessa módulos (ex.: gerar roteiro dispara aprovação e cota): leia o mapa de cada módulo envolvido.
+
+## 3. Estado atual e estrutura
+
+Hoje o repositório tem `rules/`, `.claude/`, `README.md` e `.gitignore`. O código ainda não existe. A estrutura alvo está em `software_design.md` "## 3. Estrutura de pastas" e a ordem de construção em "## 12. Ordem sugerida de implementação".
+
+```text
+apps/mcp-server/   servidor HTTP + ferramentas e prompts MCP
+apps/worker/       jobs em segundo plano
+packages/core/     domínio, casos de uso, políticas, portas (sem infraestrutura)
+packages/infra/    Postgres, fila, Instagram, IA, imagem, armazenamento
+packages/config/   tsconfig, lint, variáveis de ambiente validadas
+rules/             documentos de regra, stack e design (lidos também pelo usuário)
+.claude/           este guia, regras por caminho e skills (só para o Claude)
+README.md          como o usuário conversa com o Claude neste projeto
+```
+
+Comandos padrão, a criar junto com o esqueleto do monorepo (scripts no `package.json` da raiz):
+
+| Comando | Faz |
+|---|---|
+| `pnpm install --frozen-lockfile` | Instala exatamente o que está no lockfile |
+| `pnpm lint` / `pnpm typecheck` / `pnpm test` | Lint, tipos, testes (Vitest) |
+| `docker compose up -d` | Postgres local |
+
+Se um desses scripts ainda não existir, diga isso. Nunca relate uma verificação como aprovada sem tê-la executado.
+
+## 4. Autonomia
+
+O padrão é **decidir e seguir**. Faça a escolha mais simples que respeite `rules/`, registre o porquê no PR e continue. Não pare para confirmar nome de arquivo, organização interna, escolha de biblioteca, texto de mensagem ou abordagem de teste.
+
+### Pode fazer sem perguntar
+
+- Criar, editar, mover e apagar arquivos **dentro do escopo da tarefa**.
+- Adicionar, atualizar e remover dependências (skill `dependencias`).
+- Criar e alterar schema e migrações, e aplicá-las no **banco local**.
+- Atualizar `rules/` para registrar uma decisão que o usuário tomou. Nunca crie uma regra por conta própria.
+- Criar branch, commit, pull, push da branch, abrir PR e fazer o merge com CI verde (§6).
+- Instalar pacotes do projeto com `pnpm` e subir serviços locais com Docker Compose.
+- Refatorar o código que a tarefa toca, corrigir bugs encontrados no caminho e escrever testes.
+
+### Exige permissão do usuário, sempre
+
+Pare, explique o que pretende fazer e por quê, e espere a resposta. Uma permissão vale para aquela ação, não para as próximas.
+
+| Ação | Por quê |
+|---|---|
+| `git push --force` (qualquer forma) e reescrita de histórico já enviado (`rebase`, `commit --amend`, `reset` em commits publicados) | Destrói trabalho de colaboradores |
+| Commit ou push direto na `main` | Todo trabalho entra por PR |
+| Apagar branch remota ou tag | Irreversível para os outros |
+| `git reset --hard`, `git clean`, `git checkout -- .` e `git stash drop` com alterações que não são suas | Perda de trabalho não commitado |
+| Ler, criar, alterar ou commitar segredos: `.env`, chaves, tokens, credenciais | Vazamento |
+| Deploy e qualquer comando contra banco, fila ou armazenamento **que não seja local** | Produção e dados reais de clientes |
+| Comando destrutivo no banco (`DROP`, `TRUNCATE`, `DELETE` sem `WHERE`, apagar volume do Docker), mesmo local | Perda de dados |
+| Apagar arquivos ou pastas **fora** do escopo da tarefa | Pode ser trabalho de outra pessoa |
+| Chamada real a API paga (Claude API, scraping, geração de imagem, transcrição) | Custa dinheiro. Testes usam dublês das portas. |
+| Alterar configuração do repositório no GitHub (proteção de branch, secrets, colaboradores, visibilidade) ou os workflows de CI para fazê-los passar | Afeta todos |
+| Desativar uma verificação: `--no-verify`, pular teste, `@ts-ignore` ou regra de lint desligada para passar | Esconde o problema |
+| Instalar software global na máquina (`brew`, `npm -g`) | Fora do projeto |
+
+Essa lista vale mesmo quando a ferramenta não bloqueia o comando tecnicamente.
+
+### Nunca
+
+- Implementar uma regra ❓ por dedução.
+- Devolver, em qualquer ferramenta, dados de uma empresa para um usuário de outra (RN-015).
+- Escrever um segredo em código, teste, log, commit ou PR.
+- Dizer que algo funciona sem ter verificado.
+
+## 5. Engenharia
+
+As convenções de cada camada estão em `.claude/rules/camadas/`. Valem para todo o código:
+
+- **Dependência só em uma direção:** `apps → core ← infra`.
+- **Regra de negócio mora no `core`**; a ferramenta MCP só traduz.
+- **Todo caso de uso recebe o `ActorContext`** e toda consulta filtra por `company_id`.
+- **Toda escrita de conteúdo passa por `approval.policy.onContentChanged`** na mesma transação.
+- **Código em inglês; mensagens ao usuário e descrições de ferramenta em português.**
+- Mudanças pequenas e focadas: um PR resolve uma coisa. Refatoração sem relação com a tarefa vai em outro PR.
+- Teste junto com o código. Corrigiu um bug: primeiro um teste que falha, depois a correção.
+- Não crie abstração, configuração ou tratamento de erro para um caso que ainda não existe.
+- Valide dados só nas bordas (entrada da ferramenta, resposta externa, variáveis de ambiente).
+- Sem `any`, sem `@ts-ignore`. Comentário só para explicar um porquê que o código não mostra.
+
+## 6. Fluxo de trabalho
+
+Detalhes e comandos na skill `fluxo-git`. Resumo:
+
+1. **Sincronizar:** `git switch main && git pull --ff-only`.
+2. **Branch por tarefa:** `<tipo>/<descricao-curta>`, ex.: `feat/aprovacao-cancelar-envio`.
+3. **Implementar** em commits pequenos, cada um deixando o projeto funcionando.
+4. **Verificar** com a skill `verificar` antes de cada push.
+5. **Push** da branch: `git push -u origin <branch>`.
+6. **Pull Request** para a `main` com `gh pr create`.
+7. **Merge** pelo próprio Claude com CI verde: `gh pr merge --squash`. Sem CI ou com CI vermelho, não faça o merge.
+8. **Voltar** para a `main` e `git pull --ff-only`.
+
+Commits, branches e PRs seguem **Conventional Commits em português**: `feat(aprovacao): adiciona cancelamento de envio pendente`. Tipos: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `build`, `perf`. Escopo: o módulo, `infra`, `deps` ou `regras`.
+
+Pré-requisitos de cada colaborador: Git, Node.js na versão de `.nvmrc`, pnpm via Corepack, Docker e o GitHub CLI autenticado (`gh auth login`). Sem o `gh`, faça o push da branch e entregue ao usuário o link para abrir o PR; não faça o merge por outro caminho.
+
+## 7. Quando perguntar
+
+Pergunte apenas quando:
+
+- a ação está na lista "exige permissão";
+- a tarefa depende de uma `Q-xx` e não dá para isolá-la com `NotDecidedYet`;
+- o pedido admite duas leituras que levam a resultados diferentes e caros de desfazer.
+
+Fora disso, decida. Ao perguntar, faça uma pergunta objetiva com as opções e a sua recomendação, e continue com o que não depende da resposta.
+
+## 8. Skills
+
+| Skill | Quando usar |
+|---|---|
+| `fluxo-git` | Começar uma tarefa, commit, push, PR, merge, conflito |
+| `verificar` | Antes de todo push e de abrir PR |
+| `dependencias` | Pacotes, versões de Node, pnpm ou Docker, variável de ambiente nova |
+| `nova-ferramenta-mcp` | Criar ou alterar uma ferramenta MCP |
+| `regra-de-negocio` | O usuário decidiu uma `Q-xx` ou mudou uma regra |

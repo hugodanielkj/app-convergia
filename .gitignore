@@ -1,0 +1,17 @@
+# dependências e build
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# segredos: só .env.example é versionado
+.env
+.env.*
+!.env.example
+
+# configuração pessoal do Claude Code
+.claude/settings.local.json
+
+# sistema e editores
+.DS_Store
+*.log
