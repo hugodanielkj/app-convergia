@@ -20,3 +20,4 @@ Invariantes:
 - Cliente não edita item enviado pela agência (RN-217); os demais casos de edição pelo cliente são ❓ Q-26.
 - `approve_item` e `reject_item` recebem a versão que o cliente viu; versão diferente → recusa.
 - Toda transição gera `ApprovalEvent` (RN-230).
+- Mexida no roteiro só por `writeScriptChange`: confere a versão e o estado lidos e grava o evento na mesma transação. Decisões (`ApprovalRepository.decide`) também conferem o estado do card; sem isso, uma edição e uma aprovação ao mesmo tempo se sobrescrevem.

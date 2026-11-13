@@ -39,16 +39,24 @@ const AFTER_CREATE: NavItem[] = [
 	{ label: "Mais", to: "/empresas/$companyId/mais", icon: Menu },
 ];
 
+/** Design §13.1: "Aprovações" mostra o contador de pendências. */
+function badgeFor(item: NavItem, pendingApprovals: number): number {
+	return item.to === "/empresas/$companyId/aprovacoes" ? pendingApprovals : 0;
+}
+
 function NavLink({
 	item,
 	companyId,
 	variant,
+	badge = 0,
 }: {
 	item: NavItem;
 	companyId: string;
 	variant: "bottom" | "side";
+	badge?: number;
 }) {
 	const Icon = item.icon;
+	const count = badge > 9 ? "9+" : String(badge);
 	return (
 		<Link
 			to={item.to}
@@ -74,8 +82,33 @@ function NavLink({
 						: "bg-brand-50 text-brand-700 dark:bg-brand-900 dark:text-brand-100",
 			}}
 		>
-			<Icon className="size-6 shrink-0" aria-hidden />
-			<span>{item.label}</span>
+			<span className="relative">
+				<Icon className="size-6 shrink-0" aria-hidden />
+				{badge > 0 && variant === "bottom" && (
+					<span
+						aria-hidden
+						className="absolute -top-1.5 -right-2.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-600 px-1 text-[11px] font-bold text-white"
+					>
+						{count}
+					</span>
+				)}
+			</span>
+			<span className={variant === "side" ? "flex-1" : undefined}>
+				{item.label}
+			</span>
+			{badge > 0 && variant === "side" && (
+				<span
+					aria-hidden
+					className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-600 px-1.5 text-xs font-bold text-white"
+				>
+					{count}
+				</span>
+			)}
+			{badge > 0 && (
+				<span className="sr-only">
+					{`, ${badge} ${badge === 1 ? "pendente" : "pendentes"}`}
+				</span>
+			)}
 		</Link>
 	);
 }
@@ -114,9 +147,11 @@ function CreateButton({
 export function BottomNav({
 	companyId,
 	onCreate,
+	pendingApprovals = 0,
 }: {
 	companyId: string;
 	onCreate: () => void;
+	pendingApprovals?: number;
 }) {
 	return (
 		<nav
@@ -130,6 +165,7 @@ export function BottomNav({
 						item={item}
 						companyId={companyId}
 						variant="bottom"
+						badge={badgeFor(item, pendingApprovals)}
 					/>
 				))}
 				<CreateButton onCreate={onCreate} variant="bottom" />
@@ -139,6 +175,7 @@ export function BottomNav({
 						item={item}
 						companyId={companyId}
 						variant="bottom"
+						badge={badgeFor(item, pendingApprovals)}
 					/>
 				))}
 			</div>
@@ -150,9 +187,11 @@ export function BottomNav({
 export function SideNav({
 	companyId,
 	onCreate,
+	pendingApprovals = 0,
 }: {
 	companyId: string;
 	onCreate: () => void;
+	pendingApprovals?: number;
 }) {
 	return (
 		<nav
@@ -168,6 +207,7 @@ export function SideNav({
 						item={item}
 						companyId={companyId}
 						variant="side"
+						badge={badgeFor(item, pendingApprovals)}
 					/>
 				))}
 			</div>

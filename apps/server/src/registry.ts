@@ -6,12 +6,17 @@ import type {
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerListCompanies } from "./tools/acesso/list-companies";
 import { registerWhoami } from "./tools/acesso/whoami";
+import { registerApprovalTools } from "./tools/aprovacao";
+import type { ApprovalToolDeps } from "./tools/aprovacao/deps";
 import { registerContentTools } from "./tools/conteudo";
 import type { ContentToolDeps } from "./tools/conteudo/deps";
 import { registerDiscoveryTools } from "./tools/descoberta";
 import { registerScriptTools } from "./tools/roteiros";
 
-export type ToolDeps = ContentToolDeps & ScriptDeps & DiscoveryDeps;
+export type ToolDeps = ContentToolDeps &
+	ApprovalToolDeps &
+	ScriptDeps &
+	DiscoveryDeps;
 
 /** Monta um servidor MCP para uma requisição, já com o usuário autenticado. */
 export function buildMcpServer(
@@ -26,6 +31,7 @@ export function buildMcpServer(
 		registerListCompanies(server, user, deps);
 	}
 	registerContentTools(server, user, deps);
+	registerApprovalTools(server, user, deps);
 	registerScriptTools(server, user, deps);
 	registerDiscoveryTools(server, user, deps);
 

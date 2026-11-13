@@ -62,6 +62,11 @@ export const contents = pgTable(
 		plannedDate: date("planned_date", { mode: "string" }),
 		contentVersion: integer("content_version").notNull().default(1),
 		approvalStatus: approvalStatus("approval_status").notNull(),
+		/**
+		 * Solicitação de aprovação vigente (design §5.2). Sem chave estrangeira para não criar
+		 * dependência circular entre as tabelas; quem grava é o repositório de aprovações.
+		 */
+		currentApprovalRequestId: uuid("current_approval_request_id"),
 		deletedAt: timestamp("deleted_at", { withTimezone: true }),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.notNull()

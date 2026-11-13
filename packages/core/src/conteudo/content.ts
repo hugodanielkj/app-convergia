@@ -67,6 +67,8 @@ export type Content = {
 	/** Muda só quando o roteiro muda (RN-203). */
 	contentVersion: number;
 	approvalStatus: ApprovalStatus;
+	/** Solicitação de aprovação vigente do roteiro (design §5.2); `null` antes do primeiro envio. */
+	currentApprovalRequestId: string | null;
 	deletedAt: Date | null;
 	createdAt: Date;
 	updatedAt: Date;

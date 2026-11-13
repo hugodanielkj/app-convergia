@@ -12,6 +12,7 @@ export { createScriptAi } from "./ai/script-ai";
 export { createDb, type Db } from "./db/client";
 export { runMigrations } from "./db/migrate";
 export { createApiKeyRepository } from "./db/repositories/api-key.repository";
+export { createApprovalRepository } from "./db/repositories/approval.repository";
 export { createCompanyRepository } from "./db/repositories/company.repository";
 export { createContentRepository } from "./db/repositories/content.repository";
 export { createDiscoveryRepository } from "./db/repositories/discovery.repository";

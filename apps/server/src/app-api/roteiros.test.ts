@@ -3,9 +3,9 @@ import {
 	FakeScriptAi,
 	InMemoryApiKeyRepository,
 	InMemoryCompanyRepository,
-	InMemoryContentRepository,
 	InMemoryQuotaRepository,
 	InMemoryScriptRepository,
+	inMemoryContentDeps,
 	testDiscoveryDeps,
 } from "@convergia/core/testing";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -101,7 +101,7 @@ describe("API do app: roteiros (RN-006)", () => {
 				{ id: "company-a", agencyId: "agency-1", name: "A" },
 				{ id: "company-b", agencyId: "agency-1", name: "B" },
 			]),
-			contents: new InMemoryContentRepository(),
+			...inMemoryContentDeps(),
 			scripts: new InMemoryScriptRepository(),
 			scriptAi,
 			quotas: new InMemoryQuotaRepository(),

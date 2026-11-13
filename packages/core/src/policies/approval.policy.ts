@@ -1,4 +1,6 @@
-import type { ApprovalStatus, CreatorKind } from "../conteudo/content";
+import { notPending } from "../aprovacao/errors";
+import type { ApprovalStatus, Content, CreatorKind } from "../conteudo/content";
+import { SCRIPT_FIELDS } from "../conteudo/content";
 import type { ActorContext } from "../shared/actor-context";
 import { DomainError, NotDecidedYet } from "../shared/domain-error";
 
@@ -35,7 +37,7 @@ export function assertCanEditContent(
 
 export type ContentChangeEffect = {
 	approvalStatus: ApprovalStatus;
-	/** Evento do histórico de aprovação (RN-230); gravado quando o módulo de aprovação existir. */
+	/** Evento do histórico de aprovação (RN-230), gravado na mesma transação da mexida. */
 	event: "approval_lost" | "updated_while_pending" | null;
 };
 
@@ -73,5 +75,96 @@ export function assertCanSeeHistory(
 		entries.some((entry) => entry.createdByKind === "agency")
 	) {
 		throw new NotDecidedYet("Q-23");
+	}
+}
+
+/** RN-210: só a agência envia, e só o roteiro em preparo. */
+export function assertCanSubmit(actor: ActorContext, content: Content): void {
+	if (actor.kind === "client_user") {
+		// RN-200: o que o cliente cria não precisa de aprovação.
+		throw new DomainError(
+			"client_submit",
+			"Itens criados por você não precisam de aprovação.",
+		);
+	}
+	switch (content.approvalStatus) {
+		case "none":
+			// RN-204: a agência ainda não mexeu no roteiro.
+			throw new DomainError(
+				"nothing_to_approve",
+				"Este roteiro não precisa de aprovação: a agência ainda não mexeu nele.",
+			);
+		case "pending":
+			throw new DomainError(
+				"already_pending",
+				"Este item já está aguardando aprovação.",
+			);
+		case "approved":
+			throw new DomainError(
+				"already_approved",
+				"Este roteiro já foi aprovado.",
+			);
+		case "rejected":
+			// RN-213: recusado volta para a agência ajustar; o ajuste o leva para em preparo.
+			throw new DomainError(
+				"rejected_unchanged",
+				"Ajuste o roteiro recusado antes de enviar de novo.",
+			);
+	}
+	if (SCRIPT_FIELDS.every((field) => !content.script[field])) {
+		throw new DomainError(
+			"empty_script",
+			"Escreva ou gere o roteiro antes de enviar para aprovação.",
+		);
+	}
+}
+
+/** RN-218: só a agência cancela um envio pendente. */
+export function assertCanCancel(actor: ActorContext, content: Content): void {
+	if (actor.kind === "client_user") {
+		throw new DomainError(
+			"client_cancel",
+			"Só a agência pode cancelar um envio para aprovação.",
+		);
+	}
+	assertPending(content);
+}
+
+/**
+ * RN-211: o cliente aprova. RN-214: a agência aprova em nome dele só com motivo, e isso fica
+ * registrado.
+ */
+export function approvalDecision(
+	actor: ActorContext,
+	content: Content,
+	onBehalfReason: string | undefined,
+): { onBehalf: boolean; reason: string | null } {
+	assertPending(content);
+	if (actor.kind === "client_user") {
+		return { onBehalf: false, reason: null };
+	}
+	if (!onBehalfReason) {
+		throw new DomainError(
+			"on_behalf_reason_required",
+			"Informe o motivo da aprovação em nome do cliente (ex.: aprovado por WhatsApp em 10/11).",
+		);
+	}
+	return { onBehalf: true, reason: onBehalfReason };
+}
+
+/** RN-212, RN-214: só o cliente recusa. */
+export function assertCanReject(actor: ActorContext, content: Content): void {
+	if (actor.kind === "agency_member") {
+		throw new DomainError("agency_reject", "Só o cliente pode recusar.");
+	}
+	assertPending(content);
+}
+
+function assertPending(content: Content): void {
+	if (
+		content.approvalStatus !== "pending" ||
+		!content.currentApprovalRequestId
+	) {
+		throw notPending();
 	}
 }

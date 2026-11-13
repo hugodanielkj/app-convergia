@@ -412,6 +412,7 @@ O catálogo (`discovered_videos`, `video_metric_observations`) e o cache de pesq
 | `reject_item` | Só cliente | Recusa com motivo opcional (RN-212) |
 | `cancel_approval_request` | Agência | Cancela o envio; o item volta a `in_preparation` (RN-218) |
 | `list_items_to_submit` | Agência | Itens em `in_preparation`: novos, recusados, cancelados ou que perderam a aprovação |
+| `list_rejected_items` | Agência | Itens recusados pelo cliente, com o motivo, para ajustar e reenviar (RN-213) |
 | `get_approval_history` | Ambos | Histórico de envios, edições na pendência, decisões e perdas de aprovação (RN-230) |
 
 ### Busca
@@ -545,7 +546,7 @@ Regras ❓ têm teste que espera `NotDecidedYet`. Quando a pergunta é respondid
 4. Conexão do Instagram e sincronização de métricas (começar a revisão da Meta no dia 1).
 5. Cards, kanban e calendário (sem IA).
 6. LLM gateway + cotas + geração e refino de roteiro, com o fluxo guiado "Criar roteiro" no app (RN-006).
-7. **Aprovação** (regras definidas; falta só Q-26, sobre o cliente editar).
+7. ✅ **Aprovação** do roteiro (regras definidas; Q-26, sobre o cliente editar, segue isolada com `NotDecidedYet`). Carrossel e ideias entram na aprovação com os módulos deles.
 8. Brainstorm, referências, fontes.
 9. Carrossel (depois de escolher o provedor de imagem).
 10. Insights e análise de post (depois de escolher o provedor de transcrição).
