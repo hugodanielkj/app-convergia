@@ -299,9 +299,10 @@ quota_usage (company_id, tool_key, day, used)                 -- contador por em
 
 `quota.policy.ts`:
 1. Antes da chamada de IA ou scraping: **reserva** atômica (`UPDATE ... SET used = used + 1 WHERE used < limit`). Se nenhuma linha muda → erro "cota esgotada".
-2. Se a chamada falhar: ❓ devolve ou não (Q-21, RN-305).
-3. O `day` é calculado no fuso definido em ❓ Q-21 (RN-304).
+2. Se a chamada falhar, a reserva é devolvida (✅ RN-305).
+3. O `day` é a data em `America/Sao_Paulo`; a cota zera à meia-noite de lá (✅ RN-304).
 4. O uso da agência dentro da empresa conta na mesma linha (RN-301).
+5. Limite diário: o da `quota_limit` da empresa ou, sem ele, o padrão da RN-303 (gerar roteiro 10, refinar 30). Ferramenta sem valor padrão definido → ❓ Q-21.
 
 Análise de post já salva **não reserva cota** (📎 RN-050).
 
@@ -497,7 +498,7 @@ sequenceDiagram
 1. A ferramenta reserva a cota, cria o registro com status `queued` e enfileira o job.
 2. Devolve na hora o ID e a instrução "consulte com `get_...`".
 3. O worker processa, atualiza o progresso e termina em `ready` ou `failed` (com mensagem).
-4. ❓ Se falhar, a cota é devolvida? (Q-21)
+4. Se falhar, a cota é devolvida (✅ RN-305).
 
 ## 9. Concorrência e consistência
 
