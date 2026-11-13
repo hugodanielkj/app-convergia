@@ -55,11 +55,13 @@ async function call<T>(request: Promise<ClientResponse<T>>): Promise<T> {
 }
 
 const companyApi = client.companies[":companyId"];
+const searchesApi = companyApi.videos.searches;
 const contentApi = companyApi.contents[":contentId"];
 
 type KanbanStatus = "idea" | "draft" | "edited" | "published";
 type ContentParams = { companyId: string; contentId: string };
 export type ScriptField = "hook" | "body" | "cta" | "caption";
+export type VideoSort = "relevance" | "popularity" | "recent";
 
 export const api = {
 	me: () => call(client.me.$get()),
@@ -108,6 +110,22 @@ export const api = {
 	refineChat: (param: ContentParams) => call(contentApi.refine.$get({ param })),
 	refine: (param: ContentParams, message: string, webSearch: boolean) =>
 		call(contentApi.refine.$post({ param, json: { message, webSearch } })),
+	discoverVideos: (
+		companyId: string,
+		json: Parameters<typeof searchesApi.$post>[0]["json"],
+	) => call(searchesApi.$post({ param: { companyId }, json })),
+	videoSearch: (
+		companyId: string,
+		requestId: string,
+		sort: VideoSort,
+		offset = 0,
+	) =>
+		call(
+			searchesApi[":requestId"].$get({
+				param: { companyId, requestId },
+				query: { sort, offset: String(offset) },
+			}),
+		),
 	reviewPreview: (
 		param: ContentParams,
 		messageId: string,
@@ -131,3 +149,5 @@ export type CitationDto = ContentDto["citations"][number];
 export type RefineMessageDto = Awaited<
 	ReturnType<typeof api.refineChat>
 >["messages"][number];
+export type VideoSearchDto = Awaited<ReturnType<typeof api.videoSearch>>;
+export type DiscoveredVideoDto = VideoSearchDto["results"][number];

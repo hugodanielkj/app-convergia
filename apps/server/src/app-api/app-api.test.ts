@@ -6,6 +6,7 @@ import {
 	InMemoryContentRepository,
 	InMemoryQuotaRepository,
 	InMemoryScriptRepository,
+	testDiscoveryDeps,
 } from "@convergia/core/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../app";
@@ -55,6 +56,7 @@ describe("API do app", () => {
 			scripts: new InMemoryScriptRepository(),
 			scriptAi: new FakeScriptAi(),
 			quotas: new InMemoryQuotaRepository(),
+			...testDiscoveryDeps(),
 			now: () => new Date(),
 			companies: new InMemoryCompanyRepository([
 				{ id: "company-b", agencyId: "agency-1", name: "Padaria Beta" },

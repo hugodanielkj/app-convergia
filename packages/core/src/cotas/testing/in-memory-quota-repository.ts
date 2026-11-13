@@ -1,17 +1,17 @@
-import type { QuotaTool } from "../../policies/quota.policy";
+import type { QuotaKey } from "../../policies/quota.policy";
 import type { QuotaRepository } from "../ports/quota-repository";
 
 /** Dublê do contador de cota para testes unitários. */
 export class InMemoryQuotaRepository implements QuotaRepository {
 	readonly used = new Map<string, number>();
 
-	static key(companyId: string, tool: QuotaTool, day: string): string {
+	static key(companyId: string, tool: QuotaKey, day: string): string {
 		return `${companyId}|${tool}|${day}`;
 	}
 
 	async reserve(
 		companyId: string,
-		tool: QuotaTool,
+		tool: QuotaKey,
 		day: string,
 		limit: number,
 	): Promise<boolean> {
@@ -22,11 +22,7 @@ export class InMemoryQuotaRepository implements QuotaRepository {
 		return true;
 	}
 
-	async release(
-		companyId: string,
-		tool: QuotaTool,
-		day: string,
-	): Promise<void> {
+	async release(companyId: string, tool: QuotaKey, day: string): Promise<void> {
 		const key = InMemoryQuotaRepository.key(companyId, tool, day);
 		this.used.set(key, Math.max((this.used.get(key) ?? 0) - 1, 0));
 	}

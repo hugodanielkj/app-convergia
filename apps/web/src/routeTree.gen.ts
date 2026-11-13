@@ -16,6 +16,7 @@ import { Route as EmpresasCompanyIdRouteRouteImport } from './routes/empresas/$c
 import { Route as EmpresasCompanyIdIndexRouteImport } from './routes/empresas/$companyId/index'
 import { Route as EmpresasCompanyIdAprovacoesRouteImport } from './routes/empresas/$companyId/aprovacoes'
 import { Route as EmpresasCompanyIdCalendarioRouteImport } from './routes/empresas/$companyId/calendario'
+import { Route as EmpresasCompanyIdDescobrirRouteImport } from './routes/empresas/$companyId/descobrir'
 import { Route as EmpresasCompanyIdLixeiraRouteImport } from './routes/empresas/$companyId/lixeira'
 import { Route as EmpresasCompanyIdMaisRouteImport } from './routes/empresas/$companyId/mais'
 import { Route as EmpresasCompanyIdCardsContentIdRouteImport } from './routes/empresas/$companyId/cards/$contentId'
@@ -58,6 +59,12 @@ const EmpresasCompanyIdCalendarioRoute =
     path: '/calendario',
     getParentRoute: () => EmpresasCompanyIdRouteRoute,
   } as any)
+const EmpresasCompanyIdDescobrirRoute =
+  EmpresasCompanyIdDescobrirRouteImport.update({
+    id: '/descobrir',
+    path: '/descobrir',
+    getParentRoute: () => EmpresasCompanyIdRouteRoute,
+  } as any)
 const EmpresasCompanyIdLixeiraRoute =
   EmpresasCompanyIdLixeiraRouteImport.update({
     id: '/lixeira',
@@ -89,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/empresas/': typeof EmpresasIndexRoute
   '/empresas/$companyId/aprovacoes': typeof EmpresasCompanyIdAprovacoesRoute
   '/empresas/$companyId/calendario': typeof EmpresasCompanyIdCalendarioRoute
+  '/empresas/$companyId/descobrir': typeof EmpresasCompanyIdDescobrirRoute
   '/empresas/$companyId/lixeira': typeof EmpresasCompanyIdLixeiraRoute
   '/empresas/$companyId/mais': typeof EmpresasCompanyIdMaisRoute
   '/empresas/$companyId/': typeof EmpresasCompanyIdIndexRoute
@@ -101,6 +109,7 @@ export interface FileRoutesByTo {
   '/empresas': typeof EmpresasIndexRoute
   '/empresas/$companyId/aprovacoes': typeof EmpresasCompanyIdAprovacoesRoute
   '/empresas/$companyId/calendario': typeof EmpresasCompanyIdCalendarioRoute
+  '/empresas/$companyId/descobrir': typeof EmpresasCompanyIdDescobrirRoute
   '/empresas/$companyId/lixeira': typeof EmpresasCompanyIdLixeiraRoute
   '/empresas/$companyId/mais': typeof EmpresasCompanyIdMaisRoute
   '/empresas/$companyId': typeof EmpresasCompanyIdIndexRoute
@@ -115,6 +124,7 @@ export interface FileRoutesById {
   '/empresas/': typeof EmpresasIndexRoute
   '/empresas/$companyId/aprovacoes': typeof EmpresasCompanyIdAprovacoesRoute
   '/empresas/$companyId/calendario': typeof EmpresasCompanyIdCalendarioRoute
+  '/empresas/$companyId/descobrir': typeof EmpresasCompanyIdDescobrirRoute
   '/empresas/$companyId/lixeira': typeof EmpresasCompanyIdLixeiraRoute
   '/empresas/$companyId/mais': typeof EmpresasCompanyIdMaisRoute
   '/empresas/$companyId/': typeof EmpresasCompanyIdIndexRoute
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/empresas/'
     | '/empresas/$companyId/aprovacoes'
     | '/empresas/$companyId/calendario'
+    | '/empresas/$companyId/descobrir'
     | '/empresas/$companyId/lixeira'
     | '/empresas/$companyId/mais'
     | '/empresas/$companyId/'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/empresas'
     | '/empresas/$companyId/aprovacoes'
     | '/empresas/$companyId/calendario'
+    | '/empresas/$companyId/descobrir'
     | '/empresas/$companyId/lixeira'
     | '/empresas/$companyId/mais'
     | '/empresas/$companyId'
@@ -155,6 +167,7 @@ export interface FileRouteTypes {
     | '/empresas/'
     | '/empresas/$companyId/aprovacoes'
     | '/empresas/$companyId/calendario'
+    | '/empresas/$companyId/descobrir'
     | '/empresas/$companyId/lixeira'
     | '/empresas/$companyId/mais'
     | '/empresas/$companyId/'
@@ -220,6 +233,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresasCompanyIdCalendarioRouteImport
       parentRoute: typeof EmpresasCompanyIdRouteRoute
     }
+    '/empresas/$companyId/descobrir': {
+      id: '/empresas/$companyId/descobrir'
+      path: '/descobrir'
+      fullPath: '/empresas/$companyId/descobrir'
+      preLoaderRoute: typeof EmpresasCompanyIdDescobrirRouteImport
+      parentRoute: typeof EmpresasCompanyIdRouteRoute
+    }
     '/empresas/$companyId/lixeira': {
       id: '/empresas/$companyId/lixeira'
       path: '/lixeira'
@@ -254,6 +274,7 @@ declare module '@tanstack/react-router' {
 interface EmpresasCompanyIdRouteRouteChildren {
   EmpresasCompanyIdAprovacoesRoute: typeof EmpresasCompanyIdAprovacoesRoute
   EmpresasCompanyIdCalendarioRoute: typeof EmpresasCompanyIdCalendarioRoute
+  EmpresasCompanyIdDescobrirRoute: typeof EmpresasCompanyIdDescobrirRoute
   EmpresasCompanyIdLixeiraRoute: typeof EmpresasCompanyIdLixeiraRoute
   EmpresasCompanyIdMaisRoute: typeof EmpresasCompanyIdMaisRoute
   EmpresasCompanyIdIndexRoute: typeof EmpresasCompanyIdIndexRoute
@@ -265,6 +286,7 @@ const EmpresasCompanyIdRouteRouteChildren: EmpresasCompanyIdRouteRouteChildren =
   {
     EmpresasCompanyIdAprovacoesRoute: EmpresasCompanyIdAprovacoesRoute,
     EmpresasCompanyIdCalendarioRoute: EmpresasCompanyIdCalendarioRoute,
+    EmpresasCompanyIdDescobrirRoute: EmpresasCompanyIdDescobrirRoute,
     EmpresasCompanyIdLixeiraRoute: EmpresasCompanyIdLixeiraRoute,
     EmpresasCompanyIdMaisRoute: EmpresasCompanyIdMaisRoute,
     EmpresasCompanyIdIndexRoute: EmpresasCompanyIdIndexRoute,

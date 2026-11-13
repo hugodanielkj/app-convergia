@@ -386,6 +386,14 @@ Toda ferramenta que opera dentro de uma empresa recebe o parâmetro `company_id`
 | `get_creator_analysis` | Análise salva | | | |
 | `run_creator_deep_analysis` | Gera ou devolve a análise salva | ✔ | ✔ | ✔ |
 
+### Descoberta de vídeos
+| Ferramenta | Descrição | E | C | J |
+|---|---|---|---|---|
+| `discover_videos` | Pesquisa vídeos populares do Instagram Reels e do TikTok por assunto (✅ RN-110 a RN-119). Responde do cache ou põe a coleta na fila | ✔ | ✔ (por usuário, RN-118) | ✔ |
+| `get_discovered_videos` | Andamento e resultados de uma pesquisa, com ordenação e paginação | | | |
+
+O catálogo (`discovered_videos`, `video_metric_observations`) e o cache de pesquisas (`video_queries`, `video_query_results`) guardam dados públicos e são compartilhados entre as empresas; quem pesquisou fica em `video_search_requests`, isolada por empresa com RLS. O provedor fica atrás da porta `VideoProvider` (`packages/core/src/descoberta/ports/`); a implementação atual é o ScrapeCreators (`packages/infra/src/scraping/`). Cada chamada ao provedor vai para `video_provider_calls`.
+
 ### Carrossel
 | Ferramenta | Descrição | E | C | J |
 |---|---|---|---|---|
@@ -494,7 +502,7 @@ sequenceDiagram
 
 ### 8.3 Job em segundo plano
 
-`create_carousel`, `save_reference_by_url`, `add_content_source`, `sync_metrics` e `analyze_post`:
+`create_carousel`, `save_reference_by_url`, `add_content_source`, `sync_metrics`, `analyze_post` e `discover_videos` (fila `discover-videos`; no protótipo, o worker do pg-boss roda no processo do servidor):
 1. A ferramenta reserva a cota, cria o registro com status `queued` e enfileira o job.
 2. Devolve na hora o ID e a instrução "consulte com `get_...`".
 3. O worker processa, atualiza o progresso e termina em `ready` ou `failed` (com mensagem).

@@ -1,0 +1,13 @@
+{
+	"success": true,
+	"credits_charged": 1,
+	"aweme_detail": {
+		"aweme_id": "7300000000000000001",
+		"statistics": {
+			"play_count": 130000,
+			"digg_count": 8600,
+			"comment_count": 320,
+			"share_count": 990
+		}
+	}
+}

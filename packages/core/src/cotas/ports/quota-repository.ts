@@ -1,4 +1,4 @@
-import type { QuotaTool } from "../../policies/quota.policy";
+import type { QuotaKey } from "../../policies/quota.policy";
 
 /** Contador de uso por empresa, ferramenta e dia (design §5.4). */
 export interface QuotaRepository {
@@ -8,10 +8,10 @@ export interface QuotaRepository {
 	 */
 	reserve(
 		companyId: string,
-		tool: QuotaTool,
+		tool: QuotaKey,
 		day: string,
 		limit: number,
 	): Promise<boolean>;
 	/** Desfaz uma reserva (✅ RN-305). */
-	release(companyId: string, tool: QuotaTool, day: string): Promise<void>;
+	release(companyId: string, tool: QuotaKey, day: string): Promise<void>;
 }

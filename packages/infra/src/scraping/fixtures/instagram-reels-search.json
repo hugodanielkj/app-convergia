@@ -1,0 +1,27 @@
+{
+	"success": true,
+	"credits_remaining": 98,
+	"credits_charged": 1,
+	"reels": [
+		{
+			"id": "3700000000000000001",
+			"shortcode": "DExemplo001",
+			"url": "https://www.instagram.com/reel/DExemplo001/",
+			"caption": "Vídeo com inteligência artificial: do roteiro à edição #ia",
+			"thumbnail_src": "https://scontent.cdninstagram.com/exemplo-thumb.jpg",
+			"display_url": "https://scontent.cdninstagram.com/exemplo-display.jpg",
+			"video_duration": 45.2,
+			"product_type": "clips",
+			"owner": { "username": "perfil_exemplo", "full_name": "Perfil Exemplo" },
+			"taken_at": "2026-11-05T16:56:45.000Z",
+			"like_count": 3487,
+			"comment_count": 90
+		},
+		{
+			"shortcode": "DExemplo002",
+			"caption": null,
+			"owner": null,
+			"taken_at": null
+		}
+	]
+}

@@ -1,12 +1,17 @@
-import type { AuthenticatedUser, ScriptDeps } from "@convergia/core";
+import type {
+	AuthenticatedUser,
+	DiscoveryDeps,
+	ScriptDeps,
+} from "@convergia/core";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerListCompanies } from "./tools/acesso/list-companies";
 import { registerWhoami } from "./tools/acesso/whoami";
 import { registerContentTools } from "./tools/conteudo";
 import type { ContentToolDeps } from "./tools/conteudo/deps";
+import { registerDiscoveryTools } from "./tools/descoberta";
 import { registerScriptTools } from "./tools/roteiros";
 
-export type ToolDeps = ContentToolDeps & ScriptDeps;
+export type ToolDeps = ContentToolDeps & ScriptDeps & DiscoveryDeps;
 
 /** Monta um servidor MCP para uma requisição, já com o usuário autenticado. */
 export function buildMcpServer(
@@ -22,6 +27,7 @@ export function buildMcpServer(
 	}
 	registerContentTools(server, user, deps);
 	registerScriptTools(server, user, deps);
+	registerDiscoveryTools(server, user, deps);
 
 	return server;
 }

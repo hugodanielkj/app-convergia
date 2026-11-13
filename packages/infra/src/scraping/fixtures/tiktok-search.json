@@ -1,0 +1,43 @@
+{
+	"success": true,
+	"credits_remaining": 99,
+	"credits_charged": 1,
+	"cursor": 20,
+	"search_item_list": [
+		{
+			"aweme_info": {
+				"aweme_id": "7300000000000000001",
+				"desc": "Como criar vídeos com IA em 3 passos #ia #video",
+				"desc_language": "pt",
+				"create_time": 1762800000,
+				"url": "https://www.tiktok.com/@criador_exemplo/video/7300000000000000001",
+				"author": {
+					"unique_id": "criador_exemplo",
+					"nickname": "Criador Exemplo"
+				},
+				"statistics": {
+					"play_count": 125000,
+					"digg_count": 8400,
+					"comment_count": 312,
+					"share_count": 950,
+					"collect_count": 2100
+				},
+				"video": {
+					"duration": 22874,
+					"cover": {
+						"url_list": ["https://p16-sign.tiktokcdn-us.com/exemplo-capa.jpeg"]
+					}
+				}
+			}
+		},
+		{
+			"aweme_id": "7300000000000000002",
+			"desc": "",
+			"create_time": 1762700000,
+			"author": { "unique_id": "outro_exemplo" },
+			"statistics": { "digg_count": 10 },
+			"video": {}
+		},
+		{ "aweme_info": { "desc": "item sem id é ignorado" } }
+	]
+}

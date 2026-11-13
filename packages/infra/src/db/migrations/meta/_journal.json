@@ -57,6 +57,13 @@
       "when": 1794582306095,
       "tag": "0007_roteiros_fontes",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794583933255,
+      "tag": "0008_descoberta_videos",
+      "breakpoints": true
     }
   ]
 }

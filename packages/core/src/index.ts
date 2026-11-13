@@ -71,6 +71,74 @@ export {
 export { updateContent } from "./conteudo/use-cases/update-content";
 export type { QuotaRepository } from "./cotas/ports/quota-repository";
 export { withQuota } from "./cotas/with-quota";
+export { NOT_CONFIGURED_MESSAGE, searchNotFound } from "./descoberta/errors";
+export type { DiscoveryQueue } from "./descoberta/ports/discovery-queue";
+export type {
+	CacheStatus,
+	CompletedRun,
+	DiscoveryRepository,
+	PlatformOutcome,
+	QueryStatus,
+	SearchRequest,
+	VideoQuery,
+} from "./descoberta/ports/discovery-repository";
+export type { QueryExpander } from "./descoberta/ports/query-expander";
+export {
+	PROVIDER_ERROR_KINDS,
+	type ProviderErrorKind,
+	type ProviderSearchPage,
+	type ProviderSearchRequest,
+	type VideoProvider,
+	VideoProviderError,
+} from "./descoberta/ports/video-provider";
+export {
+	cacheKey,
+	cleanQuery,
+	matchScore,
+	normalizeQuery,
+	queryLanguage,
+	STRATEGY_VERSION,
+} from "./descoberta/query";
+export {
+	isGrowing,
+	popularityByPlatform,
+	type QueryResult,
+	type RankedVideo,
+	rankVideos,
+} from "./descoberta/ranking";
+export {
+	DEFAULT_DISCOVERY_SETTINGS,
+	type DiscoverySettings,
+} from "./descoberta/settings";
+export type { DiscoveryDeps } from "./descoberta/use-cases/deps";
+export {
+	discoverVideos,
+	getVideoSearch,
+} from "./descoberta/use-cases/discover-videos";
+export { runVideoQuery } from "./descoberta/use-cases/run-video-query";
+export type {
+	PlatformStatus,
+	SearchStatus,
+	VideoSearchView,
+} from "./descoberta/use-cases/view";
+export {
+	type CatalogVideo,
+	type CollectedVideo,
+	type MetricObservation,
+	PLATFORM_FILTERS,
+	type PlatformFilter,
+	POPULAR_LABEL,
+	SEARCH_PERIODS,
+	SEARCH_SORTS,
+	type SearchPeriod,
+	type SearchSort,
+	VIDEO_PLATFORMS,
+	type VideoMetrics,
+	type VideoPlatform,
+	type VideoSearchInput,
+	videoSearchInput,
+	videoSearchPageInput,
+} from "./descoberta/video";
 export { TRASH_RETENTION_DAYS } from "./policies/content.policy";
 export {
 	assertCanWrite,
@@ -80,8 +148,11 @@ export {
 	DEFAULT_DAILY_QUOTAS,
 	OPTION_QUOTA_TOOLS,
 	QUOTA_TIME_ZONE,
+	type QuotaKey,
 	type QuotaTool,
 	quotaDay,
+	type UserQuotaTool,
+	userQuotaKey,
 } from "./policies/quota.policy";
 export { HISTORY_LIMIT, type HistoryEntry } from "./roteiros/history";
 export type {

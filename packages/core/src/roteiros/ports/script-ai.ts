@@ -4,10 +4,13 @@ import type {
 	Script,
 	ScriptField,
 } from "../../conteudo/content";
-import type { QuotaTool } from "../../policies/quota.policy";
+import type { QuotaTool, UserQuotaTool } from "../../policies/quota.policy";
 
 /** Quem paga a chamada, para o registro de custo em `ai_call_log` (design §10). */
-export type AiCallMeta = { companyId: string; tool: QuotaTool };
+export type AiCallMeta = {
+	companyId: string;
+	tool: QuotaTool | UserQuotaTool;
+};
 
 /** O que a IA sabe do card (✅ RN-076: sem módulo de marca, o contexto é o card e a empresa). */
 export type ScriptBrief = {

@@ -1,0 +1,12 @@
+{
+	"success": true,
+	"credits_charged": 1,
+	"data": {
+		"xdt_shortcode_media": {
+			"shortcode": "DExemplo001",
+			"video_play_count": 98000,
+			"edge_media_preview_like": { "count": 3500 },
+			"edge_media_to_parent_comment": { "count": 91 }
+		}
+	}
+}
