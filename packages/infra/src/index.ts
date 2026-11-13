@@ -16,15 +16,24 @@ export { createApprovalRepository } from "./db/repositories/approval.repository"
 export { createCompanyRepository } from "./db/repositories/company.repository";
 export { createContentRepository } from "./db/repositories/content.repository";
 export { createDiscoveryRepository } from "./db/repositories/discovery.repository";
+export { createInstagramRepository } from "./db/repositories/instagram.repository";
 export { createProviderCallLog } from "./db/repositories/provider-call-log";
 export { createQuotaRepository } from "./db/repositories/quota.repository";
 export { createScriptRepository } from "./db/repositories/script.repository";
+export { chooseInstagram } from "./instagram/choose-gateway";
+export { createGraphApiGateway } from "./instagram/graph-api.adapter";
+export { createSimulatedInstagramGateway } from "./instagram/simulated-gateway";
+export { createTokenCipher, type TokenCipher } from "./instagram/token-cipher";
 export {
 	createDiscoveryQueue,
 	DISCOVERY_QUEUE,
 	startJobs,
 	workDiscoveryQueue,
 } from "./jobs/discovery-queue";
+export {
+	INSTAGRAM_REFRESH_QUEUE,
+	scheduleInstagramRefresh,
+} from "./jobs/instagram-refresh";
 export {
 	createVideoProvider,
 	discoverySettingsFromEnv,

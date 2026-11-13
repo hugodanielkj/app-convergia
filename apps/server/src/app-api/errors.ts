@@ -21,6 +21,8 @@ const STATUS_BY_CODE: Record<string, ContentfulStatusCode> = {
 	already_pending: 409,
 	preview_unavailable: 409,
 	ai_unavailable: 503,
+	agency_connect_instagram: 403,
+	instagram_not_configured: 503,
 };
 
 export type AppErrorBody = {

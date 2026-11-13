@@ -1,7 +1,9 @@
 import type { AuthenticatedUser } from "@convergia/core";
 import {
+	FakeInstagramGateway,
 	FakeScriptAi,
 	InMemoryCompanyRepository,
+	InMemoryInstagramRepository,
 	InMemoryQuotaRepository,
 	InMemoryScriptRepository,
 	inMemoryContentDeps,
@@ -83,6 +85,8 @@ describe("contrato MCP: roteiros", () => {
 			]),
 			...inMemoryContentDeps(),
 			scripts: new InMemoryScriptRepository(),
+			instagram: new InMemoryInstagramRepository(),
+			instagramGateway: new FakeInstagramGateway(),
 			scriptAi: new FakeScriptAi(),
 			quotas: new InMemoryQuotaRepository(),
 			...testDiscoveryDeps(),

@@ -91,3 +91,39 @@ describe("descoberta de vídeos (RN-114, RN-118)", () => {
 		).toThrow(/VIDEO_SEARCH_MAX_CALLS/);
 	});
 });
+
+describe("Instagram (RN-035)", () => {
+	const DATABASE_URL = "postgres://u:p@localhost:5432/db";
+	const KEY = Buffer.alloc(32, 7).toString("base64");
+	const app = {
+		DATABASE_URL,
+		INSTAGRAM_APP_ID: "123",
+		INSTAGRAM_APP_SECRET: "segredo-de-teste",
+		INSTAGRAM_REDIRECT_URI: "https://app.exemplo.test/api/instagram/callback",
+		INSTAGRAM_TOKEN_KEY: KEY,
+	};
+
+	it("sem o app da Meta, nada é obrigatório", () => {
+		expect(loadEnv({ DATABASE_URL }).INSTAGRAM_APP_ID).toBeUndefined();
+	});
+
+	it("com o app da Meta, exige a chave secreta, o retorno e a chave dos tokens", () => {
+		expect(loadEnv(app).INSTAGRAM_TOKEN_KEY).toBe(KEY);
+		for (const name of [
+			"INSTAGRAM_APP_SECRET",
+			"INSTAGRAM_REDIRECT_URI",
+			"INSTAGRAM_TOKEN_KEY",
+		]) {
+			expect(() => loadEnv({ ...app, [name]: "" })).toThrow(name);
+		}
+	});
+
+	it("recusa chave dos tokens que não tem 32 bytes", () => {
+		expect(() =>
+			loadEnv({
+				...app,
+				INSTAGRAM_TOKEN_KEY: Buffer.alloc(16).toString("base64"),
+			}),
+		).toThrow(/INSTAGRAM_TOKEN_KEY/);
+	});
+});

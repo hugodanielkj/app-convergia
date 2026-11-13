@@ -94,6 +94,19 @@ Custo e limites, todos no `.env.example`:
 
 Limitações do provedor: a busca do Instagram usa resultados indexados pelo Google, então é parcial e pode trazer menos Reels recentes; as métricas são as públicas no momento da coleta. Cada chamada fica registrada na tabela `video_provider_calls` (latência, erro e créditos) e cada pesquisa em `video_search_requests` (acerto de cache). Para trocar de provedor, implemente a porta `VideoProvider` em `packages/infra/src/scraping/` e troque `createVideoProvider`.
 
+## Instagram da empresa: configurar o app da Meta
+
+O cliente conecta o Instagram da empresa em **Mais › Desempenho e Instagram** (ou pela ferramenta MCP `connect_instagram`), e a IA passa a usar o perfil, as legendas dos posts recentes e as curtidas e comentários de cada um ao gerar roteiros (RN-039). Sem o app da Meta, fora de produção, o app usa um **Instagram simulado**, com dados de exemplo marcados como simulados.
+
+Para conectar de verdade:
+
+1. Em [developers.facebook.com](https://developers.facebook.com), crie um app do tipo **Business** e adicione o produto **Instagram › API com login do Instagram**.
+2. Em **Business login settings**, cadastre o endereço de retorno: o endereço do app web seguido de `/api/instagram/callback` (ex.: `https://app.suaempresa.com.br/api/instagram/callback`). Ele precisa abrir o app web, que repassa `/api` para o servidor.
+3. Em **App Roles › Roles** (ou em **API setup with Instagram login**), adicione como testadora a conta do Instagram da empresa e aceite o convite no Instagram. Ela precisa ser **Profissional** (comercial ou de criador). Sem a revisão da Meta, só contas testadoras conectam.
+4. No `.env`, preencha `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET`, `INSTAGRAM_REDIRECT_URI` (o mesmo endereço do passo 2) e `INSTAGRAM_TOKEN_KEY` (o comando para gerar está no `.env.example`). O servidor mostra no início qual Instagram está usando.
+
+O app pede só a permissão `instagram_business_basic`. Os tokens ficam criptografados no banco e um job diário renova cada um antes dos 60 dias e atualiza os dados que a IA lê. Para clientes que não são testadores do app, a Meta exige a revisão do app e a verificação da empresa.
+
 ## CI
 
 - Todo Pull Request roda: título do PR, lint, tipos, testes, integração com Postgres e auditoria de dependências.

@@ -6,10 +6,12 @@ import {
 } from "@convergia/core";
 import {
 	FakeDiscoveryQueue,
+	FakeInstagramGateway,
 	FakeScriptAi,
 	FakeVideoProvider,
 	InMemoryCompanyRepository,
 	InMemoryDiscoveryRepository,
+	InMemoryInstagramRepository,
 	InMemoryQuotaRepository,
 	InMemoryScriptRepository,
 	inMemoryContentDeps,
@@ -101,6 +103,8 @@ describe("contrato MCP: descoberta de vídeos (RN-110 a RN-119)", () => {
 			]),
 			...inMemoryContentDeps(),
 			scripts: new InMemoryScriptRepository(),
+			instagram: new InMemoryInstagramRepository(),
+			instagramGateway: new FakeInstagramGateway(),
 			scriptAi: new FakeScriptAi(),
 			quotas: new InMemoryQuotaRepository(),
 			now: () => new Date(),

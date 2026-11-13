@@ -11,12 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EntrarRouteImport } from './routes/entrar'
+import { Route as InstagramRouteImport } from './routes/instagram'
 import { Route as EmpresasIndexRouteImport } from './routes/empresas/index'
 import { Route as EmpresasCompanyIdRouteRouteImport } from './routes/empresas/$companyId/route'
 import { Route as EmpresasCompanyIdIndexRouteImport } from './routes/empresas/$companyId/index'
 import { Route as EmpresasCompanyIdAprovacoesRouteImport } from './routes/empresas/$companyId/aprovacoes'
 import { Route as EmpresasCompanyIdCalendarioRouteImport } from './routes/empresas/$companyId/calendario'
 import { Route as EmpresasCompanyIdDescobrirRouteImport } from './routes/empresas/$companyId/descobrir'
+import { Route as EmpresasCompanyIdDesempenhoRouteImport } from './routes/empresas/$companyId/desempenho'
 import { Route as EmpresasCompanyIdLixeiraRouteImport } from './routes/empresas/$companyId/lixeira'
 import { Route as EmpresasCompanyIdMaisRouteImport } from './routes/empresas/$companyId/mais'
 import { Route as EmpresasCompanyIdCardsContentIdRouteImport } from './routes/empresas/$companyId/cards/$contentId'
@@ -30,6 +32,11 @@ const IndexRoute = IndexRouteImport.update({
 const EntrarRoute = EntrarRouteImport.update({
   id: '/entrar',
   path: '/entrar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstagramRoute = InstagramRouteImport.update({
+  id: '/instagram',
+  path: '/instagram',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmpresasIndexRoute = EmpresasIndexRouteImport.update({
@@ -65,6 +72,12 @@ const EmpresasCompanyIdDescobrirRoute =
     path: '/descobrir',
     getParentRoute: () => EmpresasCompanyIdRouteRoute,
   } as any)
+const EmpresasCompanyIdDesempenhoRoute =
+  EmpresasCompanyIdDesempenhoRouteImport.update({
+    id: '/desempenho',
+    path: '/desempenho',
+    getParentRoute: () => EmpresasCompanyIdRouteRoute,
+  } as any)
 const EmpresasCompanyIdLixeiraRoute =
   EmpresasCompanyIdLixeiraRouteImport.update({
     id: '/lixeira',
@@ -92,11 +105,13 @@ const EmpresasCompanyIdRoteirosNovoRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/entrar': typeof EntrarRoute
+  '/instagram': typeof InstagramRoute
   '/empresas/$companyId': typeof EmpresasCompanyIdRouteRouteWithChildren
   '/empresas/': typeof EmpresasIndexRoute
   '/empresas/$companyId/aprovacoes': typeof EmpresasCompanyIdAprovacoesRoute
   '/empresas/$companyId/calendario': typeof EmpresasCompanyIdCalendarioRoute
   '/empresas/$companyId/descobrir': typeof EmpresasCompanyIdDescobrirRoute
+  '/empresas/$companyId/desempenho': typeof EmpresasCompanyIdDesempenhoRoute
   '/empresas/$companyId/lixeira': typeof EmpresasCompanyIdLixeiraRoute
   '/empresas/$companyId/mais': typeof EmpresasCompanyIdMaisRoute
   '/empresas/$companyId/': typeof EmpresasCompanyIdIndexRoute
@@ -106,10 +121,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/entrar': typeof EntrarRoute
+  '/instagram': typeof InstagramRoute
   '/empresas': typeof EmpresasIndexRoute
   '/empresas/$companyId/aprovacoes': typeof EmpresasCompanyIdAprovacoesRoute
   '/empresas/$companyId/calendario': typeof EmpresasCompanyIdCalendarioRoute
   '/empresas/$companyId/descobrir': typeof EmpresasCompanyIdDescobrirRoute
+  '/empresas/$companyId/desempenho': typeof EmpresasCompanyIdDesempenhoRoute
   '/empresas/$companyId/lixeira': typeof EmpresasCompanyIdLixeiraRoute
   '/empresas/$companyId/mais': typeof EmpresasCompanyIdMaisRoute
   '/empresas/$companyId': typeof EmpresasCompanyIdIndexRoute
@@ -120,11 +137,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/entrar': typeof EntrarRoute
+  '/instagram': typeof InstagramRoute
   '/empresas/$companyId': typeof EmpresasCompanyIdRouteRouteWithChildren
   '/empresas/': typeof EmpresasIndexRoute
   '/empresas/$companyId/aprovacoes': typeof EmpresasCompanyIdAprovacoesRoute
   '/empresas/$companyId/calendario': typeof EmpresasCompanyIdCalendarioRoute
   '/empresas/$companyId/descobrir': typeof EmpresasCompanyIdDescobrirRoute
+  '/empresas/$companyId/desempenho': typeof EmpresasCompanyIdDesempenhoRoute
   '/empresas/$companyId/lixeira': typeof EmpresasCompanyIdLixeiraRoute
   '/empresas/$companyId/mais': typeof EmpresasCompanyIdMaisRoute
   '/empresas/$companyId/': typeof EmpresasCompanyIdIndexRoute
@@ -136,11 +155,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/entrar'
+    | '/instagram'
     | '/empresas/$companyId'
     | '/empresas/'
     | '/empresas/$companyId/aprovacoes'
     | '/empresas/$companyId/calendario'
     | '/empresas/$companyId/descobrir'
+    | '/empresas/$companyId/desempenho'
     | '/empresas/$companyId/lixeira'
     | '/empresas/$companyId/mais'
     | '/empresas/$companyId/'
@@ -150,10 +171,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/entrar'
+    | '/instagram'
     | '/empresas'
     | '/empresas/$companyId/aprovacoes'
     | '/empresas/$companyId/calendario'
     | '/empresas/$companyId/descobrir'
+    | '/empresas/$companyId/desempenho'
     | '/empresas/$companyId/lixeira'
     | '/empresas/$companyId/mais'
     | '/empresas/$companyId'
@@ -163,11 +186,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/entrar'
+    | '/instagram'
     | '/empresas/$companyId'
     | '/empresas/'
     | '/empresas/$companyId/aprovacoes'
     | '/empresas/$companyId/calendario'
     | '/empresas/$companyId/descobrir'
+    | '/empresas/$companyId/desempenho'
     | '/empresas/$companyId/lixeira'
     | '/empresas/$companyId/mais'
     | '/empresas/$companyId/'
@@ -178,6 +203,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EntrarRoute: typeof EntrarRoute
+  InstagramRoute: typeof InstagramRoute
   EmpresasCompanyIdRouteRoute: typeof EmpresasCompanyIdRouteRouteWithChildren
   EmpresasIndexRoute: typeof EmpresasIndexRoute
 }
@@ -196,6 +222,13 @@ declare module '@tanstack/react-router' {
       path: '/entrar'
       fullPath: '/entrar'
       preLoaderRoute: typeof EntrarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instagram': {
+      id: '/instagram'
+      path: '/instagram'
+      fullPath: '/instagram'
+      preLoaderRoute: typeof InstagramRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/empresas/': {
@@ -240,6 +273,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresasCompanyIdDescobrirRouteImport
       parentRoute: typeof EmpresasCompanyIdRouteRoute
     }
+    '/empresas/$companyId/desempenho': {
+      id: '/empresas/$companyId/desempenho'
+      path: '/desempenho'
+      fullPath: '/empresas/$companyId/desempenho'
+      preLoaderRoute: typeof EmpresasCompanyIdDesempenhoRouteImport
+      parentRoute: typeof EmpresasCompanyIdRouteRoute
+    }
     '/empresas/$companyId/lixeira': {
       id: '/empresas/$companyId/lixeira'
       path: '/lixeira'
@@ -275,6 +315,7 @@ interface EmpresasCompanyIdRouteRouteChildren {
   EmpresasCompanyIdAprovacoesRoute: typeof EmpresasCompanyIdAprovacoesRoute
   EmpresasCompanyIdCalendarioRoute: typeof EmpresasCompanyIdCalendarioRoute
   EmpresasCompanyIdDescobrirRoute: typeof EmpresasCompanyIdDescobrirRoute
+  EmpresasCompanyIdDesempenhoRoute: typeof EmpresasCompanyIdDesempenhoRoute
   EmpresasCompanyIdLixeiraRoute: typeof EmpresasCompanyIdLixeiraRoute
   EmpresasCompanyIdMaisRoute: typeof EmpresasCompanyIdMaisRoute
   EmpresasCompanyIdIndexRoute: typeof EmpresasCompanyIdIndexRoute
@@ -287,6 +328,7 @@ const EmpresasCompanyIdRouteRouteChildren: EmpresasCompanyIdRouteRouteChildren =
     EmpresasCompanyIdAprovacoesRoute: EmpresasCompanyIdAprovacoesRoute,
     EmpresasCompanyIdCalendarioRoute: EmpresasCompanyIdCalendarioRoute,
     EmpresasCompanyIdDescobrirRoute: EmpresasCompanyIdDescobrirRoute,
+    EmpresasCompanyIdDesempenhoRoute: EmpresasCompanyIdDesempenhoRoute,
     EmpresasCompanyIdLixeiraRoute: EmpresasCompanyIdLixeiraRoute,
     EmpresasCompanyIdMaisRoute: EmpresasCompanyIdMaisRoute,
     EmpresasCompanyIdIndexRoute: EmpresasCompanyIdIndexRoute,
@@ -302,6 +344,7 @@ const EmpresasCompanyIdRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EntrarRoute: EntrarRoute,
+  InstagramRoute: InstagramRoute,
   EmpresasCompanyIdRouteRoute: EmpresasCompanyIdRouteRouteWithChildren,
   EmpresasIndexRoute: EmpresasIndexRoute,
 }

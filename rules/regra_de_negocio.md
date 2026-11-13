@@ -134,7 +134,7 @@ Legenda: ✔ pode · ✘ não pode · ❓ em aberto
 - ✅ **RN-031** — Os dados vêm de **duas fontes**: a **API oficial via OAuth** e o **scraping**. O perfil **da própria empresa** vem só pela API oficial (RN-035); o scraping fica para perfis e posts de terceiros, ainda em aberto (Q-08). *(Ajustada em 12/11/2026 pela resposta à Q-08: antes, o scraping era alternativa também para o perfil da empresa.)*
 - ✅ **RN-032** — Enquanto não houver o módulo de marca, **a IA entende a empresa pelo Instagram conectado**: o "login" da empresa no Instagram é o contexto da marca.
 - ✅ **RN-033** — **A IA identifica o nicho da empresa** a partir do Instagram conectado.
-  - ❓ Quais dados exatamente ela lê para isso e para o contexto da marca (bio, categoria, legendas, transcrições de reels, métricas, comentários)? (Q-07)
+- ✅ **RN-039** — **O que a IA lê do Instagram conectado** para entender a marca e o nicho ao gerar roteiros: o **perfil** (nome, @, bio, site, tipo de conta e número de seguidores e de posts), as **legendas dos posts recentes** e o **desempenho de cada post** (curtidas e comentários). Por enquanto, ela não lê transcrições de reels (falta o provedor de transcrição), o texto dos comentários nem as métricas de alcance (insights). *(Decidido em 13/11/2026, responde Q-07.)*
 - ✅ **RN-034** — **Quem conecta o Instagram é o usuário do cliente.** A agência não conecta a conta pela empresa.
 - ✅ **RN-035** — **O cliente informa o @ da empresa e conecta pela autenticação da Meta** (API oficial). O perfil da própria empresa não é lido por scraping. Consequência: a conta precisa ser Profissional (RN-036).
   - ❓ Scraping de perfis e posts de terceiros (referências): quando usar e com qual cuidado? (Q-08)
@@ -371,7 +371,7 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 
 ### Instagram e IA
 - ~~**Q-05**~~ — Respondida em 12/11/2026: o cliente conecta (RN-034).
-- **Q-07** — *Respondida em parte em 12/11/2026: a IA identifica o nicho pelo Instagram (RN-033).* Falta decidir quais dados do Instagram ela lê (bio, categoria, legendas, transcrições, métricas, comentários).
+- ~~**Q-07**~~ — Respondida em 12/11/2026 (RN-033) e em 13/11/2026: perfil, legendas recentes e curtidas e comentários de cada post (RN-039).
 - **Q-08** — *Respondida em parte em 12/11/2026: o perfil da empresa só entra pela autenticação da Meta (RN-035). Em 13/11/2026: a descoberta de vídeos usa dados públicos de terceiros por um provedor, guardando só metadados e sem baixar os vídeos (RN-111, RN-112).* Falta decidir o scraping de perfis e posts de terceiros para **referências**: quando usar e com qual cuidado.
 - **Q-09** — *Respondida em parte em 12/11/2026: insights com pelo menos 5 vídeos (RN-045).* As demais regras de desempenho do Dalea (RN-040 a RN-051) valem para nós?
 

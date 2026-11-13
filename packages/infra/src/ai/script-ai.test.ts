@@ -6,6 +6,7 @@ import { createScriptAi } from "./script-ai";
 const meta = { companyId: "empresa-a", tool: "refine_content" as const };
 const brief: ScriptBrief = {
 	companyName: "Móveis A",
+	instagram: null,
 	content: {
 		title: "Sofá",
 		idea: null,
@@ -106,5 +107,69 @@ describe("refino com pesquisa na web (RN-075)", () => {
 		const text = requests[0]?.messages.map((m) => m.content).join("\n") ?? "";
 		expect(text).toContain("Antiga (https://example.com/antiga)");
 		expect(text).toContain("Nova (https://example.com/nova)");
+	});
+});
+
+describe("contexto do Instagram no roteiro (RN-032, RN-039, RN-076)", () => {
+	const snapshot = {
+		profile: {
+			username: "moveis_a",
+			name: "Móveis A",
+			biography: "Sofás sob medida em Viçosa",
+			website: null,
+			accountType: "business" as const,
+			followersCount: 12_300,
+			followsCount: 200,
+			mediaCount: 210,
+			profilePictureUrl: null,
+		},
+		posts: [
+			{
+				id: "1",
+				caption: "Post fraco",
+				mediaType: "image" as const,
+				permalink: null,
+				publishedAt: null,
+				likeCount: 3,
+				commentsCount: 0,
+			},
+			{
+				id: "2",
+				caption: `Bastidores da marcenaria\n\n${"muito texto ".repeat(60)}`,
+				mediaType: "video" as const,
+				permalink: null,
+				publishedAt: null,
+				likeCount: 500,
+				commentsCount: 40,
+			},
+		],
+		collectedAt: new Date("2026-11-13T12:00:00Z"),
+	};
+
+	it("manda o perfil e os posts, dos que mais engajaram para os que menos, com legendas curtas", async () => {
+		const { gateway, requests } = stubGateway(script, []);
+		await createScriptAi(gateway).writeScript(meta, {
+			...brief,
+			instagram: snapshot,
+		});
+
+		const prompt = String(requests[0]?.messages[0]?.content);
+		expect(prompt).toContain(
+			"Instagram da empresa: @moveis_a, conta comercial, 12.300 seguidores, 210 posts",
+		);
+		expect(prompt).toContain("Bio: Sofás sob medida em Viçosa");
+		expect(prompt.indexOf("Bastidores da marcenaria")).toBeLessThan(
+			prompt.indexOf("Post fraco"),
+		);
+		expect(prompt).toContain("(vídeo, 500 curtidas, 40 comentários)");
+		expect(prompt).not.toContain("muito texto ".repeat(40));
+	});
+
+	it("sem Instagram conectado, o prompt não fala dele", async () => {
+		const { gateway, requests } = stubGateway(script, []);
+		await createScriptAi(gateway).writeScript(meta, brief);
+		expect(String(requests[0]?.messages[0]?.content)).not.toContain(
+			"Instagram da empresa",
+		);
 	});
 });

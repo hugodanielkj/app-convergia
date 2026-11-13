@@ -6,6 +6,7 @@ import { InMemoryContentRepository } from "../../conteudo/testing/in-memory-cont
 import { createContents } from "../../conteudo/use-cases/create-contents";
 import { getContent } from "../../conteudo/use-cases/read-contents";
 import { InMemoryQuotaRepository } from "../../cotas/testing/in-memory-quota-repository";
+import { InMemoryInstagramRepository } from "../../desempenho/testing/fakes";
 import type { ActorContext } from "../../shared/actor-context";
 import { FakeScriptAi } from "../testing/fake-script-ai";
 import { InMemoryScriptRepository } from "../testing/in-memory-script-repository";
@@ -40,6 +41,7 @@ describe("opções avulsas com o limite simulado (RN-071)", () => {
 			companies: new InMemoryCompanyRepository([companyA, companyB]),
 			contents: new InMemoryContentRepository(now),
 			scripts: new InMemoryScriptRepository(now),
+			instagram: new InMemoryInstagramRepository(),
 			scriptAi: new FakeScriptAi(),
 			quotas: new InMemoryQuotaRepository(),
 			now,

@@ -1,8 +1,10 @@
 import { type AuthenticatedUser, issueApiKey } from "@convergia/core";
 import {
+	FakeInstagramGateway,
 	FakeScriptAi,
 	InMemoryApiKeyRepository,
 	InMemoryCompanyRepository,
+	InMemoryInstagramRepository,
 	InMemoryQuotaRepository,
 	InMemoryScriptRepository,
 	inMemoryContentDeps,
@@ -103,6 +105,8 @@ describe("API do app: roteiros (RN-006)", () => {
 			]),
 			...inMemoryContentDeps(),
 			scripts: new InMemoryScriptRepository(),
+			instagram: new InMemoryInstagramRepository(),
+			instagramGateway: new FakeInstagramGateway(),
 			scriptAi,
 			quotas: new InMemoryQuotaRepository(),
 			...testDiscoveryDeps(),

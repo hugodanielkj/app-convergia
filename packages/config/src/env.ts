@@ -40,10 +40,40 @@ const envSchema = z
 		VIDEO_SEARCH_METRIC_REFRESH: numberOr(5, 0, 40),
 		VIDEO_SEARCH_TIMEOUT_MS: numberOr(20_000, 1_000, 120_000),
 		VIDEO_SEARCH_AI_EXPANSION: flagOr(true),
+		// App da Meta com o login do Instagram (RN-035). Sem ele, fora de produção, o Instagram é simulado.
+		INSTAGRAM_APP_ID: optionalText,
+		INSTAGRAM_APP_SECRET: optionalText,
+		INSTAGRAM_REDIRECT_URI: optionalText.pipe(z.url().optional()),
+		// Chave de 32 bytes em base64 que criptografa os tokens do Instagram no banco.
+		INSTAGRAM_TOKEN_KEY: optionalText.pipe(
+			z
+				.string()
+				.refine((value) => Buffer.from(value, "base64").length === 32, {
+					message: "precisa ter 32 bytes em base64",
+				})
+				.optional(),
+		),
 	})
 	.refine((env) => env.NODE_ENV !== "production" || env.ANTHROPIC_API_KEY, {
 		path: ["ANTHROPIC_API_KEY"],
 		message: "obrigatória em produção",
+	})
+	.superRefine((env, ctx) => {
+		// Com o app da Meta, as outras três passam a ser obrigatórias.
+		if (!env.INSTAGRAM_APP_ID) return;
+		for (const name of [
+			"INSTAGRAM_APP_SECRET",
+			"INSTAGRAM_REDIRECT_URI",
+			"INSTAGRAM_TOKEN_KEY",
+		] as const) {
+			if (!env[name]) {
+				ctx.addIssue({
+					code: "custom",
+					path: [name],
+					message: "obrigatória com INSTAGRAM_APP_ID",
+				});
+			}
+		}
 	});
 
 export type Env = z.infer<typeof envSchema>;

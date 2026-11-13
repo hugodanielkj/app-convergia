@@ -3,6 +3,7 @@ import {
 	type CompanyRepository,
 	type ContentRepository,
 	type DiscoveryDeps,
+	type InstagramDeps,
 	listCompanies,
 	type QuotaRepository,
 	resolveActorContext,
@@ -15,20 +16,22 @@ import type { Authenticate } from "../auth/authenticate";
 import { approvalRoutes } from "./aprovacao";
 import { contentRoutes } from "./conteudo";
 import { discoveryRoutes } from "./descoberta";
+import { instagramRoutes } from "./desempenho";
 import type { AppEnv } from "./env";
 import { toAppError } from "./errors";
 import { scriptRoutes } from "./roteiros";
 
-export type AppApiDeps = DiscoveryDeps & {
-	authenticate: Authenticate;
-	companies: CompanyRepository;
-	contents: ContentRepository;
-	approvals: ApprovalRepository;
-	scripts: ScriptRepository;
-	scriptAi: ScriptAi;
-	quotas: QuotaRepository;
-	now: () => Date;
-};
+export type AppApiDeps = DiscoveryDeps &
+	InstagramDeps & {
+		authenticate: Authenticate;
+		companies: CompanyRepository;
+		contents: ContentRepository;
+		approvals: ApprovalRepository;
+		scripts: ScriptRepository;
+		scriptAi: ScriptAi;
+		quotas: QuotaRepository;
+		now: () => Date;
+	};
 
 /**
  * API JSON do app web (RN-003). Chama os mesmos casos de uso das ferramentas MCP.
@@ -68,6 +71,7 @@ export function createAppApi(deps: AppApiDeps) {
 		})
 		.route("/", contentRoutes(deps))
 		.route("/", approvalRoutes(deps))
+		.route("/", instagramRoutes(deps))
 		.route("/", scriptRoutes(deps))
 		.route("/", discoveryRoutes(deps));
 }

@@ -14,5 +14,11 @@ export {
 	testVideo,
 } from "./descoberta/testing/fakes";
 export { InMemoryDiscoveryRepository } from "./descoberta/testing/in-memory-discovery-repository";
+export {
+	FakeInstagramGateway,
+	InMemoryInstagramRepository,
+	testPost,
+	testProfile,
+} from "./desempenho/testing/fakes";
 export { FakeScriptAi } from "./roteiros/testing/fake-script-ai";
 export { InMemoryScriptRepository } from "./roteiros/testing/in-memory-script-repository";

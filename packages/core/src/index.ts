@@ -168,6 +168,40 @@ export {
 	videoSearchInput,
 	videoSearchPageInput,
 } from "./descoberta/video";
+export {
+	CONNECT_LINK_MINUTES,
+	type ConnectInstagramInput,
+	connectInstagramInput,
+	INSTAGRAM_ACCOUNT_TYPES,
+	INSTAGRAM_MEDIA_TYPES,
+	type InstagramAccountType,
+	type InstagramConnection,
+	type InstagramMediaType,
+	type InstagramPost,
+	type InstagramProfile,
+	type InstagramSnapshot,
+	normalizeHandle,
+	RECENT_POSTS_LIMIT,
+} from "./desempenho/instagram";
+export {
+	type InstagramGateway,
+	InstagramGatewayError,
+	type InstagramToken,
+} from "./desempenho/ports/instagram-gateway";
+export type {
+	ConnectRequest,
+	InstagramRepository,
+} from "./desempenho/ports/instagram-repository";
+export {
+	brandContext,
+	type ConnectOutcome,
+	completeInstagramConnection,
+	getInstagramConnection,
+	type InstagramConnectionView,
+	type InstagramDeps,
+	refreshInstagramConnections,
+	startInstagramConnection,
+} from "./desempenho/use-cases/instagram-connection";
 export { TRASH_RETENTION_DAYS } from "./policies/content.policy";
 export {
 	assertCanWrite,

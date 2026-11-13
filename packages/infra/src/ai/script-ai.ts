@@ -1,6 +1,7 @@
 import {
 	type Citation,
 	citationKey,
+	type InstagramSnapshot,
 	MAX_OPTIONS_PER_CALL,
 	type RefineTurn,
 	type Script,
@@ -54,7 +55,8 @@ Um roteiro tem quatro partes:
 - cta: a chamada para ação, uma frase.
 - caption: a legenda do post, com no máximo 5 hashtags no fim.
 Respeite a duração alvo quando ela for informada. Não invente dados, preços nem depoimentos da empresa.
-Quando o roteiro já tiver fontes citadas, preserve as informações que vêm delas: não as apague nem as contradiga ao reescrever.`;
+Quando o roteiro já tiver fontes citadas, preserve as informações que vêm delas: não as apague nem as contradiga ao reescrever.
+Quando o Instagram da empresa for informado, use-o para entender o nicho, o público e o tom de voz da marca. Os posts vêm dos que mais engajaram para os que menos engajaram: aproveite os temas e o jeito de falar que funcionam, sem copiar legendas. Não cite números do perfil no roteiro.`;
 
 const WEB_SEARCH_ON =
 	"Pesquise na web para embasar este pedido com dados atuais e confiáveis. Em sources, liste só as páginas da busca que você realmente usou no roteiro, com o endereço exato.";
@@ -85,9 +87,56 @@ function citationLines(citations: Citation[]): string {
 	return citations.map((c) => `- ${c.title} (${c.url})`).join("\n");
 }
 
-function briefText({ companyName, content }: ScriptBrief): string {
+/** Legendas longas são cortadas: o tom aparece nas primeiras linhas. */
+const CAPTION_CHARS = 300;
+const ACCOUNT_LABEL = {
+	business: "comercial",
+	creator: "de criador de conteúdo",
+};
+const MEDIA_TYPE_LABEL = {
+	image: "imagem",
+	video: "vídeo",
+	carousel: "carrossel",
+};
+const count = new Intl.NumberFormat("pt-BR");
+
+function engagement(post: InstagramSnapshot["posts"][number]): number {
+	return (post.likeCount ?? 0) + (post.commentsCount ?? 0);
+}
+
+/** ✅ RN-032, RN-039: perfil, legendas recentes e curtidas e comentários de cada post. */
+export function instagramText({ profile, posts }: InstagramSnapshot): string {
+	const numbers = [
+		profile.followersCount !== null &&
+			`${count.format(profile.followersCount)} seguidores`,
+		profile.mediaCount !== null && `${count.format(profile.mediaCount)} posts`,
+	].filter(Boolean);
+	const header = `Instagram da empresa: @${profile.username}, conta ${ACCOUNT_LABEL[profile.accountType]}${numbers.length > 0 ? `, ${numbers.join(", ")}` : ""}`;
+	const ranked = [...posts].sort((a, b) => engagement(b) - engagement(a));
+	const postLines = ranked.map((post) => {
+		const caption = post.caption
+			? post.caption.replace(/\s+/g, " ").trim().slice(0, CAPTION_CHARS)
+			: "(sem legenda)";
+		const kind = post.mediaType ? `${MEDIA_TYPE_LABEL[post.mediaType]}, ` : "";
+		const metrics = `${post.likeCount ?? "?"} curtidas, ${post.commentsCount ?? "?"} comentários`;
+		return `- (${kind}${metrics}) ${caption}`;
+	});
+	return [
+		header,
+		profile.name && `Nome: ${profile.name}`,
+		profile.biography && `Bio: ${profile.biography}`,
+		profile.website && `Site: ${profile.website}`,
+		postLines.length > 0 &&
+			`Posts recentes, dos que mais engajaram para os que menos:\n${postLines.join("\n")}`,
+	]
+		.filter(Boolean)
+		.join("\n");
+}
+
+function briefText({ companyName, instagram, content }: ScriptBrief): string {
 	const lines = [
 		`Empresa: ${companyName}`,
+		instagram && instagramText(instagram),
 		`Título: ${content.title}`,
 		content.idea && `Ideia: ${content.idea}`,
 		content.mediaType && `Tipo de mídia: ${MEDIA_LABEL[content.mediaType]}`,

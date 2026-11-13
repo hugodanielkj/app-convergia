@@ -1,7 +1,9 @@
 import type { AuthenticatedUser } from "@convergia/core";
 import {
+	FakeInstagramGateway,
 	FakeScriptAi,
 	InMemoryCompanyRepository,
+	InMemoryInstagramRepository,
 	InMemoryQuotaRepository,
 	InMemoryScriptRepository,
 	inMemoryContentDeps,
@@ -42,6 +44,8 @@ async function connect(as: AuthenticatedUser) {
 			companies,
 			...inMemoryContentDeps(),
 			scripts: new InMemoryScriptRepository(),
+			instagram: new InMemoryInstagramRepository(),
+			instagramGateway: new FakeInstagramGateway(),
 			scriptAi: new FakeScriptAi(),
 			quotas: new InMemoryQuotaRepository(),
 			...testDiscoveryDeps(),

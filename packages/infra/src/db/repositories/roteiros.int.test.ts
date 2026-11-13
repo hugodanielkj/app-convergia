@@ -17,6 +17,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createFakeLlm } from "../../ai/fake-llm";
 import { createLlmGateway, type LlmClient } from "../../ai/llm-gateway";
 import { createScriptAi } from "../../ai/script-ai";
+import { createTokenCipher } from "../../instagram/token-cipher";
 import { createDb } from "../client";
 import {
 	agencies,
@@ -32,6 +33,7 @@ import {
 import { withCompany } from "../with-company";
 import { createCompanyRepository } from "./company.repository";
 import { createContentRepository } from "./content.repository";
+import { createInstagramRepository } from "./instagram.repository";
 import { createQuotaRepository } from "./quota.repository";
 import { createScriptRepository } from "./script.repository";
 
@@ -42,6 +44,10 @@ describe("roteiros e cotas no Postgres", () => {
 		companies: createCompanyRepository(db),
 		contents: createContentRepository(db),
 		scripts: createScriptRepository(db),
+		instagram: createInstagramRepository(
+			db,
+			createTokenCipher(Buffer.alloc(32, 1).toString("base64")),
+		),
 		scriptAi: createScriptAi(createLlmGateway(db, createFakeLlm())),
 		quotas,
 		now: () => new Date(),
@@ -310,7 +316,7 @@ describe("roteiros e cotas no Postgres", () => {
 		const card = await newCard("Mesa dobrável");
 		const options = await deps.scriptAi.suggestOptions(
 			{ companyId: ids.companyA, tool: "generate_cta_options" },
-			{ companyName: "Móveis A", content: card },
+			{ companyName: "Móveis A", instagram: null, content: card },
 			"cta",
 		);
 		expect(options).toHaveLength(3);
