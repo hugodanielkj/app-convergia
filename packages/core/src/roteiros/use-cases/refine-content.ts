@@ -5,7 +5,11 @@ import { assertCanEditContent } from "../../policies/approval.policy";
 import { assertCanWrite } from "../../policies/permission.policy";
 import type { ActorContext } from "../../shared/actor-context";
 import { previewUnavailable, stalePreview } from "../errors";
-import type { PreviewDecision, RefineMessage } from "../refinement";
+import {
+	mergeCitations,
+	type PreviewDecision,
+	type RefineMessage,
+} from "../refinement";
 import { briefFor, type ScriptDeps, scriptChange } from "./deps";
 
 /** Quantas mensagens anteriores vão para a IA como contexto do refino. */
@@ -15,13 +19,15 @@ const CHAT_LIMIT = 50;
 
 /**
  * Conversa de refino (✅ RN-006): a IA responde e propõe um roteiro, que fica como **prévia**
- * e não altera o card (📎 RN-073). Consome cota de "refinar roteiro" (RN-303).
+ * e não altera o card (📎 RN-073). Com `webSearch`, a IA pesquisa na web e devolve as fontes
+ * (📎 RN-075). Consome cota de "refinar roteiro" (RN-303).
  */
 export async function refineContent(
 	deps: ScriptDeps,
 	actor: ActorContext,
 	contentId: string,
 	request: string,
+	options: { webSearch: boolean } = { webSearch: false },
 ): Promise<RefineMessage[]> {
 	assertCanWrite(actor);
 	const content = await getContent(deps, actor, contentId);
@@ -38,8 +44,14 @@ export async function refineContent(
 		deps.scriptAi.refineScript(
 			{ companyId: actor.companyId, tool: "refine_content" },
 			brief,
-			history.map(({ role, text, preview }) => ({ role, text, preview })),
+			history.map(({ role, text, preview, sources }) => ({
+				role,
+				text,
+				preview,
+				sources,
+			})),
 			request,
+			options,
 		),
 	);
 
@@ -48,6 +60,7 @@ export async function refineContent(
 		request,
 		reply: result.reply,
 		preview: result.script,
+		sources: result.sources,
 		previewBaseVersion: content.contentVersion,
 	});
 }
@@ -68,7 +81,8 @@ export async function getRefineChat(
 
 /**
  * Aplica ou descarta a prévia, sem nova chamada de IA (📎 RN-073). Aplicar é recusado se o
- * card mudou depois da prévia (📎 RN-074).
+ * card mudou depois da prévia (📎 RN-074) e soma as fontes da prévia às do card, sem tirar
+ * nenhuma (📎 RN-075).
  */
 export async function reviewContentRefinement(
 	deps: Pick<ScriptDeps, "contents" | "scripts">,
@@ -103,11 +117,10 @@ export async function reviewContentRefinement(
 		throw stalePreview();
 	}
 	assertCanEditContent(actor, content.approvalStatus);
-	const updated = await deps.contents.update(
-		actor.companyId,
-		content.id,
-		scriptChange(actor, content, message.preview),
-	);
+	const updated = await deps.contents.update(actor.companyId, content.id, {
+		...scriptChange(actor, content, message.preview),
+		citations: mergeCitations(content.citations, message.sources),
+	});
 	return {
 		content: updated,
 		message: await deps.scripts.setPreviewStatus(

@@ -38,6 +38,9 @@ export type Script = {
 };
 
 export const SCRIPT_FIELDS = ["hook", "body", "cta", "caption"] as const;
+
+/** Página da web que embasa o roteiro, vinda do refino com pesquisa (📎 RN-075). */
+export type Citation = { title: string; url: string };
 export type ScriptField = (typeof SCRIPT_FIELDS)[number];
 
 /** Card: a unidade de conteúdo (RN-060). */
@@ -49,6 +52,8 @@ export type Content = {
 	title: string;
 	idea: string | null;
 	script: Script;
+	/** Fontes do roteiro. Aplicar uma prévia soma as novas e nunca remove as existentes (RN-075). */
+	citations: Citation[];
 	platform: "instagram";
 	mediaType: MediaType | null;
 	format: string | null;

@@ -70,6 +70,7 @@ export async function duplicateContent(
 			title: original.title,
 			idea: original.idea,
 			script: { ...original.script },
+			citations: original.citations.map((citation) => ({ ...citation })),
 			platform: original.platform,
 			mediaType: original.mediaType,
 			format: original.format,

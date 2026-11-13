@@ -25,6 +25,7 @@ export {
 	APPROVAL_STATUSES,
 	type ApprovalStatus,
 	type CalendarRange,
+	type Citation,
 	type Content,
 	type ContentUpdateInput,
 	calendarRangeInput,
@@ -85,6 +86,7 @@ export {
 export { HISTORY_LIMIT, type HistoryEntry } from "./roteiros/history";
 export type {
 	AiCallMeta,
+	Refinement,
 	RefineTurn,
 	ScriptAi,
 	ScriptBrief,
@@ -92,8 +94,10 @@ export type {
 } from "./roteiros/ports/script-ai";
 export type { ScriptRepository } from "./roteiros/ports/script-repository";
 export {
+	citationKey,
 	MAX_OPTIONS_PER_CALL,
 	MAX_SCRIPTS_PER_CALL,
+	mergeCitations,
 	PREVIEW_DECISIONS,
 	type PreviewDecision,
 	type PreviewStatus,

@@ -1,5 +1,6 @@
 import {
 	APPROVAL_STATUSES,
+	type Citation,
 	FUNNEL_STAGES,
 	KANBAN_STATUSES,
 	MEDIA_TYPES,
@@ -11,6 +12,7 @@ import {
 	doublePrecision,
 	index,
 	integer,
+	jsonb,
 	pgEnum,
 	pgPolicy,
 	pgTable,
@@ -47,6 +49,8 @@ export const contents = pgTable(
 		scriptBody: text("script_body"),
 		scriptCta: text("script_cta"),
 		scriptCaption: text("script_caption"),
+		/** 📎 RN-075: fontes do roteiro, vindas de prévias aplicadas. */
+		citations: jsonb("citations").$type<Citation[]>().notNull().default([]),
 		platform: text("platform").notNull().default("instagram"),
 		mediaType: mediaType("media_type"),
 		format: text("format"),

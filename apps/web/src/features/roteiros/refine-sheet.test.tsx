@@ -11,12 +11,14 @@ const preview = {
 	cta: "Salve",
 	caption: "Legenda",
 };
-const exchange = [
+type Source = { title: string; url: string };
+const exchangeWith = (sources: Source[]) => [
 	{
 		id: "m1",
 		role: "user",
 		text: "Deixe o gancho mais curto",
 		preview: null,
+		sources: [],
 		previewStatus: null,
 	},
 	{
@@ -24,6 +26,7 @@ const exchange = [
 		role: "assistant",
 		text: "Encurtei o gancho.",
 		preview,
+		sources,
 		previewStatus: "pending",
 	},
 ];
@@ -40,17 +43,19 @@ function renderSheet() {
 }
 
 describe("folha Refinar roteiro (RN-006, RN-073)", () => {
-	let calls: { method: string; url: string }[];
+	let calls: { method: string; url: string; body: unknown }[];
 	let chat: unknown[];
+	let exchange: ReturnType<typeof exchangeWith>;
 
 	beforeEach(() => {
 		calls = [];
 		chat = [];
+		exchange = exchangeWith([]);
 		vi.stubGlobal(
 			"fetch",
 			vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-				const { method, url } = fetchCall(input, init);
-				calls.push({ method, url });
+				const { method, url, body } = fetchCall(input, init);
+				calls.push({ method, url, body });
 				if (method === "GET") return Response.json({ messages: chat });
 				if (url.endsWith("/refine")) {
 					chat = exchange;
@@ -91,10 +96,56 @@ describe("folha Refinar roteiro (RN-006, RN-073)", () => {
 			screen.getByRole("button", { name: "Aplicar no card" }),
 		);
 
-		expect(calls).toContainEqual({
-			method: "POST",
-			url: "/api/app/companies/c1/contents/card-1/refine/m2/apply",
+		expect(calls).toContainEqual(
+			expect.objectContaining({
+				method: "POST",
+				url: "/api/app/companies/c1/contents/card-1/refine",
+				body: { message: "Deixe o gancho mais curto", webSearch: false },
+			}),
+		);
+		expect(calls).toContainEqual(
+			expect.objectContaining({
+				method: "POST",
+				url: "/api/app/companies/c1/contents/card-1/refine/m2/apply",
+			}),
+		);
+	});
+
+	it("RN-075: pede a pesquisa na web e mostra as fontes da prévia", async () => {
+		const source = {
+			title: "Tendências de sofás em 2026",
+			url: "https://www.example.com/sofas",
+		};
+		exchange = exchangeWith([source]);
+		renderSheet();
+		const toggle = await screen.findByRole("button", {
+			name: "Pesquisar na web",
 		});
+		expect(toggle).toHaveAttribute("aria-pressed", "false");
+		await userEvent.click(toggle);
+		expect(toggle).toHaveAttribute("aria-pressed", "true");
+
+		await userEvent.type(
+			screen.getByLabelText("O que mudar no roteiro"),
+			"Use dados atuais",
+		);
+		await userEvent.click(
+			screen.getByRole("button", { name: "Enviar pedido" }),
+		);
+
+		expect(calls).toContainEqual(
+			expect.objectContaining({
+				method: "POST",
+				url: "/api/app/companies/c1/contents/card-1/refine",
+				body: { message: "Use dados atuais", webSearch: true },
+			}),
+		);
+		expect(await screen.findByText("Fontes da pesquisa")).toBeInTheDocument();
+		const link = screen.getByRole("link", { name: /Tendências de sofás/ });
+		expect(link).toHaveAttribute("href", source.url);
+		expect(link).toHaveAttribute("target", "_blank");
+		expect(link).toHaveAttribute("rel", "noopener noreferrer");
+		expect(link).toHaveTextContent("example.com");
 	});
 
 	it("mostra o erro de negócio com a mensagem do servidor", async () => {

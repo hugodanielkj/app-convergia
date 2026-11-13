@@ -31,9 +31,17 @@ const agency: AuthenticatedUser = {
 };
 
 type Structured = {
-	content?: { id: string; script: { hook: string | null } };
+	content?: {
+		id: string;
+		script: { hook: string | null };
+		citations: { title: string; url: string }[];
+	};
 	contents?: { id: string; approvalStatus: string }[];
-	messages?: { id: string; role: string }[];
+	messages?: {
+		id: string;
+		role: string;
+		sources: { title: string; url: string }[];
+	}[];
 	entries?: { kind: string }[];
 };
 
@@ -126,6 +134,31 @@ describe("contrato MCP: roteiros", () => {
 		});
 		expect(applied.isError).toBe(false);
 		expect(applied.data.content?.script.hook).toBe("Novo gancho (mais curto)");
+	});
+
+	it("RN-075: refina com pesquisa na web e as fontes vão para as citações do card", async () => {
+		const id = await newCard();
+		const call = await connect(clientA);
+		const source = {
+			title: "Fonte sobre com dados",
+			url: "https://example.com/fonte",
+		};
+
+		const refined = await call("refine_content", {
+			content_id: id,
+			message: "com dados",
+			web_search: true,
+		});
+		expect(refined.data.messages?.[1]?.sources).toEqual([source]);
+		expect(refined.text).toContain(`- ${source.title}: ${source.url}`);
+
+		const applied = await call("review_content_refinement", {
+			content_id: id,
+			message_id: refined.data.messages?.[1]?.id ?? "",
+			decision: "apply",
+		});
+		expect(applied.data.content?.citations).toEqual([source]);
+		expect(applied.text).toContain("Citações do card:");
 	});
 
 	it("RN-022: a agência informa a empresa e a geração fica em preparo", async () => {

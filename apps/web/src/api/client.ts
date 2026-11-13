@@ -106,8 +106,8 @@ export const api = {
 		),
 	history: (param: ContentParams) => call(contentApi.history.$get({ param })),
 	refineChat: (param: ContentParams) => call(contentApi.refine.$get({ param })),
-	refine: (param: ContentParams, message: string) =>
-		call(contentApi.refine.$post({ param, json: { message } })),
+	refine: (param: ContentParams, message: string, webSearch: boolean) =>
+		call(contentApi.refine.$post({ param, json: { message, webSearch } })),
 	reviewPreview: (
 		param: ContentParams,
 		messageId: string,
@@ -127,6 +127,7 @@ export type ContentChanges = Parameters<typeof api.updateContent>[1];
 export type HistoryEntryDto = Awaited<
 	ReturnType<typeof api.history>
 >["entries"][number];
+export type CitationDto = ContentDto["citations"][number];
 export type RefineMessageDto = Awaited<
 	ReturnType<typeof api.refineChat>
 >["messages"][number];

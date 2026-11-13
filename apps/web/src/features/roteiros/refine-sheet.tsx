@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { MessagesSquare, SendHorizontal } from "lucide-react";
+import { Globe, MessagesSquare, SendHorizontal } from "lucide-react";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { errorMessage, type RefineMessageDto } from "../../api/client";
 import { refineChatQuery } from "../../api/queries";
 import { BottomSheet } from "../../components/bottom-sheet";
 import { EmptyState, ErrorState, SkeletonList } from "../../components/states";
 import { cn } from "../../lib/cn";
+import { CitationList } from "./citation-list";
 import { useScriptMutations } from "./mutations";
 import { ScriptPreview } from "./script-preview";
 
@@ -22,7 +23,8 @@ const STATUS_NOTE = {
 
 /**
  * Conversa com a IA dentro do card (✅ RN-006). Cada resposta traz uma prévia que só muda o
- * roteiro quando a pessoa toca em "Aplicar no card" (📎 RN-073).
+ * roteiro quando a pessoa toca em "Aplicar no card" (📎 RN-073). Com "Pesquisar na web", a IA
+ * pesquisa antes de reescrever e mostra as fontes da prévia (📎 RN-075).
  */
 export function RefineSheet({
 	companyId,
@@ -41,6 +43,7 @@ export function RefineSheet({
 	});
 	const { refine, review } = useScriptMutations(companyId);
 	const [draft, setDraft] = useState("");
+	const [webSearch, setWebSearch] = useState(false);
 	const list = useRef<HTMLDivElement>(null);
 	const messages = chat.data?.messages ?? [];
 
@@ -55,7 +58,10 @@ export function RefineSheet({
 		const message = draft.trim();
 		if (!message || refine.isPending) return;
 		review.reset();
-		refine.mutate({ contentId, message }, { onSuccess: () => setDraft("") });
+		refine.mutate(
+			{ contentId, message, webSearch },
+			{ onSuccess: () => setDraft("") },
+		);
 	};
 	const decide = (messageId: string, decision: "apply" | "discard") => {
 		refine.reset();
@@ -111,7 +117,9 @@ export function RefineSheet({
 							role="status"
 							className="w-fit animate-pulse rounded-2xl bg-zinc-100 px-4 py-3 text-sm dark:bg-zinc-800"
 						>
-							A IA está reescrevendo o roteiro...
+							{refine.variables?.webSearch
+								? "A IA está pesquisando na web e reescrevendo o roteiro..."
+								: "A IA está reescrevendo o roteiro..."}
 						</p>
 					)}
 				</div>
@@ -124,6 +132,21 @@ export function RefineSheet({
 						{errorMessage(error)}
 					</p>
 				)}
+
+				<button
+					type="button"
+					aria-pressed={webSearch}
+					onClick={() => setWebSearch((on) => !on)}
+					className={cn(
+						"flex min-h-11 w-fit items-center gap-2 rounded-full px-4 text-sm font-medium ring-1",
+						webSearch
+							? "bg-brand-600 text-white ring-brand-600"
+							: "text-zinc-700 ring-zinc-300 dark:text-zinc-300 dark:ring-zinc-600",
+					)}
+				>
+					<Globe className="size-4" aria-hidden />
+					Pesquisar na web
+				</button>
 
 				<form onSubmit={send} className="flex items-end gap-2">
 					<label htmlFor="refine-message" className="sr-only">
@@ -181,6 +204,12 @@ function Bubble({
 				>
 					<p className="mb-2 text-sm font-semibold">Prévia do roteiro</p>
 					<ScriptPreview script={message.preview} />
+					{message.sources.length > 0 && (
+						<div className="mt-3 border-t border-zinc-200 pt-3 dark:border-zinc-700">
+							<p className="mb-1 text-sm font-semibold">Fontes da pesquisa</p>
+							<CitationList citations={message.sources} />
+						</div>
+					)}
 				</div>
 			)}
 			{status === "pending" ? (

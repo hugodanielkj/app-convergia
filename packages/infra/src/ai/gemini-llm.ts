@@ -8,7 +8,8 @@ export const DEFAULT_GEMINI_MODEL = "gemini-3.5-flash-lite";
 /**
  * Gemini pela API do Google, só para testar em desenvolvimento sem gastar créditos (o plano
  * gratuito usa o conteúdo para melhorar os produtos do Google: nada de dado real de cliente).
- * Em produção a IA é o Claude (stack §4).
+ * Em produção a IA é o Claude (stack §4). Não pesquisa na web: com `webSearch`, o refino
+ * volta sem fontes (RN-075).
  */
 export function createGeminiLlm(
 	apiKey: string,

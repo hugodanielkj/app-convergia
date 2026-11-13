@@ -33,7 +33,7 @@ const optionsParams = z.object({
 });
 const optionsBody = scriptOptionsInput.pick({ count: true });
 
-/** Gerar, refinar e ver o histórico do roteiro de um card (✅ RN-006; RN-070 a RN-074). */
+/** Gerar, refinar e ver o histórico do roteiro de um card (✅ RN-006; RN-070 a RN-075). */
 export function scriptRoutes(deps: ScriptDeps) {
 	const actorFor = (user: AuthenticatedUser, companyId: string) =>
 		resolveActorContext(deps, user, companyId);
@@ -85,12 +85,14 @@ export function scriptRoutes(deps: ScriptDeps) {
 			validator("json", (value) => parseInput(refineContentInput, value)),
 			async (c) => {
 				const actor = await actorFor(c.get("user"), c.req.param("companyId"));
+				const { message, webSearch } = c.req.valid("json");
 				return c.json({
 					messages: await refineContent(
 						deps,
 						actor,
 						c.req.param("contentId"),
-						c.req.valid("json").message,
+						message,
+						{ webSearch },
 					),
 				});
 			},

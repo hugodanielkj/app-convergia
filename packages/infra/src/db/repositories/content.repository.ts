@@ -38,6 +38,7 @@ function toContent(row: Row): Content {
 			cta: row.scriptCta,
 			caption: row.scriptCaption,
 		},
+		citations: row.citations,
 		platform: "instagram",
 		mediaType: row.mediaType,
 		format: row.format,

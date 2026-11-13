@@ -366,9 +366,9 @@ Toda ferramenta que opera dentro de uma empresa recebe o parâmetro `company_id`
 | `generate_scripts` | Roteiro completo para 1 a 5 cards | ✔ | ✔ |
 | `generate_hook_options` / `generate_body_options` / `generate_cta_options` / `generate_caption_options` | Até 3 opções | ✔ | ✔ |
 | `list_content_generations` | Histórico de gerações | | |
-| `refine_content` | Chat de refino. Gera **prévia**, não altera o roteiro | ✔ | ✔ |
+| `refine_content` | Chat de refino. Gera **prévia**, não altera o roteiro. Com `web_search`, pesquisa na web e devolve as fontes (RN-075) | ✔ | ✔ |
 | `get_refine_chat` | Últimas mensagens do refino | | |
-| `review_content_refinement` | Aplica ou descarta a prévia (recusa se `version` mudou) | ✔ | |
+| `review_content_refinement` | Aplica ou descarta a prévia (recusa se `version` mudou). Aplicar soma as fontes da prévia às citações do card, sem apagar nenhuma (RN-075) | ✔ | |
 
 ### Ideias
 | Ferramenta | Descrição | E | C |

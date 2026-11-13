@@ -1,4 +1,9 @@
-import type { CreatorKind, Script, ScriptField } from "../../conteudo/content";
+import type {
+	Citation,
+	CreatorKind,
+	Script,
+	ScriptField,
+} from "../../conteudo/content";
 import type { HistoryEntry } from "../history";
 import type { PreviewStatus, RefineMessage } from "../refinement";
 
@@ -49,6 +54,7 @@ export interface ScriptRepository {
 			request: string;
 			reply: string;
 			preview: Script;
+			sources: Citation[];
 			previewBaseVersion: number;
 		},
 	): Promise<RefineMessage[]>;

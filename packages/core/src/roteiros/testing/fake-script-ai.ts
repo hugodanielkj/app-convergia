@@ -1,6 +1,7 @@
-import type { Script, ScriptField } from "../../conteudo/content";
+import type { Citation, ScriptField } from "../../conteudo/content";
 import type {
 	AiCallMeta,
+	Refinement,
 	RefineTurn,
 	ScriptAi,
 	ScriptBrief,
@@ -15,9 +16,12 @@ export class FakeScriptAi implements ScriptAi {
 		brief: ScriptBrief;
 		history?: RefineTurn[];
 		request?: string;
+		webSearch?: boolean;
 		field?: ScriptField;
 	}[] = [];
 	failWith: Error | null = null;
+	/** Fontes devolvidas quando o refino pesquisa na web; `null` usa uma fonte de exemplo. */
+	sources: Citation[] | null = null;
 
 	async writeScript(
 		meta: AiCallMeta,
@@ -39,12 +43,28 @@ export class FakeScriptAi implements ScriptAi {
 		brief: ScriptBrief,
 		history: RefineTurn[],
 		request: string,
-	): Promise<{ reply: string; script: Script }> {
-		this.calls.push({ kind: "refine", meta, brief, history, request });
+		{ webSearch }: { webSearch: boolean },
+	): Promise<Refinement> {
+		this.calls.push({
+			kind: "refine",
+			meta,
+			brief,
+			history,
+			request,
+			webSearch,
+		});
 		if (this.failWith) throw this.failWith;
 		return {
 			reply: `Ajustei: ${request}`,
 			script: { ...brief.content.script, hook: `Novo gancho (${request})` },
+			sources: webSearch
+				? (this.sources ?? [
+						{
+							title: `Fonte sobre ${request}`,
+							url: "https://example.com/fonte",
+						},
+					])
+				: [],
 		};
 	}
 
