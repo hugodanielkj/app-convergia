@@ -1,4 +1,4 @@
-import type { Script } from "../../conteudo/content";
+import type { Script, ScriptField } from "../../conteudo/content";
 import type {
 	AiCallMeta,
 	RefineTurn,
@@ -10,11 +10,12 @@ import type {
 /** Dublê da IA: devolve um roteiro previsível e registra as chamadas. */
 export class FakeScriptAi implements ScriptAi {
 	readonly calls: {
-		kind: "write" | "refine";
+		kind: "write" | "refine" | "options";
 		meta: AiCallMeta;
 		brief: ScriptBrief;
 		history?: RefineTurn[];
 		request?: string;
+		field?: ScriptField;
 	}[] = [];
 	failWith: Error | null = null;
 
@@ -45,5 +46,17 @@ export class FakeScriptAi implements ScriptAi {
 			reply: `Ajustei: ${request}`,
 			script: { ...brief.content.script, hook: `Novo gancho (${request})` },
 		};
+	}
+
+	async suggestOptions(
+		meta: AiCallMeta,
+		brief: ScriptBrief,
+		field: ScriptField,
+	): Promise<string[]> {
+		this.calls.push({ kind: "options", meta, brief, field });
+		if (this.failWith) throw this.failWith;
+		return [1, 2, 3].map(
+			(n) => `Opção ${n} de ${field} sobre ${brief.content.title}`,
+		);
 	}
 }

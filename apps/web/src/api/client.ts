@@ -59,6 +59,7 @@ const contentApi = companyApi.contents[":contentId"];
 
 type KanbanStatus = "idea" | "draft" | "edited" | "published";
 type ContentParams = { companyId: string; contentId: string };
+export type ScriptField = "hook" | "body" | "cta" | "caption";
 
 export const api = {
 	me: () => call(client.me.$get()),
@@ -95,6 +96,14 @@ export const api = {
 
 	generateScript: (param: ContentParams) =>
 		call(contentApi.script.$post({ param })),
+	scriptOptions: (param: ContentParams, field: ScriptField) =>
+		call(
+			contentApi.options[":field"].$post({
+				param: { ...param, field },
+				// O máximo da RN-071; o servidor valida.
+				json: { count: 3 },
+			}),
+		),
 	refineChat: (param: ContentParams) => call(contentApi.refine.$get({ param })),
 	refine: (param: ContentParams, message: string) =>
 		call(contentApi.refine.$post({ param, json: { message } })),

@@ -1,4 +1,4 @@
-import type { Script } from "../../conteudo/content";
+import type { Script, ScriptField } from "../../conteudo/content";
 import type { ScriptRepository } from "../ports/script-repository";
 import type { PreviewStatus, RefineMessage } from "../refinement";
 
@@ -8,6 +8,13 @@ export class InMemoryScriptRepository implements ScriptRepository {
 		companyId: string;
 		contentId: string;
 		script: Script;
+		createdByUserId: string;
+	}[] = [];
+	readonly optionSets: {
+		companyId: string;
+		contentId: string;
+		field: ScriptField;
+		options: string[];
 		createdByUserId: string;
 	}[] = [];
 	readonly messages: RefineMessage[] = [];
@@ -20,6 +27,18 @@ export class InMemoryScriptRepository implements ScriptRepository {
 		generation: { contentId: string; script: Script; createdByUserId: string },
 	): Promise<void> {
 		this.generations.push({ companyId, ...generation });
+	}
+
+	async addOptionSet(
+		companyId: string,
+		optionSet: {
+			contentId: string;
+			field: ScriptField;
+			options: string[];
+			createdByUserId: string;
+		},
+	): Promise<void> {
+		this.optionSets.push({ companyId, ...optionSet });
 	}
 
 	async listRefineMessages(

@@ -34,6 +34,7 @@ type Message = { id: string; role: string; previewStatus: string | null };
 type Body = {
 	id: string;
 	error?: string;
+	questionId?: string;
 	message?: string | Message;
 	script?: { hook: string | null };
 	approvalStatus?: string;
@@ -223,5 +224,65 @@ describe("API do app: roteiros (RN-006)", () => {
 			);
 			expect(other.status).toBe(403);
 		}
+	});
+
+	describe("opções avulsas (RN-071)", () => {
+		const optionsPath = (company: string, id: string, field: string) =>
+			`/companies/${company}/contents/${id}/options/${field}`;
+
+		it("Q-21: sem cota decidida, devolve 501 com a pergunta em aberto", async () => {
+			const id = await newCard();
+			const blocked = await call(
+				clientA,
+				"POST",
+				optionsPath("company-a", id, "hook"),
+				{},
+			);
+			expect(blocked).toMatchObject({
+				status: 501,
+				body: {
+					error: "not_decided_yet",
+					questionId: "Q-21",
+					message:
+						"Esta funcionalidade depende de uma regra ainda não definida (Q-21).",
+				},
+			});
+			expect(scriptAi.calls).toHaveLength(0);
+		});
+
+		it("valida a parte do roteiro e a quantidade", async () => {
+			const id = await newCard();
+			for (const [field, body] of [
+				["titulo", {}],
+				["hook", { count: 4 }],
+				["hook", { count: 0 }],
+			] as const) {
+				const result = await call(
+					clientA,
+					"POST",
+					optionsPath("company-a", id, field),
+					body,
+				);
+				expect(result.status).toBe(422);
+			}
+		});
+
+		it("RN-015: a empresa B não pede opções de um card da A", async () => {
+			const id = await newCard();
+			const own = await call(
+				clientB,
+				"POST",
+				optionsPath("company-b", id, "cta"),
+				{},
+			);
+			expect(own.body.message).toBe("Card não encontrado.");
+			const other = await call(
+				clientB,
+				"POST",
+				optionsPath("company-a", id, "cta"),
+				{},
+			);
+			expect(other.status).toBe(403);
+		});
 	});
 });

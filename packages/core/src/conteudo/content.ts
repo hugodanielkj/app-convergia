@@ -38,6 +38,7 @@ export type Script = {
 };
 
 export const SCRIPT_FIELDS = ["hook", "body", "cta", "caption"] as const;
+export type ScriptField = (typeof SCRIPT_FIELDS)[number];
 
 /** Card: a unidade de conteúdo (RN-060). */
 export type Content = {

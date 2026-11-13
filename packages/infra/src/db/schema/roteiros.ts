@@ -1,4 +1,4 @@
-import type { Script } from "@convergia/core";
+import { SCRIPT_FIELDS, type Script } from "@convergia/core";
 import {
 	bigint,
 	boolean,
@@ -44,6 +44,36 @@ export const contentGenerations = pgTable(
 			table.createdAt,
 		),
 		companyIsolation("content_generations_company_isolation", table.companyId),
+	],
+).enableRLS();
+
+export const scriptField = pgEnum("script_field", SCRIPT_FIELDS);
+
+/** 📎 RN-072: as opções avulsas (RN-071) também ficam no histórico do card. */
+export const contentOptionSets = pgTable(
+	"content_option_sets",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		companyId: uuid("company_id")
+			.notNull()
+			.references(() => companies.id),
+		contentId: uuid("content_id")
+			.notNull()
+			.references(() => contents.id),
+		field: scriptField("field").notNull(),
+		options: jsonb("options").$type<string[]>().notNull(),
+		createdByUserId: uuid("created_by_user_id")
+			.notNull()
+			.references(() => users.id),
+		createdAt: createdAt(),
+	},
+	(table) => [
+		index("content_option_sets_company_content_idx").on(
+			table.companyId,
+			table.contentId,
+			table.createdAt,
+		),
+		companyIsolation("content_option_sets_company_isolation", table.companyId),
 	],
 ).enableRLS();
 

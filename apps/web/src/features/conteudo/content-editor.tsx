@@ -4,18 +4,28 @@ import {
 	ArrowRightLeft,
 	Copy,
 	Ellipsis,
+	Sparkles,
 	Trash2,
 } from "lucide-react";
 import {
 	cloneElement,
 	type ReactElement,
+	type ReactNode,
 	useEffect,
 	useId,
 	useState,
 } from "react";
-import { type ContentDto, errorMessage } from "../../api/client";
+import {
+	type ContentDto,
+	errorMessage,
+	type ScriptField,
+} from "../../api/client";
 import { BottomSheet } from "../../components/bottom-sheet";
 import { ScriptAiActions } from "../roteiros/script-ai-actions";
+import {
+	SCRIPT_FIELD_LABEL,
+	ScriptOptionsSheet,
+} from "../roteiros/script-options-sheet";
 import { type ContentForm, diffForm, toForm } from "./content-form";
 import {
 	APPROVAL_BADGE,
@@ -32,18 +42,23 @@ const inputClass =
 function Field({
 	label,
 	hint,
+	action,
 	children,
 }: {
 	label: string;
 	hint?: string;
+	action?: ReactNode;
 	children: ReactElement<{ id?: string }>;
 }) {
 	const id = useId();
 	return (
 		<div className="flex flex-col gap-1.5">
-			<label htmlFor={id} className="text-sm font-medium">
-				{label}
-			</label>
+			<div className="flex min-h-6 items-center justify-between gap-2">
+				<label htmlFor={id} className="text-sm font-medium">
+					{label}
+				</label>
+				{action}
+			</div>
 			{cloneElement(children, { id })}
 			{hint && <span className="text-xs text-zinc-500">{hint}</span>}
 		</div>
@@ -66,6 +81,7 @@ export function ContentEditor({
 	const [moving, setMoving] = useState(false);
 	const [actions, setActions] = useState(false);
 	const [confirmDelete, setConfirmDelete] = useState(false);
+	const [optionsFor, setOptionsFor] = useState<ScriptField | null>(null);
 
 	useEffect(() => {
 		const next = toForm(content);
@@ -78,6 +94,19 @@ export function ContentEditor({
 	const set =
 		(key: keyof ContentForm) => (event: { target: { value: string } }) =>
 			setForm((f) => ({ ...f, [key]: event.target.value }));
+	// 📎 RN-071: opções avulsas de cada parte; a IA lê o card salvo, por isso pede salvar antes.
+	const optionsButton = (field: ScriptField) => (
+		<button
+			type="button"
+			disabled={dirty}
+			onClick={() => setOptionsFor(field)}
+			aria-label={`Sugerir opções de ${SCRIPT_FIELD_LABEL[field].name}`}
+			className="-my-2 flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-brand-700 hover:bg-brand-50 disabled:opacity-50 dark:text-brand-200 dark:hover:bg-brand-900"
+		>
+			<Sparkles className="size-4" aria-hidden />
+			Opções
+		</button>
+	);
 	const approval = APPROVAL_BADGE[content.approvalStatus];
 	const actionError =
 		mutations.duplicate.error ??
@@ -185,7 +214,7 @@ export function ContentEditor({
 					unsavedChanges={dirty}
 					startRefining={startRefining}
 				/>
-				<Field label="Gancho">
+				<Field label="Gancho" action={optionsButton("hook")}>
 					<textarea
 						value={form.hook}
 						onChange={set("hook")}
@@ -194,7 +223,7 @@ export function ContentEditor({
 						className={inputClass}
 					/>
 				</Field>
-				<Field label="Corpo">
+				<Field label="Corpo" action={optionsButton("body")}>
 					<textarea
 						value={form.body}
 						onChange={set("body")}
@@ -203,7 +232,7 @@ export function ContentEditor({
 						className={inputClass}
 					/>
 				</Field>
-				<Field label="Chamada para ação (CTA)">
+				<Field label="Chamada para ação (CTA)" action={optionsButton("cta")}>
 					<textarea
 						value={form.cta}
 						onChange={set("cta")}
@@ -212,7 +241,7 @@ export function ContentEditor({
 						className={inputClass}
 					/>
 				</Field>
-				<Field label="Legenda">
+				<Field label="Legenda" action={optionsButton("caption")}>
 					<textarea
 						value={form.caption}
 						onChange={set("caption")}
@@ -321,6 +350,15 @@ export function ContentEditor({
 					</div>
 				</div>
 			)}
+
+			<ScriptOptionsSheet
+				key={optionsFor ?? "fechado"}
+				companyId={companyId}
+				contentId={content.id}
+				field={optionsFor}
+				onClose={() => setOptionsFor(null)}
+				onUse={(field, text) => setForm((f) => ({ ...f, [field]: text }))}
+			/>
 
 			<MoveSheet
 				content={moving ? content : null}

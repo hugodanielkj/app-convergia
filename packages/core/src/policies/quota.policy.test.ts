@@ -2,7 +2,13 @@ import { describe, expect, it } from "vitest";
 import { agency, client } from "../conteudo/testing/actors";
 import { InMemoryQuotaRepository } from "../cotas/testing/in-memory-quota-repository";
 import { withQuota } from "../cotas/with-quota";
-import { DEFAULT_DAILY_QUOTAS, quotaDay } from "./quota.policy";
+import { NotDecidedYet } from "../shared/domain-error";
+import {
+	DEFAULT_DAILY_QUOTAS,
+	dailyLimit,
+	OPTION_QUOTA_TOOLS,
+	quotaDay,
+} from "./quota.policy";
 
 describe("política de cota", () => {
 	const setup = (now = new Date("2026-11-12T15:00:00Z")) => {
@@ -16,6 +22,17 @@ describe("política de cota", () => {
 			generate_scripts: 10,
 			refine_content: 30,
 		});
+	});
+
+	it("Q-21: as opções avulsas (RN-071) ainda não têm limite e não reservam cota", async () => {
+		const { deps, quotas } = setup();
+		for (const tool of Object.values(OPTION_QUOTA_TOOLS)) {
+			expect(() => dailyLimit(tool)).toThrow(NotDecidedYet);
+			await expect(withQuota(deps, client, tool, ok)).rejects.toThrow(
+				"Regra de negócio em aberto: Q-21",
+			);
+		}
+		expect(quotas.used.size).toBe(0);
 	});
 
 	it("RN-304: o dia da cota vira à meia-noite de São Paulo", () => {

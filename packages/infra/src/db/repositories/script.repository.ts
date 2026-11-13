@@ -1,7 +1,11 @@
 import type { RefineMessage, ScriptRepository } from "@convergia/core";
 import { and, desc, eq } from "drizzle-orm";
 import type { Db } from "../client";
-import { contentGenerations, refineMessages } from "../schema";
+import {
+	contentGenerations,
+	contentOptionSets,
+	refineMessages,
+} from "../schema";
 import { withCompany } from "../with-company";
 
 type Row = typeof refineMessages.$inferSelect;
@@ -28,6 +32,12 @@ export function createScriptRepository(db: Db): ScriptRepository {
 		async addGeneration(companyId, generation) {
 			await withCompany(db, companyId, (tx) =>
 				tx.insert(contentGenerations).values({ companyId, ...generation }),
+			);
+		},
+
+		async addOptionSet(companyId, optionSet) {
+			await withCompany(db, companyId, (tx) =>
+				tx.insert(contentOptionSets).values({ companyId, ...optionSet }),
 			);
 		},
 

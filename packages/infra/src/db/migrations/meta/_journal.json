@@ -36,6 +36,13 @@
       "when": 1794535506879,
       "tag": "0004_roteiros_rls_force",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794539789706,
+      "tag": "0005_roteiros_opcoes",
+      "breakpoints": true
     }
   ]
 }

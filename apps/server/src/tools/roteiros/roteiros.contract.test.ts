@@ -79,7 +79,7 @@ describe("contrato MCP: roteiros", () => {
 		};
 	});
 
-	it("as quatro ferramentas do catálogo estão registradas", async () => {
+	it("as ferramentas do catálogo estão registradas", async () => {
 		const [clientTransport, serverTransport] =
 			InMemoryTransport.createLinkedPair();
 		const client = new Client({ name: "t", version: "0" });
@@ -91,6 +91,10 @@ describe("contrato MCP: roteiros", () => {
 		expect(names).toEqual(
 			expect.arrayContaining([
 				"generate_scripts",
+				"generate_hook_options",
+				"generate_body_options",
+				"generate_cta_options",
+				"generate_caption_options",
 				"refine_content",
 				"get_refine_chat",
 				"review_content_refinement",
@@ -147,5 +151,27 @@ describe("contrato MCP: roteiros", () => {
 			expect(result.isError).toBe(true);
 			expect(result.text).toContain("Card não encontrado.");
 		}
+	});
+
+	it("Q-21: as opções avulsas (RN-071) saem como isError até a cota ser decidida", async () => {
+		const id = await newCard();
+		const call = await connect(clientA);
+		for (const field of ["hook", "body", "cta", "caption"]) {
+			const result = await call(`generate_${field}_options`, {
+				content_id: id,
+			});
+			expect(result.isError).toBe(true);
+			expect(result.text).toContain(
+				"Esta funcionalidade depende de uma regra ainda não definida (Q-21).",
+			);
+		}
+	});
+
+	it("RN-015: a empresa B não pede opções de um card da A", async () => {
+		const id = await newCard();
+		const call = await connect(clientB);
+		const result = await call("generate_hook_options", { content_id: id });
+		expect(result.isError).toBe(true);
+		expect(result.text).toContain("Card não encontrado.");
 	});
 });
