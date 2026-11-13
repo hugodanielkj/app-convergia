@@ -212,7 +212,7 @@ Decidido em 13/11/2026.
 - ✅ **RN-116** — A popularidade é calculada **separadamente por plataforma** antes de combinar os resultados: contagens do Instagram e do TikTok não se comparam diretamente. Rótulo da primeira versão: **"Populares sobre este assunto"**.
 - ✅ **RN-117** — **"Em crescimento"** só aparece com pelo menos **duas leituras das métricas em momentos diferentes**. Visualizações divididas pela idade do vídeo não comprovam crescimento recente.
 - ✅ **RN-118** — Controle de custo: limites configuráveis de **pesquisas por usuário** (por dia e por minuto), de termos, páginas, resultados e chamadas por pesquisa; tempo máximo e tentativas limitadas para falhas passageiras; registro de latência, erros, acertos de cache e consumo. Valores iniciais: **20 pesquisas por usuário por dia, 5 por minuto**; só contam as pesquisas que coletam dados novos. A busca **não promete** ser completa, ter métricas em tempo real nem disponibilidade garantida.
-- ✅ **RN-119** — Até **20 resultados** por vez, com "carregar mais". Uma falha em uma plataforma **não esconde** os resultados válidos da outra. A tela trata carregamento, resultado parcial, nenhum resultado, integração indisponível e erro de plataforma.
+- ✅ **RN-119** — Mostra só os **5 vídeos sugeridos** mais bem colocados na ordenação escolhida, sem "carregar mais". *(Mudada em 13/11/2026: antes eram até 20 resultados por vez, com "carregar mais".)* Uma falha em uma plataforma **não esconde** os resultados válidos da outra. A tela trata carregamento, resultado parcial, nenhum resultado, integração indisponível e erro de plataforma.
 
 ### 4.8 Carrossel
 

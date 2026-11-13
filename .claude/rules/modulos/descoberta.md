@@ -22,3 +22,5 @@ Invariantes:
 - Catálogo e cache são compartilhados (dados públicos); `video_search_requests` é por empresa, com RLS.
 - Reserva de cota por usuário antes de coletar; coleta que falha devolve a cota (RN-118, RN-305). As reservas pendentes ficam em `video_queries.pending_reservations`, porque o job roda sem empresa no contexto do RLS.
 - Mudou a forma de coletar ou filtrar: suba `STRATEGY_VERSION` para invalidar o cache.
+- As chamadas ao provedor rodam em paralelo (`limiter` em `run-video-query.ts`); a ordem dos resultados não pode depender de qual resposta chega primeiro (`order` por termo, plataforma, página e posição).
+- RN-119: a tela e o MCP mostram só os `shownResults` (5) mais bem colocados; não há paginação.

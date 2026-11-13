@@ -164,7 +164,6 @@ describe("descoberta de vídeos no Postgres (RN-110 a RN-119)", () => {
 		for (let i = 0; i < 60; i++) {
 			const view = await getVideoSearch(deps, actorA, requestId, {
 				sort: "relevance",
-				offset: 0,
 			});
 			if (view.status !== "collecting" && view.status !== "refreshing")
 				return view;

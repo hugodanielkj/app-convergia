@@ -35,8 +35,10 @@ export type DiscoverySettings = {
 	stuckAfterMinutes: number;
 	/** ✅ RN-117: intervalo mínimo entre duas leituras e alta mínima para "Em crescimento". */
 	growth: { minGapHours: number; minIncrease: number };
-	/** Resultados por página na tela (✅ RN-119). */
-	pageSize: number;
+	/** ✅ RN-119: quantos vídeos sugeridos a tela e o MCP mostram. */
+	shownResults: number;
+	/** Chamadas ao provedor ao mesmo tempo, numa coleta. */
+	parallelCalls: number;
 };
 
 export const DEFAULT_DISCOVERY_SETTINGS: DiscoverySettings = {
@@ -44,7 +46,7 @@ export const DEFAULT_DISCOVERY_SETTINGS: DiscoverySettings = {
 	dailySearchesPerUser: 20,
 	searchesPerMinutePerUser: 5,
 	maxTerms: 3,
-	maxPagesPerTerm: 2,
+	maxPagesPerTerm: 1,
 	maxResultsPerPlatform: 40,
 	maxCallsPerSearch: 8,
 	metricRefreshesPerSearch: 5,
@@ -56,5 +58,6 @@ export const DEFAULT_DISCOVERY_SETTINGS: DiscoverySettings = {
 	recencyHalfLifeDays: 14,
 	stuckAfterMinutes: 10,
 	growth: { minGapHours: 6, minIncrease: 0.1 },
-	pageSize: 20,
+	shownResults: 5,
+	parallelCalls: 6,
 };

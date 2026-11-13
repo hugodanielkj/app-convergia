@@ -6,10 +6,9 @@ import {
 	LoaderCircle,
 	Search,
 } from "lucide-react";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useState } from "react";
 import {
 	api,
-	type DiscoveredVideoDto,
 	errorMessage,
 	type VideoSearchDto,
 	type VideoSort,
@@ -254,11 +253,7 @@ export function DiscoverPage({
 			{start.error ? (
 				<ErrorState message={errorMessage(start.error)} />
 			) : view ? (
-				<SearchResults
-					key={`${search.pesquisa}-${sort}`}
-					companyId={companyId}
-					view={view}
-				/>
+				<SearchResults key={`${search.pesquisa}-${sort}`} view={view} />
 			) : search.pesquisa && results.isPending ? (
 				<SkeletonList rows={4} />
 			) : search.pesquisa && results.isError ? (
@@ -313,45 +308,9 @@ function Notice({
 	);
 }
 
-function SearchResults({
-	companyId,
-	view,
-}: {
-	companyId: string;
-	view: VideoSearchDto;
-}) {
-	const [more, setMore] = useState<DiscoveredVideoDto[]>([]);
-	const [nextOffset, setNextOffset] = useState(view.nextOffset);
-	const [loadError, setLoadError] = useState<string | null>(null);
-	const [loading, setLoading] = useState(false);
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: uma coleta nova (outro updatedAt) recomeça a lista.
-	useEffect(() => {
-		setMore([]);
-		setNextOffset(view.nextOffset);
-	}, [view.updatedAt, view.nextOffset]);
-
-	const loadMore = async () => {
-		if (!view.requestId || nextOffset === null) return;
-		setLoading(true);
-		setLoadError(null);
-		try {
-			const page = await api.videoSearch(
-				companyId,
-				view.requestId,
-				view.sort,
-				nextOffset,
-			);
-			setMore((current) => [...current, ...page.results]);
-			setNextOffset(page.nextOffset);
-		} catch (error) {
-			setLoadError(errorMessage(error));
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const videos = [...view.results, ...more];
+function SearchResults({ view }: { view: VideoSearchDto }) {
+	// ✅ RN-119: só os vídeos mais bem colocados, sem "carregar mais".
+	const videos = view.results;
 	const updatedAt = view.updatedAt
 		? when.format(new Date(view.updatedAt))
 		: null;
@@ -420,18 +379,6 @@ function SearchResults({
 					Tente outras palavras ou um período maior.
 				</EmptyState>
 			) : null}
-
-			{loadError && <Notice tone="warning">{loadError}</Notice>}
-			{nextOffset !== null && (
-				<button
-					type="button"
-					onClick={loadMore}
-					disabled={loading}
-					className="min-h-12 rounded-xl font-semibold ring-1 ring-zinc-300 disabled:opacity-60 dark:ring-zinc-700"
-				>
-					{loading ? "Carregando..." : "Carregar mais"}
-				</button>
-			)}
 		</section>
 	);
 }

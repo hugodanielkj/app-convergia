@@ -87,10 +87,40 @@ function withinPeriod(
 	return now.getTime() - video.publishedAt.getTime() <= days * 86_400_000;
 }
 
+/** Executa no máximo `max` tarefas ao mesmo tempo; as outras esperam a vez. */
+function limiter(max: number) {
+	let active = 0;
+	const waiting: (() => void)[] = [];
+	return async <T>(task: () => Promise<T>): Promise<T> => {
+		while (active >= max) {
+			await new Promise<void>((resolve) => waiting.push(resolve));
+		}
+		active++;
+		try {
+			return await task();
+		} finally {
+			active--;
+			waiting.shift()?.();
+		}
+	};
+}
+
+/** Posição de um vídeo na coleta: termo, plataforma, página e lugar na página. */
+type Collected = { video: CollectedVideo; order: number[] };
+
+function byOrder(a: Collected, b: Collected): number {
+	for (let i = 0; i < a.order.length; i++) {
+		const diff = (a.order[i] ?? 0) - (b.order[i] ?? 0);
+		if (diff !== 0) return diff;
+	}
+	return 0;
+}
+
 /**
- * Coleta de uma pesquisa, rodada pela fila (design §8.3). Pesquisa cada plataforma, junta e
- * tira repetidos, filtra pelo assunto e grava no catálogo. Uma plataforma que falha não
- * derruba a outra (✅ RN-119).
+ * Coleta de uma pesquisa, rodada pela fila (design §8.3). Pesquisa cada plataforma e termo ao
+ * mesmo tempo (a frase original já começa enquanto a IA sugere variações), junta e tira
+ * repetidos, filtra pelo assunto e grava no catálogo. Uma plataforma que falha não derruba a
+ * outra (✅ RN-119).
  */
 export async function runVideoQuery(
 	deps: DiscoveryDeps,
@@ -100,56 +130,96 @@ export async function runVideoQuery(
 	const query = await deps.discovery.claimQuery(queryId, deps.now());
 	if (!query) return;
 
-	const terms = await searchTerms(deps, query);
 	const language = queryLanguage(query.queryText);
+	const run = limiter(Math.max(1, settings.parallelCalls));
 	const outcomes: Partial<Record<VideoPlatform, PlatformOutcome>> = {};
-	const collected: { video: CollectedVideo; rank: number }[] = [];
-	const total = query.platforms.length * terms.length;
+	const perPlatform = new Map(
+		query.platforms.map((platform) => [
+			platform,
+			{ count: 0, error: null as VideoProviderError["kind"] | null },
+		]),
+	);
+	const collected: Collected[] = [];
+	let terms = [query.queryText];
 	let calls = 0;
 	let done = 0;
+	let total =
+		query.platforms.length * (settings.aiExpansion ? settings.maxTerms : 1);
+
+	const searchTerm = async (
+		platform: VideoPlatform,
+		term: string,
+		termIndex: number,
+	): Promise<void> => {
+		const own = perPlatform.get(platform);
+		if (!own) return;
+		let cursor: string | null = null;
+		try {
+			for (let page = 0; page < settings.maxPagesPerTerm; page++) {
+				if (
+					calls >= settings.maxCallsPerSearch ||
+					own.count >= settings.maxResultsPerPlatform
+				) {
+					break;
+				}
+				calls++;
+				const result = await run(() =>
+					deps.videoProvider.search({
+						platform,
+						term,
+						period: query.period,
+						cursor,
+						language,
+					}),
+				);
+				const platformIndex = query.platforms.indexOf(platform);
+				result.videos.forEach((video, position) => {
+					collected.push({
+						video,
+						order: [termIndex, platformIndex, page, position],
+					});
+				});
+				own.count += result.videos.length;
+				cursor = result.nextCursor;
+				if (!cursor) break;
+			}
+		} catch (error) {
+			if (!(error instanceof VideoProviderError)) throw error;
+			console.warn(`Busca de vídeos falhou no ${platform}: ${error.kind}`);
+			own.error ??= error.kind;
+		} finally {
+			done++;
+			await deps.discovery.updateProgress(query.id, {
+				done,
+				total: Math.max(total, done),
+			});
+		}
+	};
 
 	try {
-		for (const platform of query.platforms) {
-			let count = 0;
-			try {
-				for (const term of terms) {
-					let cursor: string | null = null;
-					for (let page = 0; page < settings.maxPagesPerTerm; page++) {
-						if (
-							calls >= settings.maxCallsPerSearch ||
-							count >= settings.maxResultsPerPlatform
-						) {
-							break;
-						}
-						calls++;
-						const result = await deps.videoProvider.search({
-							platform,
-							term,
-							period: query.period,
-							cursor,
-							language,
-						});
-						for (const video of result.videos) {
-							collected.push({ video, rank: collected.length });
-							count++;
-						}
-						cursor = result.nextCursor;
-						if (!cursor) break;
-					}
-					done++;
-					await deps.discovery.updateProgress(query.id, { done, total });
-				}
-				outcomes[platform] = { status: "ok", count, error: null };
-			} catch (error) {
-				if (!(error instanceof VideoProviderError)) throw error;
-				console.warn(`Busca de vídeos falhou no ${platform}: ${error.kind}`);
-				outcomes[platform] = {
-					status: count > 0 ? "partial" : "failed",
-					count,
-					error: error.kind,
-				};
-			}
+		// A frase original não espera a IA; as variações entram assim que chegam.
+		const original = query.platforms.map((platform) =>
+			searchTerm(platform, query.queryText, 0),
+		);
+		terms = await searchTerms(deps, query);
+		total = query.platforms.length * terms.length;
+		const variations = terms
+			.slice(1)
+			.flatMap((term, index) =>
+				query.platforms.map((platform) =>
+					searchTerm(platform, term, index + 1),
+				),
+			);
+		const settled = await Promise.allSettled([...original, ...variations]);
+		const unexpected = settled.find((item) => item.status === "rejected");
+		if (unexpected?.status === "rejected") throw unexpected.reason;
+
+		for (const [platform, { count, error }] of perPlatform) {
+			outcomes[platform] = error
+				? { status: count > 0 ? "partial" : "failed", count, error }
+				: { status: "ok", count, error: null };
 		}
+		collected.sort(byOrder);
 
 		const succeeded = Object.values(outcomes).some(
 			(outcome) => outcome.status !== "failed",
@@ -168,9 +238,9 @@ export async function runVideoQuery(
 		// ✅ RN-112: plataforma + ID original identificam o vídeo; fica a primeira aparição.
 		const now = deps.now();
 		const unique = new Map<string, { video: CollectedVideo; rank: number }>();
-		for (const item of collected) {
-			const key = `${item.video.platform}:${item.video.externalId}`;
-			if (!unique.has(key)) unique.set(key, item);
+		for (const [rank, { video }] of collected.entries()) {
+			const key = `${video.platform}:${video.externalId}`;
+			if (!unique.has(key)) unique.set(key, { video, rank });
 		}
 		// ✅ RN-115: primeiro o assunto, pelo texto disponível; depois o período.
 		const relevant = [...unique.values()]
@@ -236,8 +306,8 @@ export async function runVideoQuery(
 
 /**
  * A busca de Reels não traz visualizações. Para os vídeos mais relevantes sem esse dado, pede
- * as métricas uma a uma, dentro do orçamento de chamadas (✅ RN-118). Falha aqui não derruba a
- * pesquisa: o campo continua vazio.
+ * as métricas ao mesmo tempo, dentro do orçamento de chamadas (✅ RN-118). Falha aqui não
+ * derruba a pesquisa: o campo continua vazio.
  */
 async function refreshMissingViews(
 	deps: DiscoveryDeps,
@@ -251,22 +321,30 @@ async function refreshMissingViews(
 	const missing = videos
 		.filter((video) => video.metrics.views === null)
 		.slice(0, Math.max(0, limit));
-	for (const video of missing) {
-		try {
-			const metrics = await deps.videoProvider.fetchMetrics(video.platform, {
-				externalId: video.externalId,
-				url: video.url,
-			});
-			await deps.discovery.recordMetrics(
-				video.id,
-				metrics,
-				deps.videoProvider.name,
-				deps.now(),
-			);
-		} catch (error) {
-			if (!(error instanceof VideoProviderError)) throw error;
-			if (error.kind === "out_of_credits" || error.kind === "unauthorized")
-				return;
-		}
-	}
+	const run = limiter(Math.max(1, deps.discoverySettings.parallelCalls));
+	// Sem crédito ou sem acesso, as próximas também falhariam.
+	let stop = false;
+	await Promise.all(
+		missing.map((video) =>
+			run(async () => {
+				if (stop) return;
+				try {
+					const metrics = await deps.videoProvider.fetchMetrics(
+						video.platform,
+						{ externalId: video.externalId, url: video.url },
+					);
+					await deps.discovery.recordMetrics(
+						video.id,
+						metrics,
+						deps.videoProvider.name,
+						deps.now(),
+					);
+				} catch (error) {
+					if (!(error instanceof VideoProviderError)) throw error;
+					if (error.kind === "out_of_credits" || error.kind === "unauthorized")
+						stop = true;
+				}
+			}),
+		),
+	);
 }

@@ -132,16 +132,11 @@ export const api = {
 		companyId: string,
 		json: Parameters<typeof searchesApi.$post>[0]["json"],
 	) => call(searchesApi.$post({ param: { companyId }, json })),
-	videoSearch: (
-		companyId: string,
-		requestId: string,
-		sort: VideoSort,
-		offset = 0,
-	) =>
+	videoSearch: (companyId: string, requestId: string, sort: VideoSort) =>
 		call(
 			searchesApi[":requestId"].$get({
 				param: { companyId, requestId },
-				query: { sort, offset: String(offset) },
+				query: { sort },
 			}),
 		),
 	reviewPreview: (

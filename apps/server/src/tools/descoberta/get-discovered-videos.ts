@@ -19,20 +19,13 @@ export function registerGetDiscoveredVideos(
 		{
 			title: "Ver vídeos descobertos",
 			description:
-				"Mostra o andamento e os resultados de uma pesquisa feita com discover_videos. Não consome o limite de pesquisas.",
+				"Mostra o andamento e os 5 vídeos sugeridos de uma pesquisa feita com discover_videos. Não consome o limite de pesquisas.",
 			input: {
 				request_id: z.string().describe("ID devolvido por discover_videos"),
 				sort: z
 					.enum(SEARCH_SORTS)
 					.default("relevance")
 					.describe("relevance, popularity ou recent"),
-				offset: z
-					.number()
-					.int()
-					.min(0)
-					.max(1_000)
-					.default(0)
-					.describe("Para ver os próximos resultados"),
 			},
 			readOnly: true,
 		},
@@ -40,9 +33,7 @@ export function registerGetDiscoveredVideos(
 			videoSearchResult(
 				await getVideoSearch(deps, actor, input.request_id, {
 					sort: input.sort,
-					offset: input.offset,
 				}),
-				input.offset,
 			),
 	);
 }

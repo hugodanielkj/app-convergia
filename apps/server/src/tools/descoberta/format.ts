@@ -43,10 +43,7 @@ function videoText(video: RankedVideo, index: number): string {
 }
 
 /** Texto para a IA do cliente MCP, com o ID para acompanhar a pesquisa. */
-export function videoSearchResult(
-	view: VideoSearchView,
-	offset = 0,
-): CallToolResult {
+export function videoSearchResult(view: VideoSearchView): CallToolResult {
 	const lines: string[] = [];
 	if (view.requestId)
 		lines.push(`Pesquisa (ID: ${view.requestId}): "${view.query}"`);
@@ -74,15 +71,8 @@ export function videoSearchResult(
 	}
 	if (view.results.length > 0) {
 		lines.push(
-			view.results
-				.map((video, i) => videoText(video, offset + i + 1))
-				.join("\n\n"),
+			view.results.map((video, i) => videoText(video, i + 1)).join("\n\n"),
 		);
-		if (view.nextOffset !== null) {
-			lines.push(
-				`Há mais resultados: use get_discovered_videos com offset ${view.nextOffset}.`,
-			);
-		}
 	} else if (view.status === "ready") {
 		lines.push("Nenhum vídeo encontrado sobre este assunto com esses filtros.");
 	}

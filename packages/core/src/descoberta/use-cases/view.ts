@@ -40,9 +40,10 @@ export type VideoSearchView = {
 	stale: boolean;
 	platformStatus: PlatformStatus[];
 	label: string;
+	/** ✅ RN-119: só os mais bem colocados na ordenação escolhida. */
 	results: RankedVideo[];
+	/** Quantos vídeos sobre o assunto a coleta encontrou, antes do corte. */
 	total: number;
-	nextOffset: number | null;
 };
 
 const OBSERVATION_WINDOW_MS = 7 * 86_400_000;
@@ -107,7 +108,7 @@ export async function buildView(
 	deps: DiscoveryDeps,
 	request: SearchRequest | null,
 	query: VideoQuery,
-	page: { sort: SearchSort; offset: number },
+	page: { sort: SearchSort },
 ): Promise<VideoSearchView> {
 	const settings = deps.discoverySettings;
 	const now = deps.now();
@@ -139,7 +140,6 @@ export async function buildView(
 		observations,
 		settings,
 	});
-	const end = page.offset + settings.pageSize;
 
 	let message: string | null = null;
 	if (status === "not_configured") message = NOT_CONFIGURED_MESSAGE;
@@ -168,9 +168,8 @@ export async function buildView(
 			!isFresh(query, now, settings.cacheTtlHours),
 		platformStatus: platformStatus(query, running),
 		label: POPULAR_LABEL,
-		results: ranked.slice(page.offset, end),
+		results: ranked.slice(0, settings.shownResults),
 		total: ranked.length,
-		nextOffset: end < ranked.length ? end : null,
 	};
 }
 
@@ -198,6 +197,5 @@ export function notConfiguredView(input: {
 		label: POPULAR_LABEL,
 		results: [],
 		total: 0,
-		nextOffset: null,
 	};
 }

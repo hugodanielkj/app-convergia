@@ -88,10 +88,9 @@ export const videoSearchInput = z.object({
 });
 export type VideoSearchInput = z.infer<typeof videoSearchInput>;
 
-/** Página de resultados de uma pesquisa já feita. */
+/** Resultados de uma pesquisa já feita, na ordenação escolhida. */
 export const videoSearchPageInput = z.object({
 	sort: z.enum(SEARCH_SORTS).default("relevance"),
-	offset: z.coerce.number().int().min(0).max(1_000).default(0),
 });
 
 export function platformsFor(filter: PlatformFilter): VideoPlatform[] {
