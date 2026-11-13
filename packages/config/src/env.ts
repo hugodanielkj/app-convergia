@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+/** Variável opcional: vazia no `.env` conta como ausente. */
+const optionalText = z
+	.string()
+	.optional()
+	.transform((value) => (value === "" ? undefined : value));
+
 const envSchema = z
 	.object({
 		NODE_ENV: z
@@ -7,11 +13,11 @@ const envSchema = z
 			.default("development"),
 		PORT: z.coerce.number().int().min(1).max(65535).default(3000),
 		DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
-		// Chave da API da Anthropic (stack §4). Sem ela, fora de produção, a IA é simulada.
-		ANTHROPIC_API_KEY: z.preprocess(
-			(value) => (value === "" ? undefined : value),
-			z.string().optional(),
-		),
+		// Chave da API da Anthropic (stack §4). Obrigatória em produção.
+		ANTHROPIC_API_KEY: optionalText,
+		// Gemini gratuito, só para testar fora de produção sem gastar créditos.
+		GEMINI_API_KEY: optionalText,
+		GEMINI_MODEL: optionalText,
 	})
 	.refine((env) => env.NODE_ENV !== "production" || env.ANTHROPIC_API_KEY, {
 		path: ["ANTHROPIC_API_KEY"],

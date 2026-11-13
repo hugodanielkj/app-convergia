@@ -1,5 +1,7 @@
 export { createAnthropicLlm, DEFAULT_MODEL } from "./ai/anthropic-llm";
+export { chooseLlm } from "./ai/choose-llm";
 export { createFakeLlm } from "./ai/fake-llm";
+export { createGeminiLlm } from "./ai/gemini-llm";
 export {
 	createLlmGateway,
 	type LlmClient,
