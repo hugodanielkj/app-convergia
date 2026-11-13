@@ -3,6 +3,7 @@ import { agency, client } from "../conteudo/testing/actors";
 import { NotDecidedYet } from "../shared/domain-error";
 import {
 	assertCanEditContent,
+	assertCanSeeHistory,
 	initialApprovalStatus,
 	onContentChanged,
 } from "./approval.policy";
@@ -70,5 +71,22 @@ describe("política de aprovação", () => {
 		] as const) {
 			expect(() => assertCanEditContent(agency, status)).not.toThrow();
 		}
+	});
+
+	it("RN-231: a agência vê todo o histórico do card", () => {
+		const entries = [{ createdByKind: "agency" as const }];
+		expect(() => assertCanSeeHistory(agency, entries)).not.toThrow();
+	});
+
+	it("Q-23: o cliente ver o trabalho da agência no histórico está em aberto", () => {
+		expect(() =>
+			assertCanSeeHistory(client, [{ createdByKind: "client" }]),
+		).not.toThrow();
+		expect(() =>
+			assertCanSeeHistory(client, [
+				{ createdByKind: "client" },
+				{ createdByKind: "agency" },
+			]),
+		).toThrow(NotDecidedYet);
 	});
 });

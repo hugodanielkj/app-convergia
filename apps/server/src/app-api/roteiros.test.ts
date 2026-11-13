@@ -40,6 +40,7 @@ type Body = {
 	approvalStatus?: string;
 	content?: { script: { hook: string | null } };
 	messages?: Message[];
+	entries?: { kind: string; createdByKind: string; createdAt: string }[];
 };
 
 describe("API do app: roteiros (RN-006)", () => {
@@ -282,6 +283,47 @@ describe("API do app: roteiros (RN-006)", () => {
 				optionsPath("company-a", id, "cta"),
 				{},
 			);
+			expect(other.status).toBe(403);
+		});
+	});
+
+	describe("histórico de gerações (RN-072)", () => {
+		const historyPath = (company: string, id: string) =>
+			`/companies/${company}/contents/${id}/history`;
+
+		it("lista as gerações do card, das mais novas para as mais antigas", async () => {
+			const id = await newCard();
+			const empty = await call(clientA, "GET", historyPath("company-a", id));
+			expect(empty).toMatchObject({ status: 200, body: { entries: [] } });
+
+			await call(clientA, "POST", `/companies/company-a/contents/${id}/script`);
+			const history = await call(clientA, "GET", historyPath("company-a", id));
+			expect(history.body.entries).toHaveLength(1);
+			expect(history.body.entries?.[0]).toMatchObject({
+				kind: "script",
+				createdByKind: "client",
+			});
+			expect(typeof history.body.entries?.[0]?.createdAt).toBe("string");
+		});
+
+		it("Q-23: o cliente ver o trabalho da agência devolve 501", async () => {
+			const id = await newCard();
+			await call(agency, "POST", `/companies/company-a/contents/${id}/script`);
+			expect(
+				(await call(agency, "GET", historyPath("company-a", id))).status,
+			).toBe(200);
+			const client = await call(clientA, "GET", historyPath("company-a", id));
+			expect(client).toMatchObject({
+				status: 501,
+				body: { error: "not_decided_yet", questionId: "Q-23" },
+			});
+		});
+
+		it("RN-015: a empresa B não lê o histórico da A", async () => {
+			const id = await newCard();
+			const own = await call(clientB, "GET", historyPath("company-b", id));
+			expect(own.body.message).toBe("Card não encontrado.");
+			const other = await call(clientB, "GET", historyPath("company-a", id));
 			expect(other.status).toBe(403);
 		});
 	});

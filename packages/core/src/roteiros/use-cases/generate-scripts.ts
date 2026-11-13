@@ -1,7 +1,10 @@
 import type { Content } from "../../conteudo/content";
 import { getContent } from "../../conteudo/use-cases/read-contents";
 import { withQuota } from "../../cotas/with-quota";
-import { assertCanEditContent } from "../../policies/approval.policy";
+import {
+	assertCanEditContent,
+	creatorKind,
+} from "../../policies/approval.policy";
 import { assertCanWrite } from "../../policies/permission.policy";
 import type { ActorContext } from "../../shared/actor-context";
 import { scriptBatchOutOfRange } from "../errors";
@@ -59,6 +62,7 @@ export async function generateScripts(
 			contentId: content.id,
 			script,
 			createdByUserId: actor.userId,
+			createdByKind: creatorKind(actor),
 		});
 	}
 	return updated;

@@ -15,7 +15,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { companies, users } from "./acesso";
 import { companyIsolation } from "./company-scope";
-import { contents } from "./conteudo";
+import { contents, creatorKind } from "./conteudo";
 
 const createdAt = () =>
 	timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
@@ -35,6 +35,7 @@ export const contentGenerations = pgTable(
 		createdByUserId: uuid("created_by_user_id")
 			.notNull()
 			.references(() => users.id),
+		createdByKind: creatorKind("created_by_kind").notNull(),
 		createdAt: createdAt(),
 	},
 	(table) => [
@@ -65,6 +66,7 @@ export const contentOptionSets = pgTable(
 		createdByUserId: uuid("created_by_user_id")
 			.notNull()
 			.references(() => users.id),
+		createdByKind: creatorKind("created_by_kind").notNull(),
 		createdAt: createdAt(),
 	},
 	(table) => [

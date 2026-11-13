@@ -51,3 +51,10 @@ export const refineChatQuery = (companyId: string, contentId: string) =>
 		queryKey: [...contentsKey(companyId), "one", contentId, "refine"],
 		queryFn: () => api.refineChat({ companyId, contentId }),
 	});
+
+/** 📎 RN-072: histórico de gerações do card, das mais novas para as mais antigas. */
+export const historyQuery = (companyId: string, contentId: string) =>
+	queryOptions({
+		queryKey: [...contentsKey(companyId), "one", contentId, "history"],
+		queryFn: () => api.history({ companyId, contentId }),
+	});

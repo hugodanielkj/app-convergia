@@ -34,6 +34,7 @@ type Structured = {
 	content?: { id: string; script: { hook: string | null } };
 	contents?: { id: string; approvalStatus: string }[];
 	messages?: { id: string; role: string }[];
+	entries?: { kind: string }[];
 };
 
 describe("contrato MCP: roteiros", () => {
@@ -95,6 +96,7 @@ describe("contrato MCP: roteiros", () => {
 				"generate_body_options",
 				"generate_cta_options",
 				"generate_caption_options",
+				"list_content_generations",
 				"refine_content",
 				"get_refine_chat",
 				"review_content_refinement",
@@ -171,6 +173,28 @@ describe("contrato MCP: roteiros", () => {
 		const id = await newCard();
 		const call = await connect(clientB);
 		const result = await call("generate_hook_options", { content_id: id });
+		expect(result.isError).toBe(true);
+		expect(result.text).toContain("Card não encontrado.");
+	});
+
+	it("RN-072: list_content_generations mostra o histórico, das mais novas primeiro", async () => {
+		const id = await newCard();
+		const call = await connect(clientA);
+		const empty = await call("list_content_generations", { content_id: id });
+		expect(empty.text).toContain("Este card ainda não tem gerações de IA.");
+
+		await call("generate_scripts", { content_ids: [id] });
+		const history = await call("list_content_generations", { content_id: id });
+		expect(history.isError).toBe(false);
+		expect(history.text).toContain("Roteiro completo (cliente,");
+		expect(history.text).toContain("Gancho: Gancho sobre Mesa de jantar");
+		expect(history.data.entries).toHaveLength(1);
+	});
+
+	it("RN-015: a empresa B não lê o histórico da A", async () => {
+		const id = await newCard();
+		const call = await connect(clientB);
+		const result = await call("list_content_generations", { content_id: id });
 		expect(result.isError).toBe(true);
 		expect(result.text).toContain("Card não encontrado.");
 	});

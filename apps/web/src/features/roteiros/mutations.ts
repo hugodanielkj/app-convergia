@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, type RefineMessageDto, type ScriptField } from "../../api/client";
-import { contentsKey, refineChatQuery } from "../../api/queries";
+import { contentsKey, historyQuery, refineChatQuery } from "../../api/queries";
 
 /** Gerar e refinar o roteiro de um card. Toda mudança recarrega o card e as listas. */
 export function useScriptMutations(companyId: string) {
@@ -23,6 +23,11 @@ export function useScriptMutations(companyId: string) {
 				contentId: string;
 				field: ScriptField;
 			}) => api.scriptOptions(param(contentId), field),
+			// As opções entram no histórico do card (RN-072).
+			onSuccess: (_, { contentId }) =>
+				queryClient.invalidateQueries({
+					queryKey: historyQuery(companyId, contentId).queryKey,
+				}),
 		}),
 		refine: useMutation({
 			mutationFn: ({

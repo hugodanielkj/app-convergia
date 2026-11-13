@@ -1,7 +1,10 @@
 import type { ScriptField } from "../../conteudo/content";
 import { getContent } from "../../conteudo/use-cases/read-contents";
 import { withQuota } from "../../cotas/with-quota";
-import { assertCanEditContent } from "../../policies/approval.policy";
+import {
+	assertCanEditContent,
+	creatorKind,
+} from "../../policies/approval.policy";
 import { assertCanWrite } from "../../policies/permission.policy";
 import { OPTION_QUOTA_TOOLS } from "../../policies/quota.policy";
 import type { ActorContext } from "../../shared/actor-context";
@@ -44,6 +47,7 @@ export async function generateScriptOptions(
 		field,
 		options,
 		createdByUserId: actor.userId,
+		createdByKind: creatorKind(actor),
 	});
 	return { contentId: content.id, field, options };
 }
