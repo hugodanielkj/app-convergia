@@ -16,3 +16,4 @@ Referência: `rules/software_design.md` "## 13. App web: telas e padrões mobile
 - Textos da interface em português; código em inglês.
 - Acessibilidade: contraste AA, foco visível, rótulo em todo botão de ícone.
 - Tela nova tem teste de componente e, se for um fluxo principal, teste ponta a ponta no Playwright em tela de celular.
+- Identidade visual da Convergia (convergiadigital.com), definida em `apps/web/src/styles/app.css`: `brand` é o laranja e `zinc` é a escala de tinta e creme da marca. Use essas classes, nunca cores soltas em hex. Títulos `h1` e `h2` usam Fraunces com `font-medium` (só existe o peso 500). Logo em `components/brand-logo.tsx`; rótulo com ponto laranja em `components/eyebrow.tsx`. Ícones do PWA: troque `public/logo.svg` e rode `pnpm --filter @convergia/web icons`.

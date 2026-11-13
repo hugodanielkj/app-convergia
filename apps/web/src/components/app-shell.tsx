@@ -7,6 +7,7 @@ import {
 } from "../features/conteudo/new-content";
 import { CreateSheet } from "../features/criar/create-sheet";
 import { BottomNav, SideNav } from "./app-nav";
+import { BrandMark } from "./brand-logo";
 
 /** Estrutura das telas dentro de uma empresa (design §13.1). */
 export function AppShell({
@@ -53,8 +54,9 @@ function Shell({
 		<div className="flex min-h-dvh">
 			<SideNav companyId={companyId} onCreate={openCreate} />
 			<div className="flex min-w-0 flex-1 flex-col">
-				<header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/95">
+				<header className="sticky top-0 z-30 border-b border-zinc-200 bg-zinc-50/95 pt-[env(safe-area-inset-top)] backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
 					<div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
+						<BrandMark className="size-7 shrink-0 md:hidden" />
 						<p className="min-w-0 flex-1 truncate text-base font-semibold">
 							{companyName}
 						</p>

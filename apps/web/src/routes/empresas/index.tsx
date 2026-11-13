@@ -34,7 +34,7 @@ export const Route = createFileRoute("/empresas/")({
 function Page({ children }: { children: React.ReactNode }) {
 	return (
 		<div className="mx-auto flex min-h-dvh max-w-lg flex-col gap-4 px-4 pt-[calc(1.5rem+env(safe-area-inset-top))] pb-8">
-			<h1 className="text-2xl font-bold">Em qual empresa vamos trabalhar?</h1>
+			<h1 className="text-3xl font-medium">Em qual empresa vamos trabalhar?</h1>
 			{children}
 		</div>
 	);

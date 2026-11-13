@@ -75,7 +75,7 @@ export function CreateScript({ companyId }: { companyId: string }) {
 						coluna Ideia.
 					</p>
 				</div>
-				<h1 className="text-2xl font-bold">Revise o roteiro</h1>
+				<h1 className="text-3xl font-medium">Revise o roteiro</h1>
 				<section className="rounded-2xl bg-white p-4 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
 					<ScriptPreview script={content.script} />
 				</section>
@@ -149,7 +149,7 @@ export function CreateScript({ companyId }: { companyId: string }) {
 				>
 					<ArrowLeft className="size-5" aria-hidden />
 				</Link>
-				<h1 className="text-2xl font-bold">Criar roteiro</h1>
+				<h1 className="text-3xl font-medium">Criar roteiro</h1>
 			</div>
 
 			<div className="flex flex-col gap-1.5">

@@ -8,6 +8,7 @@ import {
 	Plus,
 } from "lucide-react";
 import { cn } from "../lib/cn";
+import { BrandLogo } from "./brand-logo";
 
 type NavItem = {
 	label: string;
@@ -120,7 +121,7 @@ export function BottomNav({
 	return (
 		<nav
 			aria-label="Navegação principal"
-			className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden dark:border-zinc-800 dark:bg-zinc-900/95"
+			className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-zinc-50/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden dark:border-zinc-800 dark:bg-zinc-950/95"
 		>
 			<div className="mx-auto flex max-w-lg items-end">
 				{BEFORE_CREATE.map((item) => (
@@ -158,6 +159,7 @@ export function SideNav({
 			aria-label="Navegação principal"
 			className="hidden w-60 shrink-0 flex-col gap-1 border-r border-zinc-200 p-4 md:flex dark:border-zinc-800"
 		>
+			<BrandLogo className="mb-5 h-7 w-auto self-start px-1 text-zinc-900 dark:text-zinc-50" />
 			<CreateButton onCreate={onCreate} variant="side" />
 			<div className="mt-3 flex flex-col gap-1">
 				{[...BEFORE_CREATE, ...AFTER_CREATE].map((item) => (

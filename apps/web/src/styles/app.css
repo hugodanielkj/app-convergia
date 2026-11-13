@@ -1,18 +1,51 @@
 @import "tailwindcss";
 
+/* Fraunces: fonte dos títulos da marca Convergia (licença SIL OFL), servida pelo próprio app. */
+@font-face {
+	font-family: "Fraunces";
+	src: url("../assets/fonts/fraunces-latin.woff2") format("woff2");
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+}
+
+/*
+ * Identidade da Convergia (convergiadigital.com): creme, tinta, laranja e pêssego.
+ * `brand` é a escala do laranja; `zinc` foi refeita como a escala de tinta e creme da marca,
+ * para que fundos, textos e bordas de todas as telas sigam a mesma identidade.
+ * Contraste AA conferido: branco sobre brand-600 (4,6:1), brand-700 sobre creme (5,2:1),
+ * zinc-500 sobre creme (5,1:1).
+ */
 @theme {
-	--color-brand-50: #f3f1fe;
-	--color-brand-100: #e6e2fd;
-	--color-brand-200: #cdc5fb;
-	--color-brand-300: #aa9df6;
-	--color-brand-500: #6c58ec;
-	--color-brand-600: #4f3bd9;
-	--color-brand-700: #4030b4;
-	--color-brand-900: #231a66;
-	--color-accent: #ffd166;
-	--font-sans:
-		system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-		sans-serif;
+	--color-brand-50: #fdf1ea;
+	--color-brand-100: #fde3d4;
+	--color-brand-200: #ffcfb3;
+	--color-brand-300: #ffb48a;
+	--color-brand-500: #ff6438;
+	--color-brand-600: #e8491e;
+	--color-brand-700: #b33513;
+	--color-brand-800: #8a2a10;
+	--color-brand-900: #4a1708;
+	--color-accent: #ffb48a;
+
+	--color-zinc-50: #f8ebdd;
+	--color-zinc-100: #f1e0cf;
+	--color-zinc-200: #e3d3c3;
+	--color-zinc-300: #cdbcab;
+	--color-zinc-400: #8f9a9c;
+	--color-zinc-500: #566669;
+	--color-zinc-600: #506165;
+	--color-zinc-700: #34474b;
+	--color-zinc-800: #1b3a40;
+	--color-zinc-900: #0e2b31;
+	--color-zinc-950: #07191d;
+
+	--color-cream: #f8ebdd;
+	--color-ink: #0e2b31;
+	--color-petrol: #12464f;
+
+	--font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--font-display: "Fraunces", Georgia, serif;
 }
 
 @layer base {
@@ -23,6 +56,18 @@
 
 	body {
 		@apply bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+	}
+
+	/* Títulos em Fraunces, como no site. Só existe o peso 500: nada de negrito sintético. */
+	h1,
+	h2 {
+		font-family: var(--font-display);
+		font-synthesis: none;
+		letter-spacing: -0.02em;
+	}
+
+	::selection {
+		@apply bg-brand-200 text-zinc-900;
 	}
 
 	/* RN-005: campos com 16 px evitam o zoom automático do iPhone. */

@@ -50,7 +50,7 @@ export function BottomSheet({
 			>
 				<div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-zinc-300 md:hidden dark:bg-zinc-700" />
 				<div className="mb-2 flex items-center justify-between">
-					<h2 className="text-lg font-semibold">{title}</h2>
+					<h2 className="text-xl font-medium">{title}</h2>
 					<button
 						type="button"
 						onClick={onClose}
