@@ -1,0 +1,227 @@
+import { type AuthenticatedUser, issueApiKey } from "@convergia/core";
+import {
+	FakeScriptAi,
+	InMemoryApiKeyRepository,
+	InMemoryCompanyRepository,
+	InMemoryContentRepository,
+	InMemoryQuotaRepository,
+	InMemoryScriptRepository,
+} from "@convergia/core/testing";
+import { beforeEach, describe, expect, it } from "vitest";
+import { createApp } from "../app";
+import { createAuthenticate } from "../auth/authenticate";
+
+const clientA: AuthenticatedUser = {
+	kind: "client_user",
+	userId: "user-client-a",
+	agencyId: "agency-1",
+	companyId: "company-a",
+	scopes: [],
+};
+const clientB: AuthenticatedUser = {
+	...clientA,
+	userId: "user-client-b",
+	companyId: "company-b",
+};
+const agency: AuthenticatedUser = {
+	kind: "agency_member",
+	userId: "user-agency",
+	agencyId: "agency-1",
+	scopes: [],
+};
+
+type Message = { id: string; role: string; previewStatus: string | null };
+type Body = {
+	id: string;
+	error?: string;
+	message?: string | Message;
+	script?: { hook: string | null };
+	approvalStatus?: string;
+	content?: { script: { hook: string | null } };
+	messages?: Message[];
+};
+
+describe("API do app: roteiros (RN-006)", () => {
+	let apiKeys: InMemoryApiKeyRepository;
+	let app: ReturnType<typeof createApp>;
+	let scriptAi: FakeScriptAi;
+	let tokens: Map<string, string>;
+
+	async function call(
+		as: AuthenticatedUser,
+		method: string,
+		path: string,
+		body?: unknown,
+	) {
+		let token = tokens.get(as.userId);
+		if (!token) {
+			({ token } = await issueApiKey(
+				{ apiKeys },
+				{ userId: as.userId, name: "teste", scopes: ["read", "write"] },
+			));
+			tokens.set(as.userId, token);
+		}
+		const response = await app.request(`/api/app${path}`, {
+			method,
+			headers: {
+				authorization: `Bearer ${token}`,
+				"content-type": "application/json",
+			},
+			...(body === undefined ? {} : { body: JSON.stringify(body) }),
+		});
+		return { status: response.status, body: (await response.json()) as Body };
+	}
+
+	const newCard = async () =>
+		(
+			await call(clientA, "POST", "/companies/company-a/contents", {
+				title: "Sofá retrátil",
+			})
+		).body.id;
+
+	beforeEach(() => {
+		apiKeys = new InMemoryApiKeyRepository(
+			new Map([clientA, clientB, agency].map((u) => [u.userId, u])),
+		);
+		scriptAi = new FakeScriptAi();
+		tokens = new Map();
+		app = createApp({
+			authenticate: createAuthenticate({ apiKeys }),
+			companies: new InMemoryCompanyRepository([
+				{ id: "company-a", agencyId: "agency-1", name: "A" },
+				{ id: "company-b", agencyId: "agency-1", name: "B" },
+			]),
+			contents: new InMemoryContentRepository(),
+			scripts: new InMemoryScriptRepository(),
+			scriptAi,
+			quotas: new InMemoryQuotaRepository(),
+			now: () => new Date("2026-11-12T12:00:00Z"),
+		});
+	});
+
+	it("gera o roteiro de um card e devolve o card atualizado", async () => {
+		const id = await newCard();
+		const generated = await call(
+			clientA,
+			"POST",
+			`/companies/company-a/contents/${id}/script`,
+		);
+		expect(generated.status).toBe(200);
+		expect(generated.body.script?.hook).toBe("Gancho sobre Sofá retrátil");
+	});
+
+	it("RN-203: a agência gera dentro do cliente e o roteiro fica em preparo", async () => {
+		const id = await newCard();
+		const generated = await call(
+			agency,
+			"POST",
+			`/companies/company-a/contents/${id}/script`,
+		);
+		expect(generated.body.approvalStatus).toBe("in_preparation");
+	});
+
+	it("refina, lista a conversa e aplica a prévia", async () => {
+		const id = await newCard();
+		const path = `/companies/company-a/contents/${id}/refine`;
+		const refined = await call(clientA, "POST", path, {
+			message: "gancho mais curto",
+		});
+		expect(refined.status).toBe(200);
+		const preview = refined.body.messages?.[1]?.id;
+
+		const chat = await call(clientA, "GET", path);
+		expect(chat.body.messages).toHaveLength(2);
+
+		const applied = await call(clientA, "POST", `${path}/${preview}/apply`);
+		expect(applied.status).toBe(200);
+		expect(applied.body.content?.script.hook).toBe(
+			"Novo gancho (gancho mais curto)",
+		);
+
+		const again = await call(clientA, "POST", `${path}/${preview}/discard`);
+		expect(again.status).toBe(409);
+		expect(again.body.message).toBe(
+			"Esta prévia não está mais disponível. Peça um novo refino.",
+		);
+	});
+
+	it("RN-074: aplicar prévia em card alterado devolve 409 com a mensagem do §7", async () => {
+		const id = await newCard();
+		const path = `/companies/company-a/contents/${id}/refine`;
+		const refined = await call(clientA, "POST", path, { message: "pedido" });
+		await call(clientA, "PATCH", `/companies/company-a/contents/${id}`, {
+			script: { cta: "Comente" },
+		});
+		const applied = await call(
+			clientA,
+			"POST",
+			`${path}/${refined.body.messages?.[1]?.id}/apply`,
+		);
+		expect(applied).toMatchObject({
+			status: 409,
+			body: {
+				error: "stale_preview",
+				message: "O card mudou depois desta prévia. Gere uma nova.",
+			},
+		});
+	});
+
+	it("RN-300: cota esgotada devolve 429 com a mensagem do §7", async () => {
+		const id = await newCard();
+		for (let i = 0; i < 10; i++) {
+			await call(clientA, "POST", `/companies/company-a/contents/${id}/script`);
+		}
+		const blocked = await call(
+			agency,
+			"POST",
+			`/companies/company-a/contents/${id}/script`,
+		);
+		expect(blocked).toMatchObject({
+			status: 429,
+			body: {
+				error: "quota_exhausted",
+				message:
+					"A cota diária de gerar roteiro desta empresa acabou (10 por dia). Tente amanhã.",
+			},
+		});
+	});
+
+	it("valida o pedido de refino e a decisão sobre a prévia", async () => {
+		const id = await newCard();
+		const path = `/companies/company-a/contents/${id}/refine`;
+		expect((await call(clientA, "POST", path, { message: "" })).status).toBe(
+			422,
+		);
+		expect(
+			(await call(clientA, "POST", `${path}/qualquer/aceitar`)).status,
+		).toBe(422);
+		expect(scriptAi.calls).toHaveLength(0);
+	});
+
+	it("RN-015: a empresa B não gera, não refina e não lê o refino da A", async () => {
+		const id = await newCard();
+		await call(clientA, "POST", `/companies/company-a/contents/${id}/refine`, {
+			message: "pedido",
+		});
+		for (const [method, suffix, body] of [
+			["POST", "script", undefined],
+			["POST", "refine", { message: "x" }],
+			["GET", "refine", undefined],
+		] as const) {
+			const own = await call(
+				clientB,
+				method,
+				`/companies/company-b/contents/${id}/${suffix}`,
+				body,
+			);
+			expect(own.body.message).toBe("Card não encontrado.");
+			const other = await call(
+				clientB,
+				method,
+				`/companies/company-a/contents/${id}/${suffix}`,
+				body,
+			);
+			expect(other.status).toBe(403);
+		}
+	});
+});

@@ -1,12 +1,22 @@
 import { z } from "zod";
 
-const envSchema = z.object({
-	NODE_ENV: z
-		.enum(["development", "test", "production"])
-		.default("development"),
-	PORT: z.coerce.number().int().min(1).max(65535).default(3000),
-	DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
-});
+const envSchema = z
+	.object({
+		NODE_ENV: z
+			.enum(["development", "test", "production"])
+			.default("development"),
+		PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+		DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
+		// Chave da API da Anthropic (stack §4). Sem ela, fora de produção, a IA é simulada.
+		ANTHROPIC_API_KEY: z.preprocess(
+			(value) => (value === "" ? undefined : value),
+			z.string().optional(),
+		),
+	})
+	.refine((env) => env.NODE_ENV !== "production" || env.ANTHROPIC_API_KEY, {
+		path: ["ANTHROPIC_API_KEY"],
+		message: "obrigatória em produção",
+	});
 
 export type Env = z.infer<typeof envSchema>;
 
