@@ -313,6 +313,46 @@ describe("descoberta de vídeos (RN-110 a RN-119)", () => {
 			await discoverVideos(deps, client, input());
 			expect(deps.discoveryQueue.enqueued).toHaveLength(1);
 		});
+
+		/** O processo pega a coleta e cai no meio (deploy, reinício do servidor). */
+		const startAndDie = async () => {
+			const view = await discoverVideos(deps, client, input());
+			const [queryId] = deps.discoveryQueue.enqueued.splice(0);
+			if (!queryId) throw new Error("nada na fila");
+			await deps.discovery.claimQuery(queryId, clock);
+			return view.requestId ?? "";
+		};
+		const page = { sort: "relevance" as const, offset: 0 };
+
+		it("coleta interrompida no meio vira falha depois do limite, e a tela para de esperar", async () => {
+			const requestId = await startAndDie();
+
+			advance(5 * 60_000);
+			expect((await getVideoSearch(deps, client, requestId, page)).status).toBe(
+				"collecting",
+			);
+
+			advance(6 * 60_000);
+			expect(await getVideoSearch(deps, client, requestId, page)).toMatchObject(
+				{
+					status: "failed",
+					message:
+						"Não foi possível buscar vídeos agora. Tente de novo em alguns minutos.",
+				},
+			);
+		});
+
+		it("RN-305: a cota da coleta interrompida volta quando a pesquisa recomeça", async () => {
+			await startAndDie();
+			expect(used()).toBe(1);
+
+			advance(11 * 60_000);
+			await discoverVideos(deps, client, input());
+			await runQueued();
+
+			// Só a coleta que terminou conta; a que caiu no meio foi devolvida.
+			expect(used()).toBe(1);
+		});
 	});
 
 	describe("coleta (runVideoQuery)", () => {
