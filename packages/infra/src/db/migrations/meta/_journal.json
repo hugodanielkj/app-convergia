@@ -22,6 +22,20 @@
       "when": 1794513834084,
       "tag": "0002_conteudo_rls_force",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794535506459,
+      "tag": "0003_roteiros",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794535506879,
+      "tag": "0004_roteiros_rls_force",
+      "breakpoints": true
     }
   ]
 }

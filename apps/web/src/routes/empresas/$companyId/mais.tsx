@@ -1,11 +1,13 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
 	Bookmark,
 	ChartColumn,
+	ChevronRight,
 	Images,
 	Lightbulb,
 	LogOut,
 	type LucideIcon,
+	Trash2,
 	UserRound,
 } from "lucide-react";
 import { SoonBadge } from "../../../components/soon-badge";
@@ -49,6 +51,15 @@ function More() {
 					</li>
 				))}
 			</ul>
+			<Link
+				to="/empresas/$companyId/lixeira"
+				params={{ companyId: Route.useParams().companyId }}
+				className="flex min-h-14 items-center gap-3 rounded-2xl bg-white px-4 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800"
+			>
+				<Trash2 className="size-5 text-zinc-500" aria-hidden />
+				<span className="flex-1">Lixeira</span>
+				<ChevronRight className="size-5 text-zinc-400" aria-hidden />
+			</Link>
 			<button
 				type="button"
 				onClick={signOut}

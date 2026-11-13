@@ -282,7 +282,7 @@ stateDiagram-v2
 - ✅ **RN-300** — **Há cotas diárias** nas ferramentas que usam IA ou scraping, mesmo sem cobrança, para controlar custo.
 - ✅ **RN-301** — **A cota é por empresa cliente.** O uso da agência dentro de um cliente **conta na cota daquele cliente** (o limite é dividido entre todos que mexem nele).
 - ✅ **RN-302** — **A agência define as cotas** de cada cliente (RN-011).
-- ❓ **RN-303** — **Valores das cotas.** Não definidos. Abaixo, os do Dalea **apenas como referência** (Q-21):
+- ✅ **RN-303** — **Valores das cotas (parcial).** Decidido em 12/11/2026, por empresa e por dia: **gerar roteiro completo, 10**; **refinar roteiro, 30** (os valores do Dalea). As demais ferramentas continuam sem valor definido (❓ Q-21); a tabela abaixo traz os do Dalea **apenas como referência** para elas:
 
 | Ferramenta (equivalente Dalea) | Dalea (por dia) |
 |---|---|
@@ -301,8 +301,8 @@ stateDiagram-v2
 | Análise aprofundada de criador | 10 |
 | Criar carrossel | 10 |
 
-- ❓ **RN-304** — A que horas a cota zera e em qual fuso horário? (Q-21)
-- ❓ **RN-305** — Uma chamada que **falha** (erro da IA, scraping bloqueado) consome cota? (Q-21)
+- ✅ **RN-304** — A cota zera à **meia-noite no horário de São Paulo** (`America/Sao_Paulo`). *(Decidido em 12/11/2026.)*
+- ✅ **RN-305** — Uma chamada que **falha** (erro da IA, scraping bloqueado) **não consome cota**: a reserva é devolvida. *(Decidido em 12/11/2026.)*
 - 📎 **RN-306** — Limite de requisições: **60 por minuto** (no Dalea é por conta). ❓ Por usuário ou por empresa? (Q-21)
 - ❓ **RN-307** — Existe uma cota total da agência, acima das cotas por cliente? (Q-21)
 
@@ -372,7 +372,7 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 - ~~**Q-24**~~ — Respondida em 12/11/2026: lixeira por 30 dias (RN-069).
 
 ### Cotas, dados e cobrança
-- **Q-21** — *(Antes de fixar os valores, medir quantos tokens um roteiro consome.)* Valores das cotas, horário em que zeram, se falha consome cota, limite por minuto por usuário ou por empresa, cota total da agência, e se o cliente vê o próprio consumo.
+- **Q-21** — *(Antes de fixar os valores, medir quantos tokens um roteiro consome.)* Valores das cotas das ferramentas que não sejam gerar e refinar roteiro, limite por minuto por usuário ou por empresa, cota total da agência, e se o cliente vê o próprio consumo. *(Parte respondida em 12/11/2026: gerar roteiro 10 e refinar 30 por dia, zera à meia-noite de São Paulo, falha não consome cota — RN-303 a RN-305.)*
 - **Q-25** — O que acontece com os dados quando a empresa desconecta o Instagram ou deixa de ser cliente da agência?
 - **Q-30** — Modelo de cobrança futuro (por empresa cliente, por plano, por uso...).
 

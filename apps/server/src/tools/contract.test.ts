@@ -1,7 +1,10 @@
 import type { AuthenticatedUser } from "@convergia/core";
 import {
+	FakeScriptAi,
 	InMemoryCompanyRepository,
 	InMemoryContentRepository,
+	InMemoryQuotaRepository,
+	InMemoryScriptRepository,
 } from "@convergia/core/testing";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
@@ -37,6 +40,9 @@ async function connect(as: AuthenticatedUser) {
 		buildMcpServer(as, {
 			companies,
 			contents: new InMemoryContentRepository(),
+			scripts: new InMemoryScriptRepository(),
+			scriptAi: new FakeScriptAi(),
+			quotas: new InMemoryQuotaRepository(),
 			now: () => new Date(),
 		}).connect(serverTransport),
 		client.connect(clientTransport),

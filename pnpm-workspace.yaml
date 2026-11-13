@@ -4,5 +4,7 @@ packages:
 
 allowBuilds:
   esbuild: false
+  # Dependência do @google/genai; o script de instalação só confere a versão do Node.
+  protobufjs: false
 
 engineStrict: true

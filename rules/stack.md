@@ -133,6 +133,7 @@ O Claude **não** gera imagem nem transcreve áudio. São necessários dois prov
 
 Princípios de uso da IA:
 - Toda chamada de IA passa por um **único gateway** no código (ver `software_design.md`). Trocar de modelo ou de provedor muda um arquivo só.
+- ✅ **Testes sem custo** (decidido em 13/11/2026): fora de produção, sem `ANTHROPIC_API_KEY`, o servidor usa o **Gemini no plano gratuito** (`GEMINI_API_KEY`, modelo padrão `gemini-3.5-flash-lite`) ou, sem chave nenhuma, uma IA simulada. O plano gratuito do Gemini usa o conteúdo para melhorar os produtos do Google: só dados de teste. Em produção, sempre Claude.
 - Toda chamada que conta cota passa antes pela **verificação de cota da empresa** (RN-301).
 - Guardar entrada, saída, modelo e tokens de cada geração, para medir custo por empresa e reproduzir problemas.
 

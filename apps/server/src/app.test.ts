@@ -4,9 +4,12 @@ import {
 	issueApiKey,
 } from "@convergia/core";
 import {
+	FakeScriptAi,
 	InMemoryApiKeyRepository,
 	InMemoryCompanyRepository,
 	InMemoryContentRepository,
+	InMemoryQuotaRepository,
+	InMemoryScriptRepository,
 } from "@convergia/core/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "./app";
@@ -71,6 +74,9 @@ describe("servidor HTTP", () => {
 		app = createApp({
 			authenticate: createAuthenticate({ apiKeys }),
 			contents: new InMemoryContentRepository(),
+			scripts: new InMemoryScriptRepository(),
+			scriptAi: new FakeScriptAi(),
+			quotas: new InMemoryQuotaRepository(),
 			now: () => new Date(),
 			companies: new InMemoryCompanyRepository([
 				{ id: "company-1", agencyId: "agency-1", name: "Empresa 1" },

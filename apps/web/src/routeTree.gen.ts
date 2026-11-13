@@ -16,7 +16,10 @@ import { Route as EmpresasCompanyIdRouteRouteImport } from './routes/empresas/$c
 import { Route as EmpresasCompanyIdIndexRouteImport } from './routes/empresas/$companyId/index'
 import { Route as EmpresasCompanyIdAprovacoesRouteImport } from './routes/empresas/$companyId/aprovacoes'
 import { Route as EmpresasCompanyIdCalendarioRouteImport } from './routes/empresas/$companyId/calendario'
+import { Route as EmpresasCompanyIdLixeiraRouteImport } from './routes/empresas/$companyId/lixeira'
 import { Route as EmpresasCompanyIdMaisRouteImport } from './routes/empresas/$companyId/mais'
+import { Route as EmpresasCompanyIdCardsContentIdRouteImport } from './routes/empresas/$companyId/cards/$contentId'
+import { Route as EmpresasCompanyIdRoteirosNovoRouteImport } from './routes/empresas/$companyId/roteiros/novo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -55,11 +58,29 @@ const EmpresasCompanyIdCalendarioRoute =
     path: '/calendario',
     getParentRoute: () => EmpresasCompanyIdRouteRoute,
   } as any)
+const EmpresasCompanyIdLixeiraRoute =
+  EmpresasCompanyIdLixeiraRouteImport.update({
+    id: '/lixeira',
+    path: '/lixeira',
+    getParentRoute: () => EmpresasCompanyIdRouteRoute,
+  } as any)
 const EmpresasCompanyIdMaisRoute = EmpresasCompanyIdMaisRouteImport.update({
   id: '/mais',
   path: '/mais',
   getParentRoute: () => EmpresasCompanyIdRouteRoute,
 } as any)
+const EmpresasCompanyIdCardsContentIdRoute =
+  EmpresasCompanyIdCardsContentIdRouteImport.update({
+    id: '/cards/$contentId',
+    path: '/cards/$contentId',
+    getParentRoute: () => EmpresasCompanyIdRouteRoute,
+  } as any)
+const EmpresasCompanyIdRoteirosNovoRoute =
+  EmpresasCompanyIdRoteirosNovoRouteImport.update({
+    id: '/roteiros/novo',
+    path: '/roteiros/novo',
+    getParentRoute: () => EmpresasCompanyIdRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,8 +89,11 @@ export interface FileRoutesByFullPath {
   '/empresas/': typeof EmpresasIndexRoute
   '/empresas/$companyId/aprovacoes': typeof EmpresasCompanyIdAprovacoesRoute
   '/empresas/$companyId/calendario': typeof EmpresasCompanyIdCalendarioRoute
+  '/empresas/$companyId/lixeira': typeof EmpresasCompanyIdLixeiraRoute
   '/empresas/$companyId/mais': typeof EmpresasCompanyIdMaisRoute
   '/empresas/$companyId/': typeof EmpresasCompanyIdIndexRoute
+  '/empresas/$companyId/cards/$contentId': typeof EmpresasCompanyIdCardsContentIdRoute
+  '/empresas/$companyId/roteiros/novo': typeof EmpresasCompanyIdRoteirosNovoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -77,8 +101,11 @@ export interface FileRoutesByTo {
   '/empresas': typeof EmpresasIndexRoute
   '/empresas/$companyId/aprovacoes': typeof EmpresasCompanyIdAprovacoesRoute
   '/empresas/$companyId/calendario': typeof EmpresasCompanyIdCalendarioRoute
+  '/empresas/$companyId/lixeira': typeof EmpresasCompanyIdLixeiraRoute
   '/empresas/$companyId/mais': typeof EmpresasCompanyIdMaisRoute
   '/empresas/$companyId': typeof EmpresasCompanyIdIndexRoute
+  '/empresas/$companyId/cards/$contentId': typeof EmpresasCompanyIdCardsContentIdRoute
+  '/empresas/$companyId/roteiros/novo': typeof EmpresasCompanyIdRoteirosNovoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -88,8 +115,11 @@ export interface FileRoutesById {
   '/empresas/': typeof EmpresasIndexRoute
   '/empresas/$companyId/aprovacoes': typeof EmpresasCompanyIdAprovacoesRoute
   '/empresas/$companyId/calendario': typeof EmpresasCompanyIdCalendarioRoute
+  '/empresas/$companyId/lixeira': typeof EmpresasCompanyIdLixeiraRoute
   '/empresas/$companyId/mais': typeof EmpresasCompanyIdMaisRoute
   '/empresas/$companyId/': typeof EmpresasCompanyIdIndexRoute
+  '/empresas/$companyId/cards/$contentId': typeof EmpresasCompanyIdCardsContentIdRoute
+  '/empresas/$companyId/roteiros/novo': typeof EmpresasCompanyIdRoteirosNovoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -100,8 +130,11 @@ export interface FileRouteTypes {
     | '/empresas/'
     | '/empresas/$companyId/aprovacoes'
     | '/empresas/$companyId/calendario'
+    | '/empresas/$companyId/lixeira'
     | '/empresas/$companyId/mais'
     | '/empresas/$companyId/'
+    | '/empresas/$companyId/cards/$contentId'
+    | '/empresas/$companyId/roteiros/novo'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,8 +142,11 @@ export interface FileRouteTypes {
     | '/empresas'
     | '/empresas/$companyId/aprovacoes'
     | '/empresas/$companyId/calendario'
+    | '/empresas/$companyId/lixeira'
     | '/empresas/$companyId/mais'
     | '/empresas/$companyId'
+    | '/empresas/$companyId/cards/$contentId'
+    | '/empresas/$companyId/roteiros/novo'
   id:
     | '__root__'
     | '/'
@@ -119,8 +155,11 @@ export interface FileRouteTypes {
     | '/empresas/'
     | '/empresas/$companyId/aprovacoes'
     | '/empresas/$companyId/calendario'
+    | '/empresas/$companyId/lixeira'
     | '/empresas/$companyId/mais'
     | '/empresas/$companyId/'
+    | '/empresas/$companyId/cards/$contentId'
+    | '/empresas/$companyId/roteiros/novo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -181,11 +220,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresasCompanyIdCalendarioRouteImport
       parentRoute: typeof EmpresasCompanyIdRouteRoute
     }
+    '/empresas/$companyId/lixeira': {
+      id: '/empresas/$companyId/lixeira'
+      path: '/lixeira'
+      fullPath: '/empresas/$companyId/lixeira'
+      preLoaderRoute: typeof EmpresasCompanyIdLixeiraRouteImport
+      parentRoute: typeof EmpresasCompanyIdRouteRoute
+    }
     '/empresas/$companyId/mais': {
       id: '/empresas/$companyId/mais'
       path: '/mais'
       fullPath: '/empresas/$companyId/mais'
       preLoaderRoute: typeof EmpresasCompanyIdMaisRouteImport
+      parentRoute: typeof EmpresasCompanyIdRouteRoute
+    }
+    '/empresas/$companyId/cards/$contentId': {
+      id: '/empresas/$companyId/cards/$contentId'
+      path: '/cards/$contentId'
+      fullPath: '/empresas/$companyId/cards/$contentId'
+      preLoaderRoute: typeof EmpresasCompanyIdCardsContentIdRouteImport
+      parentRoute: typeof EmpresasCompanyIdRouteRoute
+    }
+    '/empresas/$companyId/roteiros/novo': {
+      id: '/empresas/$companyId/roteiros/novo'
+      path: '/roteiros/novo'
+      fullPath: '/empresas/$companyId/roteiros/novo'
+      preLoaderRoute: typeof EmpresasCompanyIdRoteirosNovoRouteImport
       parentRoute: typeof EmpresasCompanyIdRouteRoute
     }
   }
@@ -194,16 +254,22 @@ declare module '@tanstack/react-router' {
 interface EmpresasCompanyIdRouteRouteChildren {
   EmpresasCompanyIdAprovacoesRoute: typeof EmpresasCompanyIdAprovacoesRoute
   EmpresasCompanyIdCalendarioRoute: typeof EmpresasCompanyIdCalendarioRoute
+  EmpresasCompanyIdLixeiraRoute: typeof EmpresasCompanyIdLixeiraRoute
   EmpresasCompanyIdMaisRoute: typeof EmpresasCompanyIdMaisRoute
   EmpresasCompanyIdIndexRoute: typeof EmpresasCompanyIdIndexRoute
+  EmpresasCompanyIdCardsContentIdRoute: typeof EmpresasCompanyIdCardsContentIdRoute
+  EmpresasCompanyIdRoteirosNovoRoute: typeof EmpresasCompanyIdRoteirosNovoRoute
 }
 
 const EmpresasCompanyIdRouteRouteChildren: EmpresasCompanyIdRouteRouteChildren =
   {
     EmpresasCompanyIdAprovacoesRoute: EmpresasCompanyIdAprovacoesRoute,
     EmpresasCompanyIdCalendarioRoute: EmpresasCompanyIdCalendarioRoute,
+    EmpresasCompanyIdLixeiraRoute: EmpresasCompanyIdLixeiraRoute,
     EmpresasCompanyIdMaisRoute: EmpresasCompanyIdMaisRoute,
     EmpresasCompanyIdIndexRoute: EmpresasCompanyIdIndexRoute,
+    EmpresasCompanyIdCardsContentIdRoute: EmpresasCompanyIdCardsContentIdRoute,
+    EmpresasCompanyIdRoteirosNovoRoute: EmpresasCompanyIdRoteirosNovoRoute,
   }
 
 const EmpresasCompanyIdRouteRouteWithChildren =

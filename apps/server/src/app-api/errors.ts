@@ -11,6 +11,10 @@ const UNEXPECTED_ERROR =
 const STATUS_BY_CODE: Record<string, ContentfulStatusCode> = {
 	no_access: 403,
 	company_required: 400,
+	quota_exhausted: 429,
+	stale_preview: 409,
+	preview_unavailable: 409,
+	ai_unavailable: 503,
 };
 
 export type AppErrorBody = {

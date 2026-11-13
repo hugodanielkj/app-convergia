@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
 	createMemoryHistory,
 	createRootRouteWithContext,
@@ -20,10 +20,17 @@ export function renderInRouter(ui: ReactNode, path = "/empresas/c1") {
 		path: "$",
 		component: () => ui,
 	});
+	const queryClient = new QueryClient({
+		defaultOptions: { queries: { retry: false } },
+	});
 	const router = createRouter({
 		routeTree: root.addChildren([page]),
 		history: createMemoryHistory({ initialEntries: [path] }),
-		context: { queryClient: new QueryClient() },
+		context: { queryClient },
 	});
-	return render(<RouterProvider router={router} />);
+	return render(
+		<QueryClientProvider client={queryClient}>
+			<RouterProvider router={router} />
+		</QueryClientProvider>,
+	);
 }

@@ -1,8 +1,11 @@
 import { type AuthenticatedUser, issueApiKey } from "@convergia/core";
 import {
+	FakeScriptAi,
 	InMemoryApiKeyRepository,
 	InMemoryCompanyRepository,
 	InMemoryContentRepository,
+	InMemoryQuotaRepository,
+	InMemoryScriptRepository,
 } from "@convergia/core/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../app";
@@ -74,6 +77,9 @@ describe("API do app: cards", () => {
 				{ id: "company-b", agencyId: "agency-1", name: "B" },
 			]),
 			contents: new InMemoryContentRepository(),
+			scripts: new InMemoryScriptRepository(),
+			scriptAi: new FakeScriptAi(),
+			quotas: new InMemoryQuotaRepository(),
 			now: () => new Date("2026-11-12T12:00:00Z"),
 		});
 	});

@@ -1,6 +1,10 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeftRight } from "lucide-react";
 import { type ReactNode, useState } from "react";
+import {
+	NewContentProvider,
+	useOpenNewContent,
+} from "../features/conteudo/new-content";
 import { CreateSheet } from "../features/criar/create-sheet";
 import { BottomNav, SideNav } from "./app-nav";
 
@@ -16,8 +20,34 @@ export function AppShell({
 	canSwitchCompany: boolean;
 	children: ReactNode;
 }) {
+	return (
+		<NewContentProvider companyId={companyId}>
+			<Shell
+				companyId={companyId}
+				companyName={companyName}
+				canSwitchCompany={canSwitchCompany}
+			>
+				{children}
+			</Shell>
+		</NewContentProvider>
+	);
+}
+
+function Shell({
+	companyId,
+	companyName,
+	canSwitchCompany,
+	children,
+}: {
+	companyId: string;
+	companyName: string;
+	canSwitchCompany: boolean;
+	children: ReactNode;
+}) {
 	const [creating, setCreating] = useState(false);
 	const openCreate = () => setCreating(true);
+	const openNewContent = useOpenNewContent();
+	const navigate = useNavigate();
 
 	return (
 		<div className="flex min-h-dvh">
@@ -44,7 +74,17 @@ export function AppShell({
 				</main>
 			</div>
 			<BottomNav companyId={companyId} onCreate={openCreate} />
-			<CreateSheet open={creating} onClose={() => setCreating(false)} />
+			<CreateSheet
+				open={creating}
+				onClose={() => setCreating(false)}
+				onNewContent={() => openNewContent()}
+				onCreateScript={() =>
+					void navigate({
+						to: "/empresas/$companyId/roteiros/novo",
+						params: { companyId },
+					})
+				}
+			/>
 		</div>
 	);
 }

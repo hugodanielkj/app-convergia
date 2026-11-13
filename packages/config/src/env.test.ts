@@ -31,4 +31,18 @@ describe("loadEnv", () => {
 			expect.not.stringContaining("secret-password"),
 		);
 	});
+
+	it("exige ANTHROPIC_API_KEY só em produção", () => {
+		expect(loadEnv({ DATABASE_URL }).ANTHROPIC_API_KEY).toBeUndefined();
+		expect(
+			loadEnv({ DATABASE_URL, ANTHROPIC_API_KEY: "" }).ANTHROPIC_API_KEY,
+		).toBeUndefined();
+		expect(() => loadEnv({ DATABASE_URL, NODE_ENV: "production" })).toThrow(
+			/ANTHROPIC_API_KEY/,
+		);
+		expect(
+			loadEnv({ DATABASE_URL, NODE_ENV: "production", ANTHROPIC_API_KEY: "k" })
+				.ANTHROPIC_API_KEY,
+		).toBe("k");
+	});
 });

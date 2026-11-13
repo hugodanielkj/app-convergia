@@ -2,7 +2,10 @@ import {
 	type CompanyRepository,
 	type ContentRepository,
 	listCompanies,
+	type QuotaRepository,
 	resolveActorContext,
+	type ScriptAi,
+	type ScriptRepository,
 	whoami,
 } from "@convergia/core";
 import { Hono } from "hono";
@@ -10,11 +13,15 @@ import type { Authenticate } from "../auth/authenticate";
 import { contentRoutes } from "./conteudo";
 import type { AppEnv } from "./env";
 import { toAppError } from "./errors";
+import { scriptRoutes } from "./roteiros";
 
 export type AppApiDeps = {
 	authenticate: Authenticate;
 	companies: CompanyRepository;
 	contents: ContentRepository;
+	scripts: ScriptRepository;
+	scriptAi: ScriptAi;
+	quotas: QuotaRepository;
 	now: () => Date;
 };
 
@@ -54,7 +61,8 @@ export function createAppApi(deps: AppApiDeps) {
 			}
 			return c.json({ id: company.id, name: company.name });
 		})
-		.route("/", contentRoutes(deps));
+		.route("/", contentRoutes(deps))
+		.route("/", scriptRoutes(deps));
 }
 
 export type AppApi = ReturnType<typeof createAppApi>;
