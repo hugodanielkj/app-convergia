@@ -4,6 +4,7 @@ import type {
 	Script,
 	ScriptField,
 } from "../../conteudo/content";
+import type { InstagramSnapshot } from "../../desempenho/instagram";
 import type { QuotaTool, UserQuotaTool } from "../../policies/quota.policy";
 
 /** Quem paga a chamada, para o registro de custo em `ai_call_log` (design §10). */
@@ -12,9 +13,14 @@ export type AiCallMeta = {
 	tool: QuotaTool | UserQuotaTool;
 };
 
-/** O que a IA sabe do card (✅ RN-076: sem módulo de marca, o contexto é o card e a empresa). */
+/**
+ * O que a IA sabe do card (✅ RN-076: sem módulo de marca, o contexto é o Instagram conectado, o
+ * card e a empresa).
+ */
 export type ScriptBrief = {
 	companyName: string;
+	/** ✅ RN-032, RN-039: o Instagram da empresa; `null` se ela ainda não conectou. */
+	instagram: InstagramSnapshot | null;
 	content: Pick<
 		Content,
 		| "title"

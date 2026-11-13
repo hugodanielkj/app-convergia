@@ -1,6 +1,12 @@
 import { loadEnv } from "@convergia/config";
-import { type DiscoveryDeps, runVideoQuery } from "@convergia/core";
 import {
+	type DiscoveryDeps,
+	type InstagramDeps,
+	refreshInstagramConnections,
+	runVideoQuery,
+} from "@convergia/core";
+import {
+	chooseInstagram,
 	chooseLlm,
 	createApiKeyRepository,
 	createApprovalRepository,
@@ -9,6 +15,7 @@ import {
 	createDb,
 	createDiscoveryQueue,
 	createDiscoveryRepository,
+	createInstagramRepository,
 	createLlmGateway,
 	createProviderCallLog,
 	createQueryExpander,
@@ -17,6 +24,7 @@ import {
 	createScriptRepository,
 	createVideoProvider,
 	discoverySettingsFromEnv,
+	scheduleInstagramRefresh,
 	startJobs,
 	workDiscoveryQueue,
 } from "@convergia/infra";
@@ -51,6 +59,20 @@ await workDiscoveryQueue(boss, (queryId) =>
 	runVideoQuery(discoveryDeps, queryId),
 );
 
+// Instagram da empresa (RN-034 a RN-039): o da Meta, ou o simulado fora de produção.
+const instagram = chooseInstagram(env);
+console.log(`Instagram: ${instagram.label}`);
+const instagramDeps: InstagramDeps = {
+	instagram: createInstagramRepository(db, instagram.cipher),
+	instagramGateway: instagram.gateway,
+	now: () => new Date(),
+};
+if (instagram.gateway.configured) {
+	await scheduleInstagramRefresh(boss, () =>
+		refreshInstagramConnections(instagramDeps),
+	);
+}
+
 const app = createApp({
 	authenticate: createAuthenticate({ apiKeys: createApiKeyRepository(db) }),
 	companies: createCompanyRepository(db),
@@ -58,6 +80,7 @@ const app = createApp({
 	approvals: createApprovalRepository(db),
 	scripts: createScriptRepository(db),
 	scriptAi: createScriptAi(gateway),
+	...instagramDeps,
 	...discoveryDeps,
 });
 

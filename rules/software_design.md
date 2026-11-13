@@ -328,7 +328,7 @@ Toda ferramenta que opera dentro de uma empresa recebe o parâmetro `company_id`
 ### Desempenho e insights (Instagram)
 | Ferramenta | Descrição | E | C | J |
 |---|---|---|---|---|
-| `get_instagram_connection` | Status da conexão, origem (oauth \| scrape), última sincronização | | | |
+| `get_instagram_connection` | Status da conexão, o @, quando os dados foram lidos e o que a IA usa deles (RN-039) | | | |
 | `connect_instagram` | Gera o link de conexão pela autenticação da Meta. Só o usuário do cliente (RN-034, RN-035) | ✔ | | |
 | `get_account_overview` | Seguidores, ganho no período, alcance (7–365 dias) | | | |
 | `get_audience_growth` | Crescimento por dia ou semana | | | |
@@ -543,7 +543,7 @@ Regras ❓ têm teste que espera `NotDecidedYet`. Quando a pergunta é respondid
 1. ✅ Esqueleto: monorepo, Postgres, servidor MCP com `whoami`, autenticação por chave de API (RN-023).
 2. ✅ Multiempresa: empresa por parâmetro (RN-022) e `list_companies`. Os testes de isolamento acompanham cada módulo.
 3. **Esqueleto do app web** (RN-005 a RN-007): `apps/web` como PWA mobile first, navegação inferior, tela Início, seletor de empresa para a agência, API do app (`/api/app`) e `apps/mcp-server` renomeado para `apps/server`. O login depende de Q-31 e Q-32; até lá, entrada de desenvolvimento só no ambiente local. Depois: tela Empresas para o cadastro (RN-026) e tela Conta com as chaves de API do MCP (RN-025).
-4. Conexão do Instagram e sincronização de métricas (começar a revisão da Meta no dia 1).
+4. Conexão do Instagram ✅ (login do Instagram, contexto da IA e renovação diária; RN-034 a RN-039) e sincronização de métricas (pendente). Começar a revisão da Meta cedo.
 5. Cards, kanban e calendário (sem IA).
 6. LLM gateway + cotas + geração e refino de roteiro, com o fluxo guiado "Criar roteiro" no app (RN-006).
 7. ✅ **Aprovação** do roteiro (regras definidas; Q-26, sobre o cliente editar, segue isolada com `NotDecidedYet`). Carrossel e ideias entram na aprovação com os módulos deles.

@@ -98,6 +98,16 @@ export const api = {
 	restoreContent: (param: ContentParams) =>
 		call(contentApi.restore.$post({ param })),
 
+	instagram: (companyId: string) =>
+		call(companyApi.instagram.$get({ param: { companyId } })),
+	connectInstagram: (companyId: string, username: string) =>
+		call(
+			companyApi.instagram.connect.$post({
+				param: { companyId },
+				json: { username },
+			}),
+		),
+
 	approvals: (companyId: string, view: ApprovalView) =>
 		call(companyApi.approvals.$get({ param: { companyId }, query: { view } })),
 	approval: (param: ContentParams) => call(approvalApi.$get({ param })),
@@ -164,6 +174,7 @@ export type HistoryEntryDto = Awaited<
 	ReturnType<typeof api.history>
 >["entries"][number];
 export type CitationDto = ContentDto["citations"][number];
+export type InstagramDto = Awaited<ReturnType<typeof api.instagram>>;
 export type ApprovalItemDto = Awaited<
 	ReturnType<typeof api.approvals>
 >["items"][number];

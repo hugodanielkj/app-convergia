@@ -45,6 +45,13 @@ export const contentQuery = (companyId: string, contentId: string) =>
 		queryFn: () => api.content({ companyId, contentId }),
 	});
 
+/** Conexão do Instagram da empresa e o retrato que a IA usa (RN-039). */
+export const instagramQuery = (companyId: string) =>
+	queryOptions({
+		queryKey: ["companies", companyId, "instagram"],
+		queryFn: () => api.instagram(companyId),
+	});
+
 /** Listas da tela de aprovações. Ficam sob os cards: toda mudança num card as recarrega. */
 export const approvalsQuery = (companyId: string, view: ApprovalView) =>
 	queryOptions({

@@ -71,6 +71,13 @@
       "when": 1794599050838,
       "tag": "0009_aprovacao",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794600481224,
+      "tag": "0010_instagram",
+      "breakpoints": true
     }
   ]
 }

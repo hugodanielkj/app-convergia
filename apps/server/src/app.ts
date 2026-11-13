@@ -2,6 +2,7 @@ import { NotDecidedYet } from "@convergia/core";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { Hono } from "hono";
 import { createAppApi } from "./app-api";
+import { instagramCallback } from "./app-api/desempenho";
 import {
 	type Authenticate,
 	InvalidCredentialError,
@@ -19,6 +20,7 @@ export function createApp({ authenticate, ...toolDeps }: AppDeps): Hono {
 	app.get("/health", (c) => c.json({ status: "ok" }));
 
 	app.route("/api/app", createAppApi({ authenticate, ...toolDeps }));
+	app.route("/api/instagram/callback", instagramCallback(toolDeps));
 
 	app.all("/api/mcp", async (c) => {
 		let user: Awaited<ReturnType<Authenticate>>;

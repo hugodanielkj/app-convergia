@@ -16,6 +16,11 @@ import {
 } from "../../conteudo/use-cases/organize-content";
 import { updateContent } from "../../conteudo/use-cases/update-content";
 import { InMemoryQuotaRepository } from "../../cotas/testing/in-memory-quota-repository";
+import {
+	InMemoryInstagramRepository,
+	testPost,
+	testProfile,
+} from "../../desempenho/testing/fakes";
 import type { ActorContext } from "../../shared/actor-context";
 import { NotDecidedYet } from "../../shared/domain-error";
 import { FakeScriptAi } from "../testing/fake-script-ai";
@@ -37,6 +42,7 @@ describe("roteiros", () => {
 		scripts: InMemoryScriptRepository;
 		scriptAi: FakeScriptAi;
 		quotas: InMemoryQuotaRepository;
+		instagram: InMemoryInstagramRepository;
 	};
 
 	const create = async (actor: ActorContext = client, title = "Sofá novo") => {
@@ -61,6 +67,7 @@ describe("roteiros", () => {
 			companies: new InMemoryCompanyRepository([companyA, companyB]),
 			contents: new InMemoryContentRepository(now),
 			scripts: new InMemoryScriptRepository(now),
+			instagram: new InMemoryInstagramRepository(),
 			scriptAi: new FakeScriptAi(),
 			quotas: new InMemoryQuotaRepository(),
 			now,
@@ -92,6 +99,37 @@ describe("roteiros", () => {
 				companyId: "company-a",
 				tool: "generate_scripts",
 			});
+		});
+
+		it("RN-076, RN-039: com o Instagram conectado, a IA recebe o perfil e os posts recentes", async () => {
+			const card = await create();
+			await deps.instagram.saveConnection("company-a", {
+				igUserId: "ig-1",
+				username: "empresa_a",
+				connectedByUserId: client.userId,
+				connectedAt: new Date("2026-11-12T10:00:00Z"),
+				tokenExpiresAt: new Date("2027-01-10T10:00:00Z"),
+				simulated: false,
+				accessToken: "token",
+				snapshot: {
+					profile: testProfile({ username: "empresa_a" }),
+					posts: [testPost()],
+					collectedAt: new Date("2026-11-12T10:00:00Z"),
+				},
+			});
+
+			await generateScripts(deps, client, [card.id]);
+
+			expect(deps.scriptAi.calls[0]?.brief.instagram).toMatchObject({
+				profile: { username: "empresa_a" },
+				posts: [{ likeCount: 140, commentsCount: 12 }],
+			});
+		});
+
+		it("RN-076: sem Instagram conectado, a IA gera só com o card e a empresa", async () => {
+			const card = await create();
+			await generateScripts(deps, client, [card.id]);
+			expect(deps.scriptAi.calls[0]?.brief.instagram).toBeNull();
 		});
 
 		it("RN-072: cada geração fica no histórico do card", async () => {

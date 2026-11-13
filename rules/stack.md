@@ -144,7 +144,7 @@ Princípios de uso da IA:
 | **Instagram API (Meta), login do Instagram** | Contas profissionais conectadas por OAuth: perfil, posts, métricas e insights da conta | Exige **app aprovado na Meta** (revisão de permissões) e conta Profissional. 📎 RN-036. **A revisão da Meta leva tempo: comece cedo.** |
 | **Scraping** (✅ RN-031) | Só perfis e posts de terceiros (referências e descoberta de vídeos). O perfil da empresa vem só pela API oficial (✅ RN-035) | Descoberta de vídeos (✅ RN-111): **ScrapeCreators** — busca por palavra-chave do TikTok e busca de Reels em resultados indexados pelo Google (parcial, sem visualizações; elas vêm da consulta de cada post). A EnsembleData foi avaliada primeiro, mas não busca Reels por assunto (só usuários, lugares e hashtags no Instagram). Referências: ❓ fornecedor e regras de consentimento (Q-08). Frágil: o layout muda, há bloqueios. Isolado atrás da porta `VideoProvider`. |
 
-Os tokens OAuth do Instagram de cada empresa ficam **criptografados no banco** e são renovados por job agendado antes de expirar.
+Os tokens OAuth do Instagram de cada empresa ficam **criptografados no banco** e são renovados por job agendado antes de expirar. Variáveis: `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET`, `INSTAGRAM_REDIRECT_URI` e `INSTAGRAM_TOKEN_KEY` (32 bytes em base64, AES-256-GCM). Permissão pedida: só `instagram_business_basic` (✅ RN-039 não usa insights). Sem o app, fora de produção, o servidor usa um Instagram simulado.
 
 ## 6. Dados e jobs
 

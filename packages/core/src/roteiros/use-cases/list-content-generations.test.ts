@@ -11,6 +11,7 @@ import { InMemoryContentRepository } from "../../conteudo/testing/in-memory-cont
 import { createContents } from "../../conteudo/use-cases/create-contents";
 import { deleteContent } from "../../conteudo/use-cases/organize-content";
 import { InMemoryQuotaRepository } from "../../cotas/testing/in-memory-quota-repository";
+import { InMemoryInstagramRepository } from "../../desempenho/testing/fakes";
 import type { ActorContext } from "../../shared/actor-context";
 import { NotDecidedYet } from "../../shared/domain-error";
 import { HISTORY_LIMIT } from "../history";
@@ -45,6 +46,7 @@ describe("histórico de gerações do card (RN-072)", () => {
 			companies: new InMemoryCompanyRepository([companyA, companyB]),
 			contents: new InMemoryContentRepository(now),
 			scripts: new InMemoryScriptRepository(now),
+			instagram: new InMemoryInstagramRepository(),
 			scriptAi: new FakeScriptAi(),
 			quotas: new InMemoryQuotaRepository(),
 			now,

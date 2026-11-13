@@ -11,11 +11,14 @@ import type { ApprovalToolDeps } from "./tools/aprovacao/deps";
 import { registerContentTools } from "./tools/conteudo";
 import type { ContentToolDeps } from "./tools/conteudo/deps";
 import { registerDiscoveryTools } from "./tools/descoberta";
+import { registerInstagramTools } from "./tools/desempenho";
+import type { InstagramToolDeps } from "./tools/desempenho/deps";
 import { registerScriptTools } from "./tools/roteiros";
 
 export type ToolDeps = ContentToolDeps &
 	ApprovalToolDeps &
 	ScriptDeps &
+	InstagramToolDeps &
 	DiscoveryDeps;
 
 /** Monta um servidor MCP para uma requisição, já com o usuário autenticado. */
@@ -34,6 +37,7 @@ export function buildMcpServer(
 	registerApprovalTools(server, user, deps);
 	registerScriptTools(server, user, deps);
 	registerDiscoveryTools(server, user, deps);
+	registerInstagramTools(server, user, deps);
 
 	return server;
 }

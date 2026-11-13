@@ -6,11 +6,13 @@ import {
 } from "@convergia/core";
 import {
 	FakeDiscoveryQueue,
+	FakeInstagramGateway,
 	FakeScriptAi,
 	FakeVideoProvider,
 	InMemoryApiKeyRepository,
 	InMemoryCompanyRepository,
 	InMemoryDiscoveryRepository,
+	InMemoryInstagramRepository,
 	InMemoryQuotaRepository,
 	InMemoryScriptRepository,
 	inMemoryContentDeps,
@@ -119,6 +121,8 @@ describe("API do app: descoberta de vídeos (RN-110 a RN-119)", () => {
 			authenticate: createAuthenticate({ apiKeys }),
 			...inMemoryContentDeps(),
 			scripts: new InMemoryScriptRepository(),
+			instagram: new InMemoryInstagramRepository(),
+			instagramGateway: new FakeInstagramGateway(),
 			scriptAi: new FakeScriptAi(),
 			...base,
 		});

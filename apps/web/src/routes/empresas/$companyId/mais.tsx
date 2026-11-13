@@ -19,7 +19,6 @@ export const Route = createFileRoute("/empresas/$companyId/mais")({
 });
 
 const SECTIONS: { label: string; icon: LucideIcon }[] = [
-	{ label: "Desempenho", icon: ChartColumn },
 	{ label: "Ideias", icon: Lightbulb },
 	{ label: "Referências", icon: Bookmark },
 	{ label: "Carrossel", icon: Images },
@@ -39,6 +38,15 @@ function More() {
 	return (
 		<div className="flex flex-col gap-4">
 			<h1 className="text-3xl font-medium">Mais</h1>
+			<Link
+				to="/empresas/$companyId/desempenho"
+				params={{ companyId: Route.useParams().companyId }}
+				className="flex min-h-14 items-center gap-3 rounded-2xl bg-white px-4 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800"
+			>
+				<ChartColumn className="size-5 text-brand-600" aria-hidden />
+				<span className="flex-1">Desempenho e Instagram</span>
+				<ChevronRight className="size-5 text-zinc-400" aria-hidden />
+			</Link>
 			<Link
 				to="/empresas/$companyId/descobrir"
 				params={{ companyId: Route.useParams().companyId }}
