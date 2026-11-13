@@ -15,7 +15,7 @@ export const registerSaveReferenceByUrl: RegisterKnowledgeTool = (
 		{
 			title: "Salvar referência",
 			description:
-				"Salva um link público do Instagram. Depende das cotas ainda não definidas; perfis também dependem do limite de criadores.",
+				"Salva post ou perfil público do Instagram em segundo plano. Até 3 novas coletas por empresa/dia e 1 criador salvo. Devolve o ID; acompanhe com list_saved_references. Uma referência já pronta é reutilizada sem cota.",
 			input: referenceInput.shape,
 			readOnly: false,
 		},

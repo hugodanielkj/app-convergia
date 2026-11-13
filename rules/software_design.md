@@ -549,7 +549,7 @@ Regras ❓ têm teste que espera `NotDecidedYet`. Quando a pergunta é respondid
 5. Cards, kanban e calendário (sem IA).
 6. LLM gateway + cotas + geração e refino de roteiro, com o fluxo guiado "Criar roteiro" no app (RN-006).
 7. ✅ **Aprovação** do roteiro (regras definidas; Q-26, sobre o cliente editar, segue isolada com `NotDecidedYet`). Carrossel e ideias entram na aprovação com os módulos deles.
-8. Brainstorm, referências, fontes. Brainstorm: cota de 5/dia e conversão explícita após aprovação (RN-084, RN-303). Referências: limites Q-17 e Q-21 adiados pelo usuário em 13/11/2026; coleta e análise nova ficam bloqueadas, assim como extração e upload de fontes sem cota. Listagem, vínculos e contexto de roteiro não dependem dessas cotas.
+8. Brainstorm, referências, fontes. Brainstorm: cota de 5/dia e conversão explícita após aprovação (RN-084, RN-303). Referências: 1 criador por empresa, 3 referências salvas/dia e 3 análises novas/dia, confirmados em 13/11/2026. Extração e upload de fontes seguem sem cota definida. Listagem, vínculos e contexto de roteiro não dependem dessas cotas.
 9. Carrossel (depois de escolher o provedor de imagem).
 10. Insights e análise de post (depois de escolher o provedor de transcrição).
 
@@ -603,3 +603,5 @@ Decidido: mobile first e PWA (✅ RN-005), telas com botões (✅ RN-006), clien
 - O service worker guarda só a casca do app (HTML, CSS, JS, ícones). Sem conexão, o app mostra um aviso e não deixa editar.
 - Notificação no celular depende da Q-20.
 
+
+Referências usam a fila `process-reference`. `reference_jobs` guarda a reserva de cota e o estado da tarefa; a reserva e o início são transacionais. Falhas, exclusão durante o processamento e tarefas interrompidas devolvem a reserva uma única vez. O worker recupera registros ainda não enfileirados e fecha tarefas em execução há mais de cinco minutos. URLs equivalentes são normalizadas e trabalhos em andamento são reaproveitados sem nova cota.

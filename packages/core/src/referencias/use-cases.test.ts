@@ -56,19 +56,18 @@ describe("Referências e fontes", () => {
 			detachContentReference(d, other, d.card.id, r.id),
 		).rejects.toThrow();
 	});
-	it("Q-17 e Q-21: salvar não presume limite ou faz coleta", async () => {
+	it("RN-090, RN-093: salva uma referência e limita a um criador por empresa", async () => {
 		const d = await setup();
+		const first = await saveReferenceByUrl(d, client, {
+			url: "https://www.instagram.com/criador/",
+		});
+		expect(first.reference.status).toBe("queued");
 		await expect(
 			saveReferenceByUrl(d, client, {
-				url: "https://www.instagram.com/criador/",
+				url: "https://www.instagram.com/outro/",
 			}),
-		).rejects.toThrow("Q-17");
-		await expect(
-			saveReferenceByUrl(d, client, {
-				url: "https://www.instagram.com/p/abc/",
-			}),
-		).rejects.toThrow("Q-21");
-		expect(d.knowledge.saved).toEqual([]);
+		).rejects.toThrow("1 criador");
+		expect(d.referenceQueue.jobs).toHaveLength(1);
 	});
 	it("RN-092: análise salva é devolvida sem depender da cota em aberto", async () => {
 		const d = await setup();
@@ -89,7 +88,7 @@ describe("Referências e fontes", () => {
 		if (!creator) throw new Error("Criador não encontrado");
 		creator.analysis = null;
 		await expect(runCreatorDeepAnalysis(d, client, "creator")).rejects.toThrow(
-			"Q-21",
+			"Aguarde a coleta",
 		);
 	});
 	it("RN-091: excluir uma referência é definitivo e isolado", async () => {

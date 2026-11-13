@@ -9,6 +9,8 @@ export const DEFAULT_DAILY_QUOTAS = {
 	generate_scripts: 10,
 	refine_content: 30,
 	regenerate_brainstorm: 5,
+	save_reference_by_url: 3,
+	run_creator_deep_analysis: 3,
 } as const;
 
 /** 📎 RN-071: gerar opções avulsas de cada parte do roteiro consome cota. */
@@ -48,6 +50,8 @@ const QUOTA_LABEL: Record<QuotaTool, string> = {
 	generate_scripts: "gerar roteiro",
 	refine_content: "refinar roteiro",
 	regenerate_brainstorm: "gerar ideias",
+	save_reference_by_url: "salvar referência",
+	run_creator_deep_analysis: "analisar criador",
 	generate_hook_options: "opções de gancho",
 	generate_body_options: "opções de corpo",
 	generate_cta_options: "opções de CTA",

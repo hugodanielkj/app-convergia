@@ -22,6 +22,8 @@ describe("política de cota", () => {
 			generate_scripts: 10,
 			refine_content: 30,
 			regenerate_brainstorm: 5,
+			save_reference_by_url: 3,
+			run_creator_deep_analysis: 3,
 		});
 	});
 

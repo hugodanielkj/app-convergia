@@ -8,6 +8,34 @@ export function createFakeLlm(): LlmClient {
 	return {
 		model: "simulado-local",
 		async complete<T>(request: LlmRequest<T>) {
+			if (request.task === "analyze_reference")
+				return {
+					output: {
+						summary:
+							"Análise simulada: exemplo de abordagem editorial baseado no texto enviado.",
+					},
+					inputTokens: null,
+					outputTokens: null,
+				};
+			if (request.task === "analyze_creator")
+				return {
+					output: Object.fromEntries(
+						[
+							"positioning",
+							"pillars",
+							"audience",
+							"tone",
+							"formats",
+							"hooks",
+							"adaptations",
+						].map((k) => [
+							k,
+							"Hipótese simulada para desenvolvimento, baseada apenas nos textos disponíveis.",
+						]),
+					),
+					inputTokens: null,
+					outputTokens: null,
+				};
 			const brief = request.messages[0]?.content ?? "";
 			const title = /Título: (.+)/.exec(brief)?.[1] ?? "o seu post";
 			const script = {

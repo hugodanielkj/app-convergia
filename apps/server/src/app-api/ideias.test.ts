@@ -95,19 +95,21 @@ describe("API do passo 8", () => {
 				.status,
 		).toBe(422);
 	});
-	it("Q-17, Q-21: coleta bloqueada devolve 501 e não grava dados", async () => {
+	it("RN-090, RN-093: referência devolve tarefa e limita criadores", async () => {
 		const { app, knowledge } = setup();
-		for (const [url, questionId] of [
-			["https://www.instagram.com/criador/", "Q-17"],
-			["https://www.instagram.com/p/abc/", "Q-21"],
-		]) {
-			const r = await app.request(
-				"/companies/company-a/references",
-				post({ url }),
-			);
-			expect(r.status).toBe(501);
-			expect(await r.json()).toMatchObject({ questionId });
-		}
-		expect(knowledge.saved).toEqual([]);
+		const r = await app.request(
+			"/companies/company-a/references",
+			post({ url: "https://www.instagram.com/criador/" }),
+		);
+		expect(r.status).toBe(200);
+		expect(await r.json()).toMatchObject({
+			reference: { kind: "creator", status: "queued" },
+		});
+		const second = await app.request(
+			"/companies/company-a/references",
+			post({ url: "https://www.instagram.com/outro/" }),
+		);
+		expect(second.status).toBe(409);
+		expect(knowledge.saved).toHaveLength(1);
 	});
 });

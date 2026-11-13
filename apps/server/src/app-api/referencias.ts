@@ -14,6 +14,7 @@ import {
 	listContentSources,
 	listSavedReferences,
 	parseInput,
+	type ReferenceProcessingDeps,
 	referenceInput,
 	resolveActorContext,
 	retryContentSource,
@@ -26,7 +27,8 @@ import { Hono } from "hono";
 import { validator } from "hono/validator";
 import { z } from "zod";
 import type { AppEnv } from "./env";
-export type KnowledgeApiDeps = KnowledgeDeps &
+export type KnowledgeApiDeps = ReferenceProcessingDeps &
+	KnowledgeDeps &
 	SourceDeps & { companies: CompanyRepository };
 export function knowledgeRoutes(d: KnowledgeApiDeps) {
 	const saved = "/companies/:companyId/references";
@@ -43,8 +45,9 @@ export function knowledgeRoutes(d: KnowledgeApiDeps) {
 			saved,
 			validator("json", (v) => parseInput(referenceInput, v)),
 			async (c) => {
-				await saveReferenceByUrl(d, await actor(c), c.req.valid("json"));
-				return c.json({ ok: true });
+				return c.json(
+					await saveReferenceByUrl(d, await actor(c), c.req.valid("json")),
+				);
 			},
 		)
 		.delete(`${saved}/:referenceId`, async (c) => {

@@ -224,14 +224,16 @@ describe("Passo 8 pelo MCP", () => {
 		}
 		await c.close();
 	});
-	it("Q-21: salvar post devolve regra pendente com isError", async () => {
+	it("RN-090: salvar post devolve ID para acompanhar o processamento", async () => {
 		const c = await connect(clientUser);
 		const r = await c.callTool({
 			name: "save_reference_by_url",
 			arguments: { url: "https://www.instagram.com/p/abc/" },
 		});
-		expect(r.isError).toBe(true);
-		expect(JSON.stringify(r.content)).toContain("Q-21");
+		expect(r.isError).toBeFalsy();
+		expect(r.structuredContent).toMatchObject({
+			result: { reference: { status: "queued", kind: "post" }, started: true },
+		});
 		await c.close();
 	});
 	it("RN-024: conexão de leitura não gera ideias", async () => {

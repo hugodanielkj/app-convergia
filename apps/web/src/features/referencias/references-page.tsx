@@ -9,13 +9,21 @@ export function ReferencesPage({ companyId }: { companyId: string }) {
 	const list = useQuery({
 		queryKey: ["companies", companyId, "references"],
 		queryFn: () => api.references(companyId),
+		refetchInterval: (q) =>
+			q.state.data?.references.some(
+				(r) => r.status === "queued" || r.analysisStatus === "queued",
+			)
+				? 2000
+				: false,
 	});
 	const change = useMutation({
 		mutationFn: async (action: {
 			type: "save" | "delete" | "analyze";
 			id?: string;
+			url?: string;
 		}) => {
-			if (action.type === "save") await api.saveReference(companyId, url);
+			if (action.type === "save")
+				await api.saveReference(companyId, action.url ?? url);
 			else if (action.id) {
 				if (action.type === "delete")
 					await api.deleteReference(companyId, action.id);
@@ -33,8 +41,8 @@ export function ReferencesPage({ companyId }: { companyId: string }) {
 			<h1 className="text-3xl font-medium">Referências</h1>
 			<p>Posts e perfis públicos do Instagram que inspiram a criação.</p>
 			<p className="text-sm text-zinc-600 dark:text-zinc-300">
-				Salvar e gerar novas análises ficará disponível após a definição dos
-				limites de uso. Referências já salvas podem ser consultadas.
+				1 criador por empresa. Até 3 referências salvas e 3 análises novas por
+				dia. Consultar a análise salva não consome cota.
 			</p>
 			<form
 				className="flex flex-col gap-3"
@@ -56,7 +64,7 @@ export function ReferencesPage({ companyId }: { companyId: string }) {
 				/>
 				<button
 					type="submit"
-					disabled
+					disabled={change.isPending || !url.trim()}
 					className="min-h-11 rounded-full bg-brand-600 px-4 font-semibold text-white"
 				>
 					Salvar referência
@@ -87,12 +95,36 @@ export function ReferencesPage({ companyId }: { companyId: string }) {
 								{r.url}
 							</a>
 							<p>
-								{r.status === "queued"
-									? "Processando..."
-									: r.status === "failed"
-										? r.error
-										: "Pronta"}
+								{r.analysisStatus === "failed"
+									? r.error
+									: r.status === "queued"
+										? "Processando..."
+										: r.status === "failed"
+											? r.error
+											: "Pronta"}
 							</p>
+							{r.summary && <p className="whitespace-pre-wrap">{r.summary}</p>}
+							{r.text && (
+								<details>
+									<summary className="min-h-11 cursor-pointer py-3">
+										Texto coletado
+									</summary>
+									<p className="whitespace-pre-wrap">{r.text}</p>
+								</details>
+							)}
+							{r.analysisStatus === "queued" && (
+								<p role="status">Analisando criador...</p>
+							)}
+							{r.status === "failed" && (
+								<button
+									type="button"
+									className="min-h-11 rounded-full px-4 ring-1 ring-zinc-300"
+									disabled={change.isPending}
+									onClick={() => change.mutate({ type: "save", url: r.url })}
+								>
+									Tentar coleta novamente
+								</button>
+							)}
 							{r.analysis && (
 								<p className="whitespace-pre-wrap">{r.analysis}</p>
 							)}
@@ -100,7 +132,11 @@ export function ReferencesPage({ companyId }: { companyId: string }) {
 								<button
 									type="button"
 									className="min-h-11 rounded-full px-4 ring-1 ring-zinc-300"
-									disabled={change.isPending || !r.analysis}
+									disabled={
+										change.isPending ||
+										r.status !== "ready" ||
+										r.analysisStatus === "queued"
+									}
 									onClick={() => change.mutate({ type: "analyze", id: r.id })}
 								>
 									{r.analysis ? "Consultar análise salva" : "Analisar criador"}

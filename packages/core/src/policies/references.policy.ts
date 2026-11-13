@@ -1,9 +1,5 @@
-import { NotDecidedYet } from "../shared/domain-error";
-/** RN-093: o usuário adiou o limite de criadores. Nenhum limite é presumido. */
-export function referenceCreatorLimit(): never {
-	throw new NotDecidedYet("Q-17");
-}
-/** RN-300, RN-303: salvar referência e analisar criador ainda não têm cota decidida. */
-export function referenceDailyLimit(): never {
-	throw new NotDecidedYet("Q-21");
+/** RN-093: confirmado pelo usuário em 13/11/2026. */
+export const MAX_REFERENCE_CREATORS = 1;
+export function referenceCreatorLimit(): number {
+	return MAX_REFERENCE_CREATORS;
 }

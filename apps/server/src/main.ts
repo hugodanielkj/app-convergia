@@ -1,5 +1,11 @@
 import { loadEnv } from "@convergia/config";
-import { type DiscoveryDeps, runVideoQuery } from "@convergia/core";
+import {
+	type DiscoveryDeps,
+	type ReferenceProcessingDeps,
+	recoverReferenceJobs,
+	runReferenceJob,
+	runVideoQuery,
+} from "@convergia/core";
 import {
 	chooseLlm,
 	createApiKeyRepository,
@@ -17,6 +23,9 @@ import {
 	createProviderCallLog,
 	createQueryExpander,
 	createQuotaRepository,
+	createReferenceAi,
+	createReferenceProvider,
+	createReferenceQueue,
 	createScriptAi,
 	createScriptRepository,
 	createSourceRepository,
@@ -24,6 +33,7 @@ import {
 	discoverySettingsFromEnv,
 	startJobs,
 	workDiscoveryQueue,
+	workReferenceQueue,
 } from "@convergia/infra";
 import { serve } from "@hono/node-server";
 import { createApp } from "./app";
@@ -58,7 +68,20 @@ await workDiscoveryQueue(boss, (queryId) =>
 
 const contents = createContentRepository(db);
 const ideas = createIdeaRepository(db);
+const referenceDeps: ReferenceProcessingDeps = {
+	knowledge: createKnowledgeRepository(db),
+	referenceProvider: createReferenceProvider(env.SCRAPECREATORS_API_KEY),
+	referenceAi: createReferenceAi(gateway),
+	referenceQueue: createReferenceQueue(boss),
+	now: () => new Date(),
+};
+const stopReferenceRecovery = await workReferenceQueue(
+	boss,
+	(companyId, id) => runReferenceJob(referenceDeps, companyId, id),
+	() => recoverReferenceJobs(referenceDeps),
+);
 const app = createApp({
+	...referenceDeps,
 	knowledge: createKnowledgeRepository(db),
 	sources: createSourceRepository(db),
 	ideas,
@@ -80,6 +103,7 @@ const server = serve({ fetch: app.fetch, port: env.PORT }, ({ port }) => {
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
 	process.once(signal, async () => {
 		server.close();
+		stopReferenceRecovery();
 		await boss.stop();
 		process.exit(0);
 	});
