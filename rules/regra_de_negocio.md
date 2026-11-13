@@ -99,7 +99,7 @@ Legenda: ✔ pode · ✘ não pode · ❓ em aberto
 | Ver dados da **própria** empresa | — | ✔ |
 | Cadastrar empresa cliente / usuário | ✔ (❓ só admin? Q-02) | ✘ |
 | Definir cotas, ver consumo | ✔ | ❓ ver o próprio consumo? (Q-21) |
-| Conectar o Instagram da empresa | ❓ (Q-05) | ❓ (Q-05) |
+| Conectar o Instagram da empresa | ✘ (RN-034) | ✔ (RN-034) |
 | Sincronizar métricas, analisar posts, gerar insights | ✔ | ✔ |
 | Criar e editar cards e roteiros | ✔ | ✔ |
 | Gerar ideias (brainstorm) | ✔ | ✔ |
@@ -130,25 +130,27 @@ Legenda: ✔ pode · ✘ não pode · ❓ em aberto
 ### 4.2 Instagram e contexto da IA
 
 - ✅ **RN-030** — **Só Instagram** no protótipo.
-- ✅ **RN-031** — Os dados vêm de **duas fontes**, como no Dalea: **API oficial via OAuth** quando a empresa conecta a conta, e **scraping** como alternativa.
+- ✅ **RN-031** — Os dados vêm de **duas fontes**: a **API oficial via OAuth** e o **scraping**. O perfil **da própria empresa** vem só pela API oficial (RN-035); o scraping fica para perfis e posts de terceiros, ainda em aberto (Q-08). *(Ajustada em 12/11/2026 pela resposta à Q-08: antes, o scraping era alternativa também para o perfil da empresa.)*
 - ✅ **RN-032** — Enquanto não houver o módulo de marca, **a IA entende a empresa pelo Instagram conectado**: o "login" da empresa no Instagram é o contexto da marca.
-- ❓ **RN-033** — Quais dados do Instagram formam esse contexto (bio, categoria, legendas, transcrições de reels, métricas, comentários)? (Q-07)
-- ❓ **RN-034** — Quem conecta o Instagram: o usuário do cliente, a agência ou qualquer um dos dois? (Q-05)
-- ❓ **RN-035** — Quando usar scraping em vez de OAuth: só quando a conta não pode ser conectada (por exemplo, conta pessoal), ou também para perfis de terceiros (referências)? E é preciso consentimento registrado da empresa para fazer scraping do perfil dela? (Q-08)
-- 📎 **RN-036** — A API oficial do Instagram exige conta **Profissional** (Business ou Creator). Conta pessoal só por scraping.
+- ✅ **RN-033** — **A IA identifica o nicho da empresa** a partir do Instagram conectado.
+  - ❓ Quais dados exatamente ela lê para isso e para o contexto da marca (bio, categoria, legendas, transcrições de reels, métricas, comentários)? (Q-07)
+- ✅ **RN-034** — **Quem conecta o Instagram é o usuário do cliente.** A agência não conecta a conta pela empresa.
+- ✅ **RN-035** — **O cliente informa o @ da empresa e conecta pela autenticação da Meta** (API oficial). O perfil da própria empresa não é lido por scraping. Consequência: a conta precisa ser Profissional (RN-036).
+  - ❓ Scraping de perfis e posts de terceiros (referências): quando usar e com qual cuidado? (Q-08)
+- 📎 **RN-036** — A API oficial do Instagram exige conta **Profissional** (Business ou Creator). Como o perfil da empresa só entra pela API oficial (RN-035), conta pessoal precisa ser convertida em Profissional para ser conectada.
 - 📎 **RN-037** — O histórico de métricas "acompanha a conexão": se a conta for desconectada e reconectada, não se promete preservar o histórico.
 - ❓ **RN-038** — O que acontece com os dados quando a empresa desconecta o Instagram: são mantidos, ocultados ou apagados? (Q-25)
 
 ### 4.3 Desempenho e insights
 
-Todas as regras desta seção são 📎 **Referência Dalea**, a confirmar (Q-09):
+As regras desta seção são 📎 **Referência Dalea**, exceto a RN-045, que foi ajustada (✅). As demais seguem a confirmar (Q-09):
 
 - 📎 **RN-040** — **Ausência de snapshot não é desempenho zero.** Se não há leitura de métricas de um dia, o sistema diz "sem dados", nunca "0".
 - 📎 **RN-041** — O resumo de desempenho de um período soma as métricas dos **posts publicados naquele período**, não as interações que aconteceram no período.
 - 📎 **RN-042** — A comparação com o período anterior mostra variação percentual; quando o período anterior é 0, a variação é "sem comparação" (nulo), não infinito.
 - 📎 **RN-043** — Um "veredito" de desempenho de um post só é dado se a conta tem **pelo menos 5 vídeos com visualizações**.
 - 📎 **RN-044** — Imagens e carrosséis têm métricas de visualização nulas; não entram em rankings por visualização.
-- 📎 **RN-045** — **Gerar insights** usa até os 50 vídeos com mais visualizações dos últimos 365 dias e exige **pelo menos 10 vídeos**. Imagens e carrosséis ficam de fora.
+- ✅ **RN-045** — **Gerar insights** usa até os 50 vídeos com mais visualizações dos últimos 365 dias e exige **pelo menos 5 vídeos** (no Dalea, 10). Imagens e carrosséis ficam de fora.
 - 📎 **RN-046** — **Ler insights nunca os regenera.** Regenerar é uma ação separada, que consome cota.
 - 📎 **RN-047** — Os insights têm um estado de atualização: `ausente`, `dados_insuficientes`, `desatualizado` ou `disponível`.
 - 📎 **RN-048** — Os diagnósticos da IA são **hipóteses**, não prova de causa nem medição de retenção. O texto devolvido deve dizer isso.
@@ -328,7 +330,8 @@ Os erros voltam como resultado normal da ferramenta, marcados como erro (📎 pa
 | Restaurar card fora do prazo da lixeira | "Este card ficou mais de 30 dias na lixeira e não pode mais ser restaurado." | ✅ RN-069 |
 | Criação em lote fora do limite | "Crie de 1 a 20 cards por vez." | 📎 RN-064 |
 | Aplicar prévia em card alterado | "O card mudou depois desta prévia. Gere uma nova." | 📎 RN-074 |
-| Instagram não conectado | "Conecte o Instagram desta empresa para usar esta ferramenta." | ❓ texto final depende de Q-05 |
+| Instagram não conectado (cliente) | "Conecte o Instagram da sua empresa para usar esta função." | ✅ RN-034 |
+| Instagram não conectado (agência) | "O cliente ainda não conectou o Instagram desta empresa." | ✅ RN-034 |
 | Erro inesperado | "Ocorreu um erro inesperado. Tente de novo em instantes." | 📎 |
 
 ---
@@ -347,10 +350,10 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 - ~~**Q-06**~~ — Respondida em 12/11/2026: pelo app web (RN-026).
 
 ### Instagram e IA
-- **Q-05** — Quem conecta o Instagram da empresa: o cliente, a agência ou ambos?
-- **Q-07** — Quais dados do Instagram a IA usa como contexto da marca?
-- **Q-08** — Quando usar scraping, e é preciso consentimento registrado da empresa?
-- **Q-09** — As regras de desempenho do Dalea (RN-040 a RN-051) valem para nós?
+- ~~**Q-05**~~ — Respondida em 12/11/2026: o cliente conecta (RN-034).
+- **Q-07** — *Respondida em parte em 12/11/2026: a IA identifica o nicho pelo Instagram (RN-033).* Falta decidir quais dados do Instagram ela lê (bio, categoria, legendas, transcrições, métricas, comentários).
+- **Q-08** — *Respondida em parte em 12/11/2026: o perfil da empresa só entra pela autenticação da Meta (RN-035).* Falta decidir o scraping de perfis e posts de terceiros (referências): quando usar e com qual cuidado.
+- **Q-09** — *Respondida em parte em 12/11/2026: insights com pelo menos 5 vídeos (RN-045).* As demais regras de desempenho do Dalea (RN-040 a RN-051) valem para nós?
 
 ### Aprovação
 - ~~Q-10, Q-11, Q-12, Q-13~~ — Respondidas em 12/11/2026 (RN-203, RN-204, RN-214 a RN-218).
@@ -369,7 +372,7 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 - ~~**Q-24**~~ — Respondida em 12/11/2026: lixeira por 30 dias (RN-069).
 
 ### Cotas, dados e cobrança
-- **Q-21** — Valores das cotas, horário em que zeram, se falha consome cota, limite por minuto por usuário ou por empresa, cota total da agência, e se o cliente vê o próprio consumo.
+- **Q-21** — *(Antes de fixar os valores, medir quantos tokens um roteiro consome.)* Valores das cotas, horário em que zeram, se falha consome cota, limite por minuto por usuário ou por empresa, cota total da agência, e se o cliente vê o próprio consumo.
 - **Q-25** — O que acontece com os dados quando a empresa desconecta o Instagram ou deixa de ser cliente da agência?
 - **Q-30** — Modelo de cobrança futuro (por empresa cliente, por plano, por uso...).
 

@@ -10,7 +10,7 @@ Seções a ler (Grep pelo título, Read com offset/limit):
 - `rules/software_design.md`: "### Referências", "### 8.3 Job em segundo plano"
 - `rules/stack.md`: "## 5. Instagram"
 
-Regras: RN-090 a RN-094, RN-031, RN-035. Em aberto: Q-08, Q-17. Fornecedor de scraping: ❓.
+Regras: RN-090 a RN-094, RN-031, RN-035. Em aberto: Q-08 (scraping de terceiros), Q-17. Fornecedor de scraping: ❓.
 
 Invariantes:
 - Excluir referência é definitivo (RN-091).
