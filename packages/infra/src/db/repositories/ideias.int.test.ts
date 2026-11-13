@@ -7,13 +7,22 @@ import {
 	attachContentReference,
 	cancelApprovalRequest,
 	createContents,
+	deleteSavedReference,
 	dismissBrainstormSuggestion,
 	getApprovalItem,
 	listApprovalItems,
 	rejectItem,
+	runCreatorDeepAnalysis,
+	runReferenceJob,
+	saveReferenceByUrl,
 	submitForApproval,
 } from "@convergia/core";
-import { eq, inArray, sql } from "drizzle-orm";
+import {
+	FakeReferenceAi,
+	FakeReferenceProvider,
+	FakeReferenceQueue,
+} from "@convergia/core/testing";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createDb } from "../client";
 import {
@@ -25,6 +34,8 @@ import {
 	contentSources,
 	contents,
 	ideas,
+	quotaUsage,
+	referenceJobs,
 	savedReferences,
 	users,
 } from "../schema";
@@ -99,12 +110,14 @@ describe("Ideias e aprovação no Postgres", () => {
 		const ids = [companyId, otherId];
 		for (const table of [
 			approvalEvents,
+			referenceJobs,
 			approvalRequests,
 			cardReferences,
 			contentSources,
 			savedReferences,
 			ideas,
 			contents,
+			quotaUsage,
 		])
 			await db.delete(table).where(inArray(table.companyId, ids));
 		await db.delete(users).where(eq(users.agencyId, agencyId));
@@ -235,7 +248,7 @@ describe("Ideias e aprovação no Postgres", () => {
 		);
 		await db.execute(sql`grant usage on schema public to convergia_rls_probe`);
 		await db.execute(
-			sql`grant select on brainstorm_suggestions,card_references,saved_references,content_sources to convergia_rls_probe`,
+			sql`grant select on reference_jobs,brainstorm_suggestions,card_references,saved_references,content_sources to convergia_rls_probe`,
 		);
 		await withCompany(db, otherId, async (tx) => {
 			await tx.execute(sql`set local role convergia_rls_probe`);
@@ -244,6 +257,7 @@ describe("Ideias e aprovação no Postgres", () => {
 				cardReferences,
 				savedReferences,
 				contentSources,
+				referenceJobs,
 			])
 				expect(
 					await tx
@@ -252,5 +266,97 @@ describe("Ideias e aprovação no Postgres", () => {
 						.where(eq(table.companyId, companyId)),
 				).toEqual([]);
 		});
+	});
+	it("RN-090, RN-093, RN-301: início concorrente reserva um criador e reutiliza tarefas", async () => {
+		const d = {
+			...deps,
+			referenceProvider: new FakeReferenceProvider(),
+			referenceAi: new FakeReferenceAi(),
+			referenceQueue: new FakeReferenceQueue(),
+			now: () => new Date("2026-11-13T15:00:00Z"),
+		};
+		const created = await Promise.allSettled(
+			["um", "dois", "tres"].map((handle) =>
+				saveReferenceByUrl(d, client, {
+					url: `https://instagram.com/${handle}/`,
+				}),
+			),
+		);
+		expect(created.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+		const result = created.find((r) => r.status === "fulfilled");
+		if (result?.status !== "fulfilled") throw Error();
+		const ref = result.value.reference;
+		const duplicate = await saveReferenceByUrl(d, member, {
+			url: `${ref.url}?igsh=abc`,
+		});
+		expect(duplicate.reference.id).toBe(ref.id);
+		expect(duplicate.started).toBe(false);
+		await runReferenceJob(d, companyId, result.value.job?.id ?? "");
+		expect((await d.knowledge.findSaved(companyId, ref.id))?.summary).toContain(
+			"simulado",
+		);
+		await runCreatorDeepAnalysis(d, client, ref.id);
+		const next = d.referenceQueue.jobs.at(-1);
+		await runReferenceJob(d, companyId, next?.id ?? "");
+		expect(
+			(await runCreatorDeepAnalysis(d, member, ref.id)).analysis,
+		).toContain("simulada");
+		const [usage] = await db
+			.select()
+			.from(quotaUsage)
+			.where(
+				and(
+					eq(quotaUsage.companyId, companyId),
+					eq(quotaUsage.toolKey, "run_creator_deep_analysis"),
+				),
+			);
+		expect(usage?.used).toBe(1);
+		const other = { ...client, companyId: otherId };
+		expect(await d.knowledge.findSaved(otherId, ref.id)).toBeNull();
+		await expect(runCreatorDeepAnalysis(d, other, ref.id)).rejects.toThrow(
+			"não encontrada",
+		);
+		await deleteSavedReference(d, client, ref.id);
+	});
+	it("RN-303, RN-305: limite é atômico e falha ou exclusão devolve a reserva só uma vez", async () => {
+		const d = {
+			...deps,
+			referenceProvider: new FakeReferenceProvider(),
+			referenceAi: new FakeReferenceAi(),
+			referenceQueue: new FakeReferenceQueue(),
+			now: () => new Date("2026-11-14T15:00:00Z"),
+		};
+		const outcomes = await Promise.allSettled(
+			[1, 2, 3, 4, 5].map((n) =>
+				saveReferenceByUrl(d, client, {
+					url: `https://instagram.com/p/teste${n}/`,
+				}),
+			),
+		);
+		expect(outcomes.filter((r) => r.status === "fulfilled")).toHaveLength(3);
+		const first = outcomes.find((r) => r.status === "fulfilled");
+		if (first?.status !== "fulfilled") throw Error();
+		d.referenceProvider.fail = true;
+		await runReferenceJob(d, companyId, first.value.job?.id ?? "");
+		await runReferenceJob(d, companyId, first.value.job?.id ?? "");
+		expect(d.referenceProvider.calls).toBe(1);
+		const another = await saveReferenceByUrl(d, client, {
+			url: "https://instagram.com/p/novo/",
+		});
+		await deleteSavedReference(d, client, another.reference.id);
+		await d.knowledge.finishReferenceJob(companyId, another.job?.id ?? "", {
+			error: "Tardia",
+		});
+		const [usage] = await db
+			.select()
+			.from(quotaUsage)
+			.where(
+				and(
+					eq(quotaUsage.companyId, companyId),
+					eq(quotaUsage.toolKey, "save_reference_by_url"),
+					eq(quotaUsage.day, "2026-11-14"),
+				),
+			);
+		expect(usage?.used).toBe(2);
 	});
 });

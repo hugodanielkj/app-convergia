@@ -14,5 +14,5 @@ Regras: RN-300 a RN-307. Em aberto: Q-21 (valores das ferramentas que não sejam
 Invariantes:
 - Cota é por empresa; uso da agência dentro do cliente conta na mesma linha (RN-301).
 - Reserva atômica com `UPDATE ... WHERE used < limit`; nenhuma linha alterada → cota esgotada.
-- Padrão por dia: gerar roteiro 10, refinar 30, brainstorm 5 (RN-303). Zera à meia-noite de `America/Sao_Paulo` (RN-304). Falha devolve a reserva (RN-305).
+- Padrão por dia: gerar roteiro 10, refinar 30, brainstorm 5, salvar referência 3, analisar criador 3 (RN-303). Zera à meia-noite de `America/Sao_Paulo` (RN-304). Falha devolve a reserva (RN-305).
 - Ferramenta sem valor padrão decidido → ❓ Q-21 → `NotDecidedYet`. Os números do Dalea são só referência.

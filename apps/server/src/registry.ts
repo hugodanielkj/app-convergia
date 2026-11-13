@@ -3,6 +3,7 @@ import type {
 	DiscoveryDeps,
 	IdeaDeps,
 	KnowledgeDeps,
+	ReferenceProcessingDeps,
 	ScriptDeps,
 	SourceDeps,
 } from "@convergia/core";
@@ -22,6 +23,7 @@ export type ToolDeps = ContentToolDeps &
 	ApprovalToolDeps &
 	ScriptDeps &
 	DiscoveryDeps &
+	ReferenceProcessingDeps &
 	KnowledgeDeps &
 	SourceDeps &
 	IdeaDeps;

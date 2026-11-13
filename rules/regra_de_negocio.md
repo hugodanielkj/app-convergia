@@ -196,7 +196,7 @@ As regras desta seção são 📎 **Referência Dalea**, exceto a RN-045, que fo
 - 📎 **RN-090** — Salvar um post ou perfil do Instagram como referência a partir da URL. Se o post não é conhecido, é feito scraping, e a análise roda em segundo plano. Consome cota.
 - 📎 **RN-091** — **Excluir uma referência é definitivo.**
 - 📎 **RN-092** — Análise aprofundada de um criador de referência (posicionamento, pilares, público, tom, formatos, ganchos, o que adaptar). Se já existe análise salva, devolve a salva. Consome cota.
-- 📎 **RN-093** — O Dalea limita a "até 3 criadores de referência" no plano. ❓ Teremos limite de criadores de referência por empresa? (Q-17)
+- ✅ **RN-093** — Cada empresa pode salvar **1 criador de referência**. Para trocar de criador, exclua o atual antes de salvar outro. *(Decidido em 13/11/2026; responde Q-17.)*
 - ✅ **RN-094** — Ocultar criadores e salvar vídeos do catálogo ficam para a **fase 2**. *(Mudada em 13/11/2026: a pesquisa de vídeos por assunto entrou no protótipo, seção 4.9.)*
 
 ### 4.9 Descoberta de vídeos
@@ -298,7 +298,7 @@ stateDiagram-v2
 - ✅ **RN-300** — **Há cotas diárias** nas ferramentas que usam IA ou scraping, mesmo sem cobrança, para controlar custo.
 - ✅ **RN-301** — **A cota é por empresa cliente.** O uso da agência dentro de um cliente **conta na cota daquele cliente** (o limite é dividido entre todos que mexem nele).
 - ✅ **RN-302** — **A agência define as cotas** de cada cliente (RN-011).
-- ✅ **RN-303** — **Valores das cotas (parcial).** Decidido em 12/11/2026, por empresa e por dia: **gerar roteiro completo, 10**; **refinar roteiro, 30**; **gerar brainstorm, 5** (confirmado em 13/11/2026). Limites de referências e análises adiados pelo usuário nessa data; permanecem sem valor definido. As demais ferramentas continuam sem valor definido (❓ Q-21); a tabela abaixo traz os do Dalea **apenas como referência** para elas:
+- ✅ **RN-303** — **Valores das cotas (parcial).** Decidido em 12/11/2026, por empresa e por dia: **gerar roteiro completo, 10**; **refinar roteiro, 30**; **gerar brainstorm, 5** (confirmado em 13/11/2026). **Salvar referências por URL, 3 por dia**; **análises novas de criador, 3 por dia**, confirmados em 13/11/2026. Consultar análise salva não consome cota (RN-092). As demais ferramentas continuam sem valor definido (❓ Q-21); a tabela abaixo traz os do Dalea **apenas como referência** para elas:
 
 | Ferramenta (equivalente Dalea) | Dalea (por dia) |
 |---|---|
@@ -348,6 +348,8 @@ Os erros voltam como resultado normal da ferramenta, marcados como erro (📎 pa
 | Ideia da agência ainda não aprovada tentando virar card | "A ideia precisa da aprovação do cliente antes de virar card." | ✅ RN-083 |
 | Ideia substituída tentando virar card | "Esta ideia não está mais ativa." | 📎 RN-080, RN-081 |
 | Ideia alterada durante a conversão | "Esta ideia mudou. Atualize a lista e tente de novo." | Design §9 |
+| Limite de criadores atingido | "Esta empresa já tem 1 criador de referência. Exclua o atual antes de salvar outro." | ✅ RN-093 |
+| Referência não coletada ao pedir análise | "Aguarde a coleta da referência terminar antes de analisar." | RN-092 |
 | Referência não encontrada na empresa | "Referência não encontrada nesta empresa." | ✅ RN-015 |
 | Fonte não encontrada no card | "Fonte não encontrada neste card." | ✅ RN-015 |
 | Card de outra empresa, inexistente ou na lixeira | "Card não encontrado." | ✅ RN-015 |
@@ -393,12 +395,12 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 ### Conteúdo
 - ~~**Q-14**~~ — Respondida em 12/11/2026: a agência exclui qualquer card; o cliente, só os que criou (RN-018).
 - ~~**Q-15**~~ — Respondida em 12/11/2026: independentes, exceto que card com roteiro da agência só vai para publicado aprovado (RN-061).
-- **Q-17** — Limite de criadores de referência por empresa?
+- ~~**Q-17**~~ — Respondida em 13/11/2026: 1 criador por empresa (RN-093).
 - **Q-18** — "Nunca publicar sem aprovação" vale também para carrossel criado pelo cliente?
 - ~~**Q-24**~~ — Respondida em 12/11/2026: lixeira por 30 dias (RN-069).
 
 ### Cotas, dados e cobrança
-- **Q-21** — *(Antes de fixar os valores, medir quantos tokens um roteiro consome.)* Valores das cotas das ferramentas que não sejam gerar e refinar roteiro e gerar brainstorm, limite por minuto por usuário ou por empresa, cota total da agência, e se o cliente vê o próprio consumo. *(Parte respondida em 12/11/2026: gerar roteiro 10 e refinar 30 por dia, zera à meia-noite de São Paulo, falha não consome cota — RN-303 a RN-305. Em 13/11/2026: brainstorm 5 por empresa/dia; limites de referências e análises adiados.)*
+- **Q-21** — *(Antes de fixar os valores, medir quantos tokens um roteiro consome.)* Valores das cotas das ferramentas que não sejam gerar e refinar roteiro e gerar brainstorm, limite por minuto por usuário ou por empresa, cota total da agência, e se o cliente vê o próprio consumo. *(Parte respondida em 12/11/2026: gerar roteiro 10 e refinar 30 por dia, zera à meia-noite de São Paulo, falha não consome cota — RN-303 a RN-305. Em 13/11/2026: brainstorm 5 por empresa/dia; salvar referências 3/dia e analisar criador 3/dia.)*
 - **Q-25** — O que acontece com os dados quando a empresa desconecta o Instagram ou deixa de ser cliente da agência?
 - **Q-30** — Modelo de cobrança futuro (por empresa cliente, por plano, por uso...).
 

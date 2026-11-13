@@ -16,7 +16,13 @@ export type AiCallMeta = {
 export type ScriptBrief = {
 	companyName: string;
 	sources?: { kind: string; text: string | null; url: string | null }[];
-	references?: { title: string; url: string; kind: string }[];
+	references?: {
+		title: string;
+		url: string;
+		kind: string;
+		text?: string | null;
+		analysis?: string | null;
+	}[];
 	content: Pick<
 		Content,
 		| "title"

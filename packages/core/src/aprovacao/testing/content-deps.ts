@@ -1,6 +1,9 @@
 import { InMemoryContentRepository } from "../../conteudo/testing/in-memory-content-repository";
 import { FakeBrainstormAi, InMemoryIdeaRepository } from "../../ideias/testing";
 import {
+	FakeReferenceAi,
+	FakeReferenceProvider,
+	FakeReferenceQueue,
 	InMemoryKnowledgeRepository,
 	InMemorySourceRepository,
 } from "../../referencias/testing";
@@ -15,6 +18,10 @@ export function inMemoryContentDeps(now?: () => Date) {
 		ideas: new InMemoryIdeaRepository(contents),
 		brainstormAi: new FakeBrainstormAi(),
 		knowledge: new InMemoryKnowledgeRepository(),
+		referenceProvider: new FakeReferenceProvider(),
+		referenceAi: new FakeReferenceAi(),
+		referenceQueue: new FakeReferenceQueue(),
+		now: now ?? (() => new Date()),
 		sources: new InMemorySourceRepository(),
 	};
 }

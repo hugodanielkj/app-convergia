@@ -15,7 +15,7 @@ export const registerRunCreatorDeepAnalysis: RegisterKnowledgeTool = (
 		{
 			title: "Analisar criador",
 			description:
-				"Devolve a análise salva sem consumir cota. Uma análise nova depende da cota ainda não definida.",
+				"Devolve a análise salva sem consumir cota. Se ainda não existe, inicia uma análise em segundo plano, até 3 por empresa/dia. Consulte o progresso com get_creator_analysis.",
 			input: { reference_id: z.string().describe("ID do criador salvo") },
 			readOnly: false,
 		},

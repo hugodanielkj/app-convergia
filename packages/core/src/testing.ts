@@ -16,6 +16,9 @@ export {
 export { InMemoryDiscoveryRepository } from "./descoberta/testing/in-memory-discovery-repository";
 export { FakeBrainstormAi, InMemoryIdeaRepository } from "./ideias/testing";
 export {
+	FakeReferenceAi,
+	FakeReferenceProvider,
+	FakeReferenceQueue,
 	InMemoryKnowledgeRepository,
 	InMemorySourceRepository,
 } from "./referencias/testing";

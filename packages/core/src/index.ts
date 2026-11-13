@@ -192,10 +192,13 @@ export {
 	type QuotaKey,
 	type QuotaTool,
 	quotaDay,
+	quotaExhausted,
 	type UserQuotaTool,
 	userQuotaKey,
 } from "./policies/quota.policy";
 export * from "./referencias/knowledge";
+export * from "./referencias/processing";
+export * from "./referencias/run-reference-job";
 export * from "./referencias/use-cases";
 export { HISTORY_LIMIT, type HistoryEntry } from "./roteiros/history";
 export type {

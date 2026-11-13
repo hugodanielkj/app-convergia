@@ -9,6 +9,7 @@ export {
 	type LlmGateway,
 } from "./ai/llm-gateway";
 export { createQueryExpander } from "./ai/query-expander";
+export { createReferenceAi } from "./ai/reference-ai";
 export { createScriptAi } from "./ai/script-ai";
 export { createDb, type Db } from "./db/client";
 export { runMigrations } from "./db/migrate";
@@ -33,9 +34,14 @@ export {
 	workDiscoveryQueue,
 } from "./jobs/discovery-queue";
 export {
+	createReferenceQueue,
+	workReferenceQueue,
+} from "./jobs/reference-queue";
+export {
 	createVideoProvider,
 	discoverySettingsFromEnv,
 } from "./scraping/discovery-config";
+export { createReferenceProvider } from "./scraping/reference-provider";
 export {
 	createScrapeCreatorsProvider,
 	type ProviderCall,
