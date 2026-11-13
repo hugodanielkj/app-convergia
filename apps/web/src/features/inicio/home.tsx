@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { errorMessage } from "../../api/client";
 import { calendarQuery } from "../../api/queries";
-import { SoonBadge } from "../../components/soon-badge";
+
 import { EmptyState, ErrorState, SkeletonList } from "../../components/states";
 import { addDays, todayIso } from "../../lib/dates";
 import { ContentCard } from "../conteudo/content-card";
@@ -40,16 +40,17 @@ export function Home({ companyId }: { companyId: string }) {
 							</p>
 						</div>
 					</Link>
-					<div
-						aria-disabled="true"
+					<Link
+						to="/empresas/$companyId/ideias"
+						params={{ companyId }}
 						className="flex min-h-24 flex-col justify-between gap-3 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800"
 					>
 						<div className="flex items-start justify-between gap-2">
 							<Lightbulb className="size-7 text-brand-600" aria-hidden />
-							<SoonBadge />
+							<ChevronRight className="size-5" aria-hidden />
 						</div>
 						<p className="font-semibold">Ideias para a semana</p>
-					</div>
+					</Link>
 					<Link
 						to="/empresas/$companyId/aprovacoes"
 						params={{ companyId }}

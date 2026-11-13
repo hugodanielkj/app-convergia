@@ -4,9 +4,15 @@ import type {
 	ApprovalRepository,
 	ApprovalRequest,
 } from "@convergia/core";
-import { and, asc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, or } from "drizzle-orm";
 import type { Db } from "../client";
-import { approvalEvents, approvalRequests, contents, users } from "../schema";
+import {
+	approvalEvents,
+	approvalRequests,
+	contents,
+	ideas,
+	users,
+} from "../schema";
 import { withCompany } from "../with-company";
 
 type RequestRow = typeof approvalRequests.$inferSelect;
@@ -17,7 +23,7 @@ function toRequest(row: RequestRow): ApprovalRequest {
 	return {
 		id: row.id,
 		companyId: row.companyId,
-		contentId: row.contentId,
+		contentId: (row.contentId ?? row.ideaId) as string,
 		itemType: row.itemType,
 		submittedVersion: row.submittedVersion,
 		itemVersion: row.itemVersion,
@@ -39,10 +45,15 @@ export function createApprovalRepository(db: Db): ApprovalRepository {
 	return {
 		async submit(companyId, input) {
 			const requestId = randomUUID();
+			const target = input.itemType === "idea" ? ideas : contents;
+			const targetIds =
+				input.itemType === "idea"
+					? { ideaId: input.contentId }
+					: { contentId: input.contentId };
 			return withCompany(db, companyId, async (tx) => {
 				// Primeiro o card, com a condição: se ele mudou desde a leitura, nada é gravado.
 				const [content] = await tx
-					.update(contents)
+					.update(target)
 					.set({
 						approvalStatus: "pending",
 						currentApprovalRequestId: requestId,
@@ -50,22 +61,24 @@ export function createApprovalRepository(db: Db): ApprovalRepository {
 					})
 					.where(
 						and(
-							eq(contents.companyId, companyId),
-							eq(contents.id, input.contentId),
-							isNull(contents.deletedAt),
-							eq(contents.contentVersion, input.expect.contentVersion),
-							eq(contents.approvalStatus, input.expect.approvalStatus),
+							eq(target.companyId, companyId),
+							eq(target.id, input.contentId),
+							input.itemType === "idea"
+								? eq(ideas.state, "active")
+								: isNull(contents.deletedAt),
+							eq(target.contentVersion, input.expect.contentVersion),
+							eq(target.approvalStatus, input.expect.approvalStatus),
 						),
 					)
-					.returning({ id: contents.id });
+					.returning({ id: target.id });
 				if (!content) return null;
 				const [request] = await tx
 					.insert(approvalRequests)
 					.values({
 						id: requestId,
 						companyId,
-						contentId: input.contentId,
-						itemType: "script",
+						...targetIds,
+						itemType: input.itemType ?? "script",
 						submittedVersion: input.expect.contentVersion,
 						itemVersion: input.expect.contentVersion,
 						snapshot: input.snapshot,
@@ -78,7 +91,7 @@ export function createApprovalRepository(db: Db): ApprovalRepository {
 				await tx.insert(approvalEvents).values({
 					companyId,
 					requestId,
-					contentId: input.contentId,
+					...targetIds,
 					type: input.event.type,
 					actorId: input.event.actorId,
 					actorKind: input.event.actorKind,
@@ -91,23 +104,28 @@ export function createApprovalRepository(db: Db): ApprovalRepository {
 
 		async decide(companyId, input) {
 			if (!UUID.test(input.requestId)) return null;
+			const target = input.itemType === "idea" ? ideas : contents;
+			const targetIds =
+				input.itemType === "idea"
+					? { ideaId: input.contentId }
+					: { contentId: input.contentId };
 			try {
 				return await withCompany(db, companyId, async (tx) => {
 					const [content] = await tx
-						.update(contents)
+						.update(target)
 						.set({ approvalStatus: input.contentStatus, updatedAt: input.at })
 						.where(
 							and(
-								eq(contents.companyId, companyId),
-								eq(contents.id, input.contentId),
-								eq(contents.approvalStatus, "pending"),
-								eq(contents.currentApprovalRequestId, input.requestId),
+								eq(target.companyId, companyId),
+								eq(target.id, input.contentId),
+								eq(target.approvalStatus, "pending"),
+								eq(target.currentApprovalRequestId, input.requestId),
 								input.expectVersion === null
 									? undefined
-									: eq(contents.contentVersion, input.expectVersion),
+									: eq(target.contentVersion, input.expectVersion),
 							),
 						)
-						.returning({ contentVersion: contents.contentVersion });
+						.returning({ contentVersion: target.contentVersion });
 					if (!content) return null;
 					const [request] = await tx
 						.update(approvalRequests)
@@ -131,7 +149,7 @@ export function createApprovalRepository(db: Db): ApprovalRepository {
 					await tx.insert(approvalEvents).values({
 						companyId,
 						requestId: input.requestId,
-						contentId: input.contentId,
+						...targetIds,
 						type: input.event.type,
 						actorId: input.event.actorId,
 						actorKind: input.event.actorKind,
@@ -174,7 +192,10 @@ export function createApprovalRepository(db: Db): ApprovalRepository {
 					.where(
 						and(
 							eq(approvalEvents.companyId, companyId),
-							eq(approvalEvents.contentId, contentId),
+							or(
+								eq(approvalEvents.contentId, contentId),
+								eq(approvalEvents.ideaId, contentId),
+							),
 						),
 					)
 					.orderBy(asc(approvalEvents.createdAt), asc(approvalEvents.id));
@@ -182,7 +203,7 @@ export function createApprovalRepository(db: Db): ApprovalRepository {
 					({ event, actorName }): ApprovalEvent => ({
 						id: event.id,
 						requestId: event.requestId,
-						contentId: event.contentId,
+						contentId: (event.contentId ?? event.ideaId) as string,
 						type: event.type,
 						actorId: event.actorId,
 						actorKind: event.actorKind,

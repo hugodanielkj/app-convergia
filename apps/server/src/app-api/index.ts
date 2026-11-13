@@ -3,6 +3,7 @@ import {
 	type CompanyRepository,
 	type ContentRepository,
 	type DiscoveryDeps,
+	type IdeaDeps,
 	listCompanies,
 	type QuotaRepository,
 	resolveActorContext,
@@ -17,18 +18,23 @@ import { contentRoutes } from "./conteudo";
 import { discoveryRoutes } from "./descoberta";
 import type { AppEnv } from "./env";
 import { toAppError } from "./errors";
+import { ideaRoutes } from "./ideias";
+import { type KnowledgeApiDeps, knowledgeRoutes } from "./referencias";
 import { scriptRoutes } from "./roteiros";
 
-export type AppApiDeps = DiscoveryDeps & {
-	authenticate: Authenticate;
-	companies: CompanyRepository;
-	contents: ContentRepository;
-	approvals: ApprovalRepository;
-	scripts: ScriptRepository;
-	scriptAi: ScriptAi;
-	quotas: QuotaRepository;
-	now: () => Date;
-};
+export type AppApiDeps = DiscoveryDeps &
+	KnowledgeApiDeps &
+	IdeaDeps & {
+		approvalSubjects?: ContentRepository;
+		authenticate: Authenticate;
+		companies: CompanyRepository;
+		contents: ContentRepository;
+		approvals: ApprovalRepository;
+		scripts: ScriptRepository;
+		scriptAi: ScriptAi;
+		quotas: QuotaRepository;
+		now: () => Date;
+	};
 
 /**
  * API JSON do app web (RN-003). Chama os mesmos casos de uso das ferramentas MCP.
@@ -66,6 +72,8 @@ export function createAppApi(deps: AppApiDeps) {
 			}
 			return c.json({ id: company.id, name: company.name });
 		})
+		.route("/", knowledgeRoutes(deps))
+		.route("/", ideaRoutes(deps))
 		.route("/", contentRoutes(deps))
 		.route("/", approvalRoutes(deps))
 		.route("/", scriptRoutes(deps))

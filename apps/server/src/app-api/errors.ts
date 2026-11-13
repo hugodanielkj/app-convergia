@@ -10,6 +10,12 @@ const UNEXPECTED_ERROR =
 
 const STATUS_BY_CODE: Record<string, ContentfulStatusCode> = {
 	no_access: 403,
+	idea_not_found: 404,
+	reference_not_found: 404,
+	source_not_found: 404,
+	idea_changed: 409,
+	idea_not_approved: 409,
+	idea_inactive: 409,
 	company_required: 400,
 	quota_exhausted: 429,
 	rate_limited: 429,

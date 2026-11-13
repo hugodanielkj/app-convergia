@@ -23,6 +23,7 @@ import {
 } from "../../api/client";
 import { BottomSheet } from "../../components/bottom-sheet";
 import { ApprovalPanel } from "../aprovacao/approval-panel";
+import { CardMaterials } from "../referencias/card-materials";
 import { CitationList } from "../roteiros/citation-list";
 import { HistorySheet } from "../roteiros/history-sheet";
 import { ScriptAiActions } from "../roteiros/script-ai-actions";
@@ -210,6 +211,7 @@ export function ContentEditor({
 				/>
 			</Field>
 
+			<CardMaterials companyId={content.companyId} contentId={content.id} />
 			<ApprovalPanel
 				content={content}
 				isAgency={isAgency}

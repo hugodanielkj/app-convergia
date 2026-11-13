@@ -96,7 +96,7 @@ describe("tela Aprovações", () => {
 		renderInRouter(<ApprovalsPage companyId="c1" isAgency={false} />);
 
 		expect(
-			await screen.findByText(/Quando a agência enviar um roteiro/),
+			await screen.findByText(/Quando a agência enviar um item/),
 		).toBeInTheDocument();
 		expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
 	});
@@ -171,7 +171,7 @@ describe("tela Aprovações", () => {
 
 		expect(await screen.findByText("“Muito longo”")).toBeInTheDocument();
 		expect(
-			screen.getByRole("link", { name: "Ajustar roteiro" }),
+			screen.getByRole("link", { name: "Revisar conteúdo" }),
 		).toHaveAttribute("href", "/empresas/c1/cards/card-1");
 	});
 });

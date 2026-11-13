@@ -1,4 +1,5 @@
 export { createAnthropicLlm, DEFAULT_MODEL } from "./ai/anthropic-llm";
+export { createBrainstormAi } from "./ai/brainstorm-ai";
 export { chooseLlm } from "./ai/choose-llm";
 export { createFakeLlm } from "./ai/fake-llm";
 export { createGeminiLlm } from "./ai/gemini-llm";
@@ -16,9 +17,15 @@ export { createApprovalRepository } from "./db/repositories/approval.repository"
 export { createCompanyRepository } from "./db/repositories/company.repository";
 export { createContentRepository } from "./db/repositories/content.repository";
 export { createDiscoveryRepository } from "./db/repositories/discovery.repository";
+export {
+	createApprovalSubjects,
+	createIdeaRepository,
+} from "./db/repositories/idea.repository";
+export { createKnowledgeRepository } from "./db/repositories/knowledge.repository";
 export { createProviderCallLog } from "./db/repositories/provider-call-log";
 export { createQuotaRepository } from "./db/repositories/quota.repository";
 export { createScriptRepository } from "./db/repositories/script.repository";
+export { createSourceRepository } from "./db/repositories/source.repository";
 export {
 	createDiscoveryQueue,
 	DISCOVERY_QUEUE,

@@ -14,5 +14,10 @@ export {
 	testVideo,
 } from "./descoberta/testing/fakes";
 export { InMemoryDiscoveryRepository } from "./descoberta/testing/in-memory-discovery-repository";
+export { FakeBrainstormAi, InMemoryIdeaRepository } from "./ideias/testing";
+export {
+	InMemoryKnowledgeRepository,
+	InMemorySourceRepository,
+} from "./referencias/testing";
 export { FakeScriptAi } from "./roteiros/testing/fake-script-ai";
 export { InMemoryScriptRepository } from "./roteiros/testing/in-memory-script-repository";

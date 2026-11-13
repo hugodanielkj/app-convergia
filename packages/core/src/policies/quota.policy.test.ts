@@ -21,6 +21,7 @@ describe("política de cota", () => {
 		expect(DEFAULT_DAILY_QUOTAS).toEqual({
 			generate_scripts: 10,
 			refine_content: 30,
+			regenerate_brainstorm: 5,
 		});
 	});
 

@@ -1,11 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
-	Bookmark,
 	ChartColumn,
 	ChevronRight,
 	Compass,
 	Images,
-	Lightbulb,
 	LogOut,
 	type LucideIcon,
 	Trash2,
@@ -20,8 +18,7 @@ export const Route = createFileRoute("/empresas/$companyId/mais")({
 
 const SECTIONS: { label: string; icon: LucideIcon }[] = [
 	{ label: "Desempenho", icon: ChartColumn },
-	{ label: "Ideias", icon: Lightbulb },
-	{ label: "Referências", icon: Bookmark },
+
 	{ label: "Carrossel", icon: Images },
 	{ label: "Conta", icon: UserRound },
 ];
@@ -47,6 +44,20 @@ function More() {
 				<Compass className="size-5 text-brand-600" aria-hidden />
 				<span className="flex-1">Descobrir vídeos</span>
 				<ChevronRight className="size-5 text-zinc-400" aria-hidden />
+			</Link>
+			<Link
+				to="/empresas/$companyId/ideias"
+				params={{ companyId: Route.useParams().companyId }}
+				className="flex min-h-14 items-center rounded-2xl bg-white px-4 ring-1 ring-zinc-200 dark:bg-zinc-900"
+			>
+				Ideias para a semana
+			</Link>
+			<Link
+				to="/empresas/$companyId/referencias"
+				params={{ companyId: Route.useParams().companyId }}
+				className="flex min-h-14 items-center rounded-2xl bg-white px-4 ring-1 ring-zinc-200 dark:bg-zinc-900"
+			>
+				Referências
 			</Link>
 			<ul className="flex flex-col divide-y divide-zinc-200 overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200 dark:divide-zinc-800 dark:bg-zinc-900 dark:ring-zinc-800">
 				{SECTIONS.map(({ label, icon: Icon }) => (

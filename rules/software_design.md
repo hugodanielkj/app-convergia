@@ -283,8 +283,10 @@ canSubmit(actor, item)             // ✅ só agência; item em in_preparation (
 canCancel(actor, request)          // ✅ só agência; request pending → item volta a in_preparation (RN-218)
 canApprove(actor, request, reason) // ✅ cliente da empresa; ou agência com reason obrigatório (RN-211, RN-214)
 canReject(actor, request)          // ✅ só cliente; reason opcional (RN-212, RN-214)
-onIdeaApproved(suggestion)         // ❓ Q-16: vira card automaticamente? → NotDecidedYet("Q-16")
+onIdeaApproved(suggestion)         // ✅ RN-084: apenas marca como aprovada; Virar card é explícito e sem IA
 ```
+
+Ideias entram na tela de aprovação como projeções de leitura, sem criar card; os IDs enviados nos campos legados `content_id` e `contentId` podem identificar uma ideia. No banco, `approval_requests` e `approval_events` usam chaves estrangeiras separadas `content_id` e `idea_id`, com exatamente um alvo preenchido.
 
 As funções ainda em aberto **lançam `NotDecidedYet`** com o ID da pergunta. Isso falha nos testes em vez de virar uma suposição escondida no código.
 
@@ -302,7 +304,7 @@ quota_usage (company_id, tool_key, day, used)                 -- contador por em
 2. Se a chamada falhar, a reserva é devolvida (✅ RN-305).
 3. O `day` é a data em `America/Sao_Paulo`; a cota zera à meia-noite de lá (✅ RN-304).
 4. O uso da agência dentro da empresa conta na mesma linha (RN-301).
-5. Limite diário: o da `quota_limit` da empresa ou, sem ele, o padrão da RN-303 (gerar roteiro 10, refinar 30). Ferramenta sem valor padrão definido → ❓ Q-21.
+5. Limite diário: o da `quota_limit` da empresa ou, sem ele, o padrão da RN-303 (gerar roteiro 10, refinar 30, brainstorm 5). Ferramenta sem valor padrão definido → ❓ Q-21.
 
 Análise de post já salva **não reserva cota** (📎 RN-050).
 
@@ -374,7 +376,7 @@ Toda ferramenta que opera dentro de uma empresa recebe o parâmetro `company_id`
 | Ferramenta | Descrição | E | C |
 |---|---|---|---|
 | `list_brainstorm_suggestions` | Sugestões ativas, com motivo e status de aprovação | | |
-| `regenerate_brainstorm` | Novo conjunto de ideias | ✔ | ✔ |
+| `regenerate_brainstorm` | Novo conjunto de ideias a partir de `brief`; 5 por empresa/dia | ✔ | ✔ |
 | `accept_brainstorm_suggestion` / `dismiss_brainstorm_suggestion` | Vira card / descarta | ✔ | |
 
 ### Referências
@@ -547,7 +549,7 @@ Regras ❓ têm teste que espera `NotDecidedYet`. Quando a pergunta é respondid
 5. Cards, kanban e calendário (sem IA).
 6. LLM gateway + cotas + geração e refino de roteiro, com o fluxo guiado "Criar roteiro" no app (RN-006).
 7. ✅ **Aprovação** do roteiro (regras definidas; Q-26, sobre o cliente editar, segue isolada com `NotDecidedYet`). Carrossel e ideias entram na aprovação com os módulos deles.
-8. Brainstorm, referências, fontes.
+8. Brainstorm, referências, fontes. Brainstorm: cota de 5/dia e conversão explícita após aprovação (RN-084, RN-303). Referências: limites Q-17 e Q-21 adiados pelo usuário em 13/11/2026; coleta e análise nova ficam bloqueadas, assim como extração e upload de fontes sem cota. Listagem, vínculos e contexto de roteiro não dependem dessas cotas.
 9. Carrossel (depois de escolher o provedor de imagem).
 10. Insights e análise de post (depois de escolher o provedor de transcrição).
 

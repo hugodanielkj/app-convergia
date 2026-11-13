@@ -25,6 +25,7 @@ export type ApprovalDeps = {
 	contents: ContentRepository;
 	approvals: ApprovalRepository;
 	now: () => Date;
+	approvalSubjects?: ContentRepository;
 };
 
 /** Estado do roteiro em cada lista (design §6, "Aprovação"). */
@@ -43,10 +44,11 @@ export async function submitForApproval(
 	contentId: string,
 ): Promise<ApprovalItem> {
 	assertCanWrite(actor);
-	const content = await getContent(deps, actor, contentId);
+	const content = await loadApprovalSubject(deps, actor, contentId);
 	assertCanSubmit(actor, content);
 	const request = await deps.approvals.submit(actor.companyId, {
 		contentId: content.id,
+		itemType: content.approvalItemType ?? "script",
 		expect: {
 			contentVersion: content.contentVersion,
 			approvalStatus: content.approvalStatus,
@@ -56,7 +58,10 @@ export async function submitForApproval(
 		at: deps.now(),
 	});
 	if (!request) throw contentChangedMeanwhile();
-	return { content: await getContent(deps, actor, contentId), request };
+	return {
+		content: await loadApprovalSubject(deps, actor, contentId),
+		request,
+	};
 }
 
 /** RN-218: o envio cancelado volta para a agência como se não tivesse sido enviado. */
@@ -66,7 +71,7 @@ export async function cancelApprovalRequest(
 	contentId: string,
 ): Promise<ApprovalItem> {
 	assertCanWrite(actor);
-	const content = await getContent(deps, actor, contentId);
+	const content = await loadApprovalSubject(deps, actor, contentId);
 	assertCanCancel(actor, content);
 	return decide(deps, actor, content, {
 		expectVersion: null,
@@ -86,7 +91,7 @@ export async function approveItem(
 	input: ApproveInput,
 ): Promise<ApprovalItem> {
 	assertCanWrite(actor);
-	const content = await getContent(deps, actor, contentId);
+	const content = await loadApprovalSubject(deps, actor, contentId);
 	const { onBehalf, reason } = approvalDecision(
 		actor,
 		content,
@@ -111,7 +116,7 @@ export async function rejectItem(
 	input: RejectInput,
 ): Promise<ApprovalItem> {
 	assertCanWrite(actor);
-	const content = await getContent(deps, actor, contentId);
+	const content = await loadApprovalSubject(deps, actor, contentId);
 	assertCanReject(actor, content);
 	assertSameVersion(content, input.version);
 	return decide(deps, actor, content, {
@@ -130,9 +135,12 @@ export async function listApprovalItems(
 	actor: ActorContext,
 	view: ApprovalView,
 ): Promise<ApprovalItem[]> {
-	const contents = await deps.contents.listActive(actor.companyId, {
-		approvalStatuses: [STATUSES_BY_VIEW[view]],
-	});
+	const contents = await (deps.approvalSubjects ?? deps.contents).listActive(
+		actor.companyId,
+		{
+			approvalStatuses: [STATUSES_BY_VIEW[view]],
+		},
+	);
 	const requests = await deps.approvals.findMany(
 		actor.companyId,
 		contents.flatMap((c) =>
@@ -166,7 +174,7 @@ export async function getApprovalItem(
 	actor: ActorContext,
 	contentId: string,
 ): Promise<ApprovalDetail> {
-	const content = await getContent(deps, actor, contentId);
+	const content = await loadApprovalSubject(deps, actor, contentId);
 	const [request] = content.currentApprovalRequestId
 		? await deps.approvals.findMany(actor.companyId, [
 				content.currentApprovalRequestId,
@@ -200,16 +208,25 @@ async function decide(
 	if (!requestId) throw contentChangedMeanwhile();
 	const request: ApprovalRequest | null = await deps.approvals.decide(
 		actor.companyId,
-		{ contentId: content.id, requestId, ...decision, at: deps.now() },
+		{
+			contentId: content.id,
+			itemType: content.approvalItemType ?? "script",
+			requestId,
+			...decision,
+			at: deps.now(),
+		},
 	);
 	if (!request) {
 		// A agência mexeu no roteiro ou outra pessoa decidiu primeiro.
-		const current = await getContent(deps, actor, content.id);
+		const current = await loadApprovalSubject(deps, actor, content.id);
 		throw current.approvalStatus === "pending"
 			? versionChanged()
 			: contentChangedMeanwhile();
 	}
-	return { content: await getContent(deps, actor, content.id), request };
+	return {
+		content: await loadApprovalSubject(deps, actor, content.id),
+		request,
+	};
 }
 
 function assertSameVersion(content: Content, seen: number): void {
@@ -221,4 +238,16 @@ function eventBy<T extends ApprovalEvent["type"]>(
 	type: T,
 ) {
 	return { type, actorId: actor.userId, actorKind: creatorKind(actor) };
+}
+
+function loadApprovalSubject(
+	deps: ApprovalDeps,
+	actor: ActorContext,
+	id: string,
+) {
+	return getContent(
+		{ ...deps, contents: deps.approvalSubjects ?? deps.contents },
+		actor,
+		id,
+	);
 }

@@ -131,13 +131,13 @@ Legenda: ✔ pode · ✘ não pode · ❓ em aberto
 ### 4.2 Instagram e contexto da IA
 
 - ✅ **RN-030** — **Só Instagram** no protótipo.
-- ✅ **RN-031** — Os dados vêm de **duas fontes**: a **API oficial via OAuth** e o **scraping**. O perfil **da própria empresa** vem só pela API oficial (RN-035); o scraping fica para perfis e posts de terceiros, ainda em aberto (Q-08). *(Ajustada em 12/11/2026 pela resposta à Q-08: antes, o scraping era alternativa também para o perfil da empresa.)*
+- ✅ **RN-031** — Os dados vêm de **duas fontes**: a **API oficial via OAuth** e o **scraping**. O perfil **da própria empresa** vem só pela API oficial (RN-035); o scraping de **posts e perfis públicos de terceiros** está permitido para referências (confirmado em 13/11/2026; Q-08 respondida para esse uso). *(Ajustada em 12/11/2026 pela resposta à Q-08: antes, o scraping era alternativa também para o perfil da empresa.)*
 - ✅ **RN-032** — Enquanto não houver o módulo de marca, **a IA entende a empresa pelo Instagram conectado**: o "login" da empresa no Instagram é o contexto da marca.
 - ✅ **RN-033** — **A IA identifica o nicho da empresa** a partir do Instagram conectado.
   - ❓ Quais dados exatamente ela lê para isso e para o contexto da marca (bio, categoria, legendas, transcrições de reels, métricas, comentários)? (Q-07)
 - ✅ **RN-034** — **Quem conecta o Instagram é o usuário do cliente.** A agência não conecta a conta pela empresa.
 - ✅ **RN-035** — **O cliente informa o @ da empresa e conecta pela autenticação da Meta** (API oficial). O perfil da própria empresa não é lido por scraping. Consequência: a conta precisa ser Profissional (RN-036).
-  - ❓ Scraping de perfis e posts de terceiros (referências): quando usar e com qual cuidado? (Q-08)
+  - ✅ Para referências, pode coletar posts e perfis **públicos de terceiros**. O perfil da própria empresa continua só na API oficial. *(Q-08, decidido em 13/11/2026.)*
 - 📎 **RN-036** — A API oficial do Instagram exige conta **Profissional** (Business ou Creator). Como o perfil da empresa só entra pela API oficial (RN-035), conta pessoal precisa ser convertida em Profissional para ser conectada.
 - 📎 **RN-037** — O histórico de métricas "acompanha a conexão": se a conta for desconectada e reconectada, não se promete preservar o histórico.
 - ❓ **RN-038** — O que acontece com os dados quando a empresa desconecta o Instagram: são mantidos, ocultados ou apagados? (Q-25)
@@ -189,7 +189,7 @@ As regras desta seção são 📎 **Referência Dalea**, exceto a RN-045, que fo
 - 📎 **RN-081** — Estados de uma sugestão: `ativa`, `adicionada` (virou card) ou `descartada`.
 - 📎 **RN-082** — Aceitar uma sugestão cria um card na coluna `ideia`, sem IA.
 - ✅ **RN-083** — **Ideias geradas pela agência para um cliente precisam da aprovação do cliente** (seção 5).
-- ❓ **RN-084** — Quando o cliente aprova uma ideia enviada pela agência, ela vira card automaticamente ou só fica marcada como aprovada? (Q-16)
+- ✅ **RN-084** — Aprovar uma ideia da agência apenas a marca como aprovada. O card só é criado pela ação explícita **Virar card**, sem IA. *(Decidido em 13/11/2026; responde Q-16.)*
 
 ### 4.7 Referências
 
@@ -298,7 +298,7 @@ stateDiagram-v2
 - ✅ **RN-300** — **Há cotas diárias** nas ferramentas que usam IA ou scraping, mesmo sem cobrança, para controlar custo.
 - ✅ **RN-301** — **A cota é por empresa cliente.** O uso da agência dentro de um cliente **conta na cota daquele cliente** (o limite é dividido entre todos que mexem nele).
 - ✅ **RN-302** — **A agência define as cotas** de cada cliente (RN-011).
-- ✅ **RN-303** — **Valores das cotas (parcial).** Decidido em 12/11/2026, por empresa e por dia: **gerar roteiro completo, 10**; **refinar roteiro, 30** (os valores do Dalea). As demais ferramentas continuam sem valor definido (❓ Q-21); a tabela abaixo traz os do Dalea **apenas como referência** para elas:
+- ✅ **RN-303** — **Valores das cotas (parcial).** Decidido em 12/11/2026, por empresa e por dia: **gerar roteiro completo, 10**; **refinar roteiro, 30**; **gerar brainstorm, 5** (confirmado em 13/11/2026). Limites de referências e análises adiados pelo usuário nessa data; permanecem sem valor definido. As demais ferramentas continuam sem valor definido (❓ Q-21); a tabela abaixo traz os do Dalea **apenas como referência** para elas:
 
 | Ferramenta (equivalente Dalea) | Dalea (por dia) |
 |---|---|
@@ -344,6 +344,12 @@ Os erros voltam como resultado normal da ferramenta, marcados como erro (📎 pa
 | Agência aprova em nome do cliente sem motivo | "Informe o motivo da aprovação em nome do cliente (ex.: aprovado por WhatsApp em 10/11)." | ✅ RN-214 |
 | Agência tenta recusar | "Só o cliente pode recusar." | ✅ RN-214 |
 | Cliente tenta editar item enviado pela agência | "Este item foi enviado pela agência. Aprove ou recuse com um comentário." | ✅ RN-217 |
+| Ideia não encontrada na empresa | "Ideia não encontrada nesta empresa." | ✅ RN-015 |
+| Ideia da agência ainda não aprovada tentando virar card | "A ideia precisa da aprovação do cliente antes de virar card." | ✅ RN-083 |
+| Ideia substituída tentando virar card | "Esta ideia não está mais ativa." | 📎 RN-080, RN-081 |
+| Ideia alterada durante a conversão | "Esta ideia mudou. Atualize a lista e tente de novo." | Design §9 |
+| Referência não encontrada na empresa | "Referência não encontrada nesta empresa." | ✅ RN-015 |
+| Fonte não encontrada no card | "Fonte não encontrada neste card." | ✅ RN-015 |
 | Card de outra empresa, inexistente ou na lixeira | "Card não encontrado." | ✅ RN-015 |
 | Card com roteiro não aprovado indo para publicado | "Este card só pode ir para publicado depois que o cliente aprovar o roteiro." | ✅ RN-061 |
 | Cliente excluindo card criado pela agência | "Só a agência pode excluir um card criado por ela." | ✅ RN-018 |
@@ -372,13 +378,13 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 ### Instagram e IA
 - ~~**Q-05**~~ — Respondida em 12/11/2026: o cliente conecta (RN-034).
 - **Q-07** — *Respondida em parte em 12/11/2026: a IA identifica o nicho pelo Instagram (RN-033).* Falta decidir quais dados do Instagram ela lê (bio, categoria, legendas, transcrições, métricas, comentários).
-- **Q-08** — *Respondida em parte em 12/11/2026: o perfil da empresa só entra pela autenticação da Meta (RN-035). Em 13/11/2026: a descoberta de vídeos usa dados públicos de terceiros por um provedor, guardando só metadados e sem baixar os vídeos (RN-111, RN-112).* Falta decidir o scraping de perfis e posts de terceiros para **referências**: quando usar e com qual cuidado.
+- ~~**Q-08**~~ — Respondida em 12/11/2026 e 13/11/2026: perfil da própria empresa só pela autenticação da Meta (RN-035); descoberta por dados públicos sem baixar vídeos (RN-111, RN-112); referências podem usar scraping de posts e perfis públicos de terceiros (RN-031, RN-035).
 - **Q-09** — *Respondida em parte em 12/11/2026: insights com pelo menos 5 vídeos (RN-045).* As demais regras de desempenho do Dalea (RN-040 a RN-051) valem para nós?
 
 ### Aprovação
 - ~~Q-10, Q-11, Q-12, Q-13~~ — Respondidas em 12/11/2026 (RN-203, RN-204, RN-214 a RN-218).
 - **Q-26** — O cliente perde o direito de editar o próprio card quando a agência mexe no conteúdo dele? E pode editar um item da agência depois de aprová-lo?
-- **Q-16** — Ideia aprovada vira card automaticamente?
+- ~~**Q-16** — Ideia aprovada vira card automaticamente?~~ Respondida em 13/11/2026: não; fica aprovada e a conversão é explícita (RN-084).
 - **Q-19** — Prazo de aprovação e o que acontece sem resposta.
 - **Q-20** — Como o cliente é avisado de que há itens pendentes? (Com o app instalado, notificação no celular passa a ser uma opção.)
 - **Q-22** — Aprovação parcial ou sempre do item inteiro?
@@ -392,7 +398,7 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 - ~~**Q-24**~~ — Respondida em 12/11/2026: lixeira por 30 dias (RN-069).
 
 ### Cotas, dados e cobrança
-- **Q-21** — *(Antes de fixar os valores, medir quantos tokens um roteiro consome.)* Valores das cotas das ferramentas que não sejam gerar e refinar roteiro, limite por minuto por usuário ou por empresa, cota total da agência, e se o cliente vê o próprio consumo. *(Parte respondida em 12/11/2026: gerar roteiro 10 e refinar 30 por dia, zera à meia-noite de São Paulo, falha não consome cota — RN-303 a RN-305.)*
+- **Q-21** — *(Antes de fixar os valores, medir quantos tokens um roteiro consome.)* Valores das cotas das ferramentas que não sejam gerar e refinar roteiro e gerar brainstorm, limite por minuto por usuário ou por empresa, cota total da agência, e se o cliente vê o próprio consumo. *(Parte respondida em 12/11/2026: gerar roteiro 10 e refinar 30 por dia, zera à meia-noite de São Paulo, falha não consome cota — RN-303 a RN-305. Em 13/11/2026: brainstorm 5 por empresa/dia; limites de referências e análises adiados.)*
 - **Q-25** — O que acontece com os dados quando a empresa desconecta o Instagram ou deixa de ser cliente da agência?
 - **Q-30** — Modelo de cobrança futuro (por empresa cliente, por plano, por uso...).
 

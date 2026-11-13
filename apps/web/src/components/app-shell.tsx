@@ -89,6 +89,12 @@ function Shell({
 				pendingApprovals={pendingApprovals}
 			/>
 			<CreateSheet
+				onIdeas={() =>
+					void navigate({
+						to: "/empresas/$companyId/ideias",
+						params: { companyId },
+					})
+				}
 				open={creating}
 				onClose={() => setCreating(false)}
 				onNewContent={() => openNewContent()}

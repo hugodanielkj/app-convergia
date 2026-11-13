@@ -180,3 +180,67 @@ describe("contrato MCP", () => {
 		expect(result.isError).toBe(true);
 	});
 });
+
+describe("Passo 8 pelo MCP", () => {
+	it("RN-080, RN-082: gera, lista e converte sugestão sem nova IA", async () => {
+		const c = await connect(clientUser);
+		const generated = await c.callTool({
+			name: "regenerate_brainstorm",
+			arguments: { brief: "Bastidores" },
+		});
+		expect(generated.isError).toBeFalsy();
+		const listed = await c.callTool({
+			name: "list_brainstorm_suggestions",
+			arguments: {},
+		});
+		const payload = listed.structuredContent as { result: { id: string }[] };
+		const id = payload.result[0]?.id;
+		expect(id).toBeTruthy();
+		expect(
+			(
+				await c.callTool({
+					name: "accept_brainstorm_suggestion",
+					arguments: { suggestion_id: id },
+				})
+			).isError,
+		).toBeFalsy();
+		expect(
+			JSON.stringify(
+				(await c.callTool({ name: "list_contents", arguments: {} })).content,
+			),
+		).toContain("Bastidores");
+		await c.close();
+	});
+	it("RN-015: as ferramentas novas recusam empresa de outra agência", async () => {
+		const c = await connect({ ...agencyMember, scopes: ["read", "write"] });
+		for (const name of [
+			"list_brainstorm_suggestions",
+			"list_saved_references",
+		]) {
+			expect(
+				(await c.callTool({ name, arguments: { company_id: "company-x" } }))
+					.isError,
+			).toBe(true);
+		}
+		await c.close();
+	});
+	it("Q-21: salvar post devolve regra pendente com isError", async () => {
+		const c = await connect(clientUser);
+		const r = await c.callTool({
+			name: "save_reference_by_url",
+			arguments: { url: "https://www.instagram.com/p/abc/" },
+		});
+		expect(r.isError).toBe(true);
+		expect(JSON.stringify(r.content)).toContain("Q-21");
+		await c.close();
+	});
+	it("RN-024: conexão de leitura não gera ideias", async () => {
+		const c = await connect(agencyMember);
+		const r = await c.callTool({
+			name: "regenerate_brainstorm",
+			arguments: { company_id: "company-a", brief: "Tema" },
+		});
+		expect(r.isError).toBe(true);
+		await c.close();
+	});
+});

@@ -7,6 +7,7 @@ import {
 import { sql } from "drizzle-orm";
 import {
 	boolean,
+	check,
 	index,
 	integer,
 	jsonb,
@@ -20,6 +21,7 @@ import {
 import { companies, users } from "./acesso";
 import { companyIsolation } from "./company-scope";
 import { contents, creatorKind } from "./conteudo";
+import { ideas } from "./ideias";
 
 export const approvalItemType = pgEnum(
 	"approval_item_type",
@@ -42,9 +44,8 @@ export const approvalRequests = pgTable(
 		companyId: uuid("company_id")
 			.notNull()
 			.references(() => companies.id),
-		contentId: uuid("content_id")
-			.notNull()
-			.references(() => contents.id),
+		contentId: uuid("content_id").references(() => contents.id),
+		ideaId: uuid("idea_id").references(() => ideas.id),
 		itemType: approvalItemType("item_type").notNull(),
 		submittedVersion: integer("submitted_version").notNull(),
 		itemVersion: integer("item_version").notNull(),
@@ -60,6 +61,13 @@ export const approvalRequests = pgTable(
 		reason: text("reason"),
 	},
 	(table) => [
+		check(
+			"approval_requests_target",
+			sql`(${table.contentId} IS NOT NULL AND ${table.ideaId} IS NULL AND ${table.itemType}::text = 'script') OR (${table.contentId} IS NULL AND ${table.ideaId} IS NOT NULL AND ${table.itemType}::text = 'idea')`,
+		),
+		uniqueIndex("approval_ideas_one_pending_idx")
+			.on(table.ideaId)
+			.where(sql`${table.status} = 'pending'`),
 		index("approval_requests_company_content_idx").on(
 			table.companyId,
 			table.contentId,
@@ -84,9 +92,8 @@ export const approvalEvents = pgTable(
 		requestId: uuid("request_id")
 			.notNull()
 			.references(() => approvalRequests.id),
-		contentId: uuid("content_id")
-			.notNull()
-			.references(() => contents.id),
+		contentId: uuid("content_id").references(() => contents.id),
+		ideaId: uuid("idea_id").references(() => ideas.id),
 		type: approvalEventType("type").notNull(),
 		actorId: uuid("actor_id")
 			.notNull()
@@ -99,6 +106,10 @@ export const approvalEvents = pgTable(
 			.defaultNow(),
 	},
 	(table) => [
+		check(
+			"approval_events_target",
+			sql`num_nonnulls(${table.contentId}, ${table.ideaId}) = 1`,
+		),
 		index("approval_events_company_content_idx").on(
 			table.companyId,
 			table.contentId,

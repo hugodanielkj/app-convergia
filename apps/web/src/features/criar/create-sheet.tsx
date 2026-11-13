@@ -13,7 +13,7 @@ type CreateOption = {
 	label: string;
 	description: string;
 	icon: LucideIcon;
-	action?: "new-content" | "create-script";
+	action?: "new-content" | "create-script" | "ideas";
 };
 
 /** Menu do botão central "Criar" (design §13.2). As ações chegam com cada módulo (§12). */
@@ -32,6 +32,7 @@ export const CREATE_OPTIONS: CreateOption[] = [
 	},
 	{
 		label: "Gerar ideias",
+		action: "ideas",
 		description: "Sugestões para a próxima semana",
 		icon: Lightbulb,
 	},
@@ -52,11 +53,13 @@ export function CreateSheet({
 	onClose,
 	onNewContent,
 	onCreateScript,
+	onIdeas,
 }: {
 	open: boolean;
 	onClose: () => void;
 	onNewContent: () => void;
 	onCreateScript: () => void;
+	onIdeas?: () => void;
 }) {
 	return (
 		<BottomSheet open={open} title="Criar" onClose={onClose}>
@@ -68,7 +71,8 @@ export function CreateSheet({
 							disabled={!action}
 							onClick={() => {
 								onClose();
-								if (action === "create-script") onCreateScript();
+								if (action === "ideas") onIdeas?.();
+								else if (action === "create-script") onCreateScript();
 								else onNewContent();
 							}}
 							className="flex min-h-14 w-full items-center gap-4 rounded-2xl px-2 py-3 text-left hover:bg-zinc-100 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:hover:bg-zinc-800"
