@@ -16,6 +16,17 @@ export function createFakeLlm(): LlmClient {
 				cta: "Salve este post para ver depois e mande para quem precisa.",
 				caption: `${title} ✨\n\nConta nos comentários o que você achou!`,
 			};
+			if (request.task === "suggest_options") {
+				return {
+					output: {
+						options: [1, 2, 3].map(
+							(n) => `Opção ${n} simulada para ${title.toLowerCase()}`,
+						),
+					},
+					inputTokens: null,
+					outputTokens: null,
+				};
+			}
 			if (request.task === "write_script") {
 				return { output: script, inputTokens: null, outputTokens: null };
 			}

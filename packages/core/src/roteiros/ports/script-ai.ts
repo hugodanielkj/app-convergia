@@ -1,4 +1,4 @@
-import type { Content, Script } from "../../conteudo/content";
+import type { Content, Script, ScriptField } from "../../conteudo/content";
 import type { QuotaTool } from "../../policies/quota.policy";
 
 /** Quem paga a chamada, para o registro de custo em `ai_call_log` (design §10). */
@@ -43,4 +43,10 @@ export interface ScriptAi {
 		history: RefineTurn[],
 		request: string,
 	): Promise<{ reply: string; script: Script }>;
+	/** 📎 RN-071: até `MAX_OPTIONS_PER_CALL` opções para uma parte do roteiro. */
+	suggestOptions(
+		meta: AiCallMeta,
+		brief: ScriptBrief,
+		field: ScriptField,
+	): Promise<string[]>;
 }

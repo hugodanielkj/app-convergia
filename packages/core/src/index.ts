@@ -43,6 +43,7 @@ export {
 	plannedDateInput,
 	SCRIPT_FIELDS,
 	type Script,
+	type ScriptField,
 } from "./conteudo/content";
 export type {
 	ContentPatch,
@@ -76,6 +77,7 @@ export {
 } from "./policies/permission.policy";
 export {
 	DEFAULT_DAILY_QUOTAS,
+	OPTION_QUOTA_TOOLS,
 	QUOTA_TIME_ZONE,
 	type QuotaTool,
 	quotaDay,
@@ -89,14 +91,18 @@ export type {
 } from "./roteiros/ports/script-ai";
 export type { ScriptRepository } from "./roteiros/ports/script-repository";
 export {
+	MAX_OPTIONS_PER_CALL,
 	MAX_SCRIPTS_PER_CALL,
 	PREVIEW_DECISIONS,
 	type PreviewDecision,
 	type PreviewStatus,
 	type RefineMessage,
 	refineContentInput,
+	type ScriptOptions,
+	scriptOptionsInput,
 } from "./roteiros/refinement";
 export type { ScriptDeps } from "./roteiros/use-cases/deps";
+export { generateScriptOptions } from "./roteiros/use-cases/generate-script-options";
 export { generateScripts } from "./roteiros/use-cases/generate-scripts";
 export {
 	getRefineChat,

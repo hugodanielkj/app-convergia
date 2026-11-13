@@ -3,13 +3,15 @@ import { loadEnv } from "@convergia/config";
 import {
 	type ActorContext,
 	createContents,
+	generateScriptOptions,
 	generateScripts,
 	getRefineChat,
+	NotDecidedYet,
 	quotaDay,
 	refineContent,
 	reviewContentRefinement,
 } from "@convergia/core";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createFakeLlm } from "../../ai/fake-llm";
 import { createLlmGateway, type LlmClient } from "../../ai/llm-gateway";
@@ -20,6 +22,7 @@ import {
 	aiCallLog,
 	companies,
 	contentGenerations,
+	contentOptionSets,
 	contents,
 	quotaUsage,
 	refineMessages,
@@ -104,6 +107,7 @@ describe("roteiros e cotas no Postgres", () => {
 				for (const table of [
 					refineMessages,
 					contentGenerations,
+					contentOptionSets,
 					quotaUsage,
 					aiCallLog,
 					contents,
@@ -248,4 +252,72 @@ describe("roteiros e cotas no Postgres", () => {
 		);
 		return rows.find((r) => r.toolKey === "generate_scripts")?.used ?? 0;
 	}
+
+	it("Q-21: opções avulsas (RN-071) ficam bloqueadas sem chamar a IA nem reservar cota", async () => {
+		const card = await newCard();
+		await expect(
+			generateScriptOptions(deps, actorA, card.id, "hook"),
+		).rejects.toThrow(NotDecidedYet);
+		const logged = await withCompany(db, ids.companyA, (tx) =>
+			tx
+				.select()
+				.from(aiCallLog)
+				.where(eq(aiCallLog.tool, "generate_hook_options")),
+		);
+		expect(logged).toHaveLength(0);
+	});
+
+	it("RN-071: a IA devolve opções pelo gateway e registra a chamada", async () => {
+		const card = await newCard("Mesa dobrável");
+		const options = await deps.scriptAi.suggestOptions(
+			{ companyId: ids.companyA, tool: "generate_cta_options" },
+			{ companyName: "Móveis A", content: card },
+			"cta",
+		);
+		expect(options).toHaveLength(3);
+		const [logged] = await withCompany(db, ids.companyA, (tx) =>
+			tx
+				.select()
+				.from(aiCallLog)
+				.where(eq(aiCallLog.tool, "generate_cta_options")),
+		);
+		expect(logged).toMatchObject({ success: true, model: "simulado-local" });
+	});
+
+	it("RN-072, RN-015: as opções vão para o histórico e o RLS só as mostra à própria empresa", async () => {
+		const card = await newCard();
+		await deps.scripts.addOptionSet(ids.companyA, {
+			contentId: card.id,
+			field: "caption",
+			options: ["Legenda 1", "Legenda 2"],
+			createdByUserId: ids.clientA,
+		});
+		// Superusuário ignora o RLS; um papel comum, como o do servidor em produção, não.
+		await db.execute(sql`
+			do $$ begin
+				if not exists (select from pg_roles where rolname = 'convergia_rls_probe') then
+					create role convergia_rls_probe nologin;
+				end if;
+			end $$`);
+		await db.execute(sql`grant usage on schema public to convergia_rls_probe`);
+		await db.execute(
+			sql`grant select on content_option_sets to convergia_rls_probe`,
+		);
+		const readAs = (companyId: string) =>
+			db.transaction(async (tx) => {
+				await tx.execute(sql`set local role convergia_rls_probe`);
+				await tx.execute(
+					sql`select set_config('app.company_id', ${companyId}, true)`,
+				);
+				return tx
+					.select()
+					.from(contentOptionSets)
+					.where(eq(contentOptionSets.contentId, card.id));
+			});
+
+		expect(await readAs(ids.companyA)).toMatchObject([
+			{ field: "caption", options: ["Legenda 1", "Legenda 2"] },
+		]);
+		expect(await readAs(ids.companyB)).toEqual([]);
+	});
 });

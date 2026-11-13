@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type RefineMessageDto } from "../../api/client";
+import { api, type RefineMessageDto, type ScriptField } from "../../api/client";
 import { contentsKey, refineChatQuery } from "../../api/queries";
 
 /** Gerar e refinar o roteiro de um card. Toda mudança recarrega o card e as listas. */
@@ -13,6 +13,16 @@ export function useScriptMutations(companyId: string) {
 		generate: useMutation({
 			mutationFn: (contentId: string) => api.generateScript(param(contentId)),
 			onSuccess: refreshContents,
+		}),
+		// 📎 RN-071: só sugere; o card muda quando a pessoa salva a opção escolhida.
+		options: useMutation({
+			mutationFn: ({
+				contentId,
+				field,
+			}: {
+				contentId: string;
+				field: ScriptField;
+			}) => api.scriptOptions(param(contentId), field),
 		}),
 		refine: useMutation({
 			mutationFn: ({

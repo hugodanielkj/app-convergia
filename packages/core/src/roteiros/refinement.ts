@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Script } from "../conteudo/content";
+import { SCRIPT_FIELDS, type Script } from "../conteudo/content";
 
 /** Estado da prévia de um refino (📎 RN-073). */
 export type PreviewStatus = "pending" | "applied" | "discarded";
@@ -21,6 +21,28 @@ export type RefineMessage = {
 };
 
 export const MAX_SCRIPTS_PER_CALL = 5;
+
+/** 📎 RN-071: até 3 opções avulsas por chamada. */
+export const MAX_OPTIONS_PER_CALL = 3;
+
+/** Pedido de opções avulsas. Validado nas bordas: API do app e MCP. */
+export const scriptOptionsInput = z.object({
+	field: z.enum(SCRIPT_FIELDS),
+	count: z
+		.number()
+		.int()
+		.min(1)
+		.max(MAX_OPTIONS_PER_CALL)
+		.default(MAX_OPTIONS_PER_CALL)
+		.describe(`Quantas opções gerar (1 a ${MAX_OPTIONS_PER_CALL})`),
+});
+
+/** Opções avulsas geradas para uma parte do roteiro. Não alteram o card (RN-071). */
+export type ScriptOptions = {
+	contentId: string;
+	field: (typeof SCRIPT_FIELDS)[number];
+	options: string[];
+};
 
 /** Pedido de refino. Validado nas bordas: API do app e MCP. */
 export const refineContentInput = z.object({

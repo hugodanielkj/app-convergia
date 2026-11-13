@@ -18,6 +18,7 @@ import { NotDecidedYet } from "../../shared/domain-error";
 import { FakeScriptAi } from "../testing/fake-script-ai";
 import { InMemoryScriptRepository } from "../testing/in-memory-script-repository";
 import type { ScriptDeps } from "./deps";
+import { generateScriptOptions } from "./generate-script-options";
 import { generateScripts } from "./generate-scripts";
 import {
 	getRefineChat,
@@ -362,6 +363,47 @@ describe("roteiros", () => {
 					"apply",
 				),
 			).rejects.toThrow(NOT_FOUND);
+		});
+	});
+
+	describe("opções avulsas (RN-071)", () => {
+		it("Q-21: a cota das opções ainda não foi decidida, então nada é gerado", async () => {
+			const card = await create();
+			await expect(
+				generateScriptOptions(deps, client, card.id, "hook"),
+			).rejects.toThrow(NotDecidedYet);
+			expect(deps.scriptAi.calls).toHaveLength(0);
+			expect(deps.scripts.optionSets).toHaveLength(0);
+			expect([...deps.quotas.used.values()]).toEqual([]);
+		});
+
+		it("RN-015: não gera opções em card de outra empresa nem na lixeira", async () => {
+			const card = await create();
+			await expect(
+				generateScriptOptions(deps, otherCompanyClient, card.id, "hook"),
+			).rejects.toThrow(NOT_FOUND);
+			await deleteContent(deps, client, card.id);
+			await expect(
+				generateScriptOptions(deps, client, card.id, "hook"),
+			).rejects.toThrow(NOT_FOUND);
+		});
+
+		it("RN-024: conexão só de leitura não gera opções", async () => {
+			const card = await create();
+			await expect(
+				generateScriptOptions(deps, readOnly, card.id, "cta"),
+			).rejects.toThrow(
+				"Esta conexão é só de leitura. Reconecte com permissão de escrita.",
+			);
+		});
+
+		it("RN-071: pede de 1 a 3 opções por vez", async () => {
+			const card = await create();
+			for (const count of [0, 4, 1.5]) {
+				await expect(
+					generateScriptOptions(deps, client, card.id, "hook", count),
+				).rejects.toThrow("Peça de 1 a 3 opções por vez.");
+			}
 		});
 	});
 });

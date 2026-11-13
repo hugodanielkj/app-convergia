@@ -1,5 +1,5 @@
 import { DomainError } from "../shared/domain-error";
-import { MAX_SCRIPTS_PER_CALL } from "./refinement";
+import { MAX_OPTIONS_PER_CALL, MAX_SCRIPTS_PER_CALL } from "./refinement";
 
 /** 📎 RN-074: mensagem da regra de negócio §7. */
 export function stalePreview(): DomainError {
@@ -22,5 +22,13 @@ export function scriptBatchOutOfRange(): DomainError {
 	return new DomainError(
 		"invalid_input",
 		`Gere roteiros para 1 a ${MAX_SCRIPTS_PER_CALL} cards por vez.`,
+	);
+}
+
+/** 📎 RN-071. */
+export function optionCountOutOfRange(): DomainError {
+	return new DomainError(
+		"invalid_input",
+		`Peça de 1 a ${MAX_OPTIONS_PER_CALL} opções por vez.`,
 	);
 }

@@ -1,5 +1,6 @@
 import {
 	type AuthenticatedUser,
+	generateScriptOptions,
 	generateScripts,
 	getRefineChat,
 	PREVIEW_DECISIONS,
@@ -8,7 +9,9 @@ import {
 	refineContentInput,
 	resolveActorContext,
 	reviewContentRefinement,
+	SCRIPT_FIELDS,
 	type ScriptDeps,
+	scriptOptionsInput,
 } from "@convergia/core";
 import { Hono } from "hono";
 import { validator } from "hono/validator";
@@ -21,6 +24,13 @@ const reviewParams = z.object({
 	messageId: z.string(),
 	decision: z.enum(PREVIEW_DECISIONS),
 });
+
+const optionsParams = z.object({
+	companyId: z.string(),
+	contentId: z.string(),
+	field: z.enum(SCRIPT_FIELDS),
+});
+const optionsBody = scriptOptionsInput.pick({ count: true });
 
 /** Gerar e refinar o roteiro de um card (✅ RN-006; RN-070 a RN-074). */
 export function scriptRoutes(deps: ScriptDeps) {
@@ -36,6 +46,23 @@ export function scriptRoutes(deps: ScriptDeps) {
 			]);
 			return c.json(content);
 		})
+		.post(
+			`${base}/options/:field`,
+			validator("param", (value) => parseInput(optionsParams, value)),
+			validator("json", (value) => parseInput(optionsBody, value)),
+			async (c) => {
+				const actor = await actorFor(c.get("user"), c.req.param("companyId"));
+				return c.json(
+					await generateScriptOptions(
+						deps,
+						actor,
+						c.req.param("contentId"),
+						c.req.valid("param").field,
+						c.req.valid("json").count,
+					),
+				);
+			},
+		)
 		.get(`${base}/refine`, async (c) => {
 			const actor = await actorFor(c.get("user"), c.req.param("companyId"));
 			return c.json({
