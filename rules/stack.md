@@ -142,7 +142,7 @@ Princípios de uso da IA:
 | Fonte | Uso | Observações |
 |---|---|---|
 | **Instagram API (Meta), login do Instagram** | Contas profissionais conectadas por OAuth: perfil, posts, métricas e insights da conta | Exige **app aprovado na Meta** (revisão de permissões) e conta Profissional. 📎 RN-036. **A revisão da Meta leva tempo: comece cedo.** |
-| **Scraping** (✅ RN-031) | Contas que não conectam e perfis ou posts de referência | ❓ Fornecedor (ex.: Apify) e regras de consentimento (Q-08). Frágil: o layout muda, há bloqueios. Isolar atrás de uma interface. |
+| **Scraping** (✅ RN-031) | Só perfis e posts de terceiros (referências). O perfil da empresa vem só pela API oficial (✅ RN-035) | ❓ Fornecedor (ex.: Apify) e regras de consentimento (Q-08). Frágil: o layout muda, há bloqueios. Isolar atrás de uma interface. |
 
 Os tokens OAuth do Instagram de cada empresa ficam **criptografados no banco** e são renovados por job agendado antes de expirar.
 

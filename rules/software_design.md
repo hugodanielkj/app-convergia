@@ -329,7 +329,7 @@ Toda ferramenta que opera dentro de uma empresa recebe o parâmetro `company_id`
 | Ferramenta | Descrição | E | C | J |
 |---|---|---|---|---|
 | `get_instagram_connection` | Status da conexão, origem (oauth \| scrape), última sincronização | | | |
-| `connect_instagram` | Gera o link de conexão OAuth. ❓ Q-05 | ✔ | | |
+| `connect_instagram` | Gera o link de conexão pela autenticação da Meta. Só o usuário do cliente (RN-034, RN-035) | ✔ | | |
 | `get_account_overview` | Seguidores, ganho no período, alcance (7–365 dias) | | | |
 | `get_audience_growth` | Crescimento por dia ou semana | | | |
 | `list_posts` / `get_post` | Posts com métricas, classificação, transcrição e análise salva | | | |
@@ -568,7 +568,7 @@ Decidido: mobile first e PWA (✅ RN-005), telas com botões (✅ RN-006), clien
 | Ideias | Todos | Sugestões do brainstorm, com o botão "Virar card" |
 | Aprovações | Cliente | Itens enviados pela agência, com a prévia do conteúdo e os botões **Aprovar** e **Recusar** (motivo opcional) |
 | Aprovações | Agência | Itens enviados, recusados e aprovados; cancelar envio; aprovar em nome do cliente, com motivo (RN-214) |
-| Desempenho | Todos | Métricas e insights; conectar o Instagram (❓ Q-05) |
+| Desempenho | Todos | Métricas e insights; o cliente conecta o Instagram pela Meta (RN-034, RN-035); a agência vê o aviso se ainda não estiver conectado |
 | Referências | Todos | Salvar por link, lista e análise de criadores |
 | Carrossel | Todos | Planejar, escrever e gerar; prévia das lâminas que se desliza com o dedo, como no Instagram |
 | Empresas | Agência | Lista de clientes; cadastro de empresa e de usuário (RN-026) |
