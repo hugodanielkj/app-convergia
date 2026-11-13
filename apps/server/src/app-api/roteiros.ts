@@ -3,6 +3,7 @@ import {
 	generateScriptOptions,
 	generateScripts,
 	getRefineChat,
+	listContentGenerations,
 	PREVIEW_DECISIONS,
 	parseInput,
 	refineContent,
@@ -32,7 +33,7 @@ const optionsParams = z.object({
 });
 const optionsBody = scriptOptionsInput.pick({ count: true });
 
-/** Gerar e refinar o roteiro de um card (✅ RN-006; RN-070 a RN-074). */
+/** Gerar, refinar e ver o histórico do roteiro de um card (✅ RN-006; RN-070 a RN-074). */
 export function scriptRoutes(deps: ScriptDeps) {
 	const actorFor = (user: AuthenticatedUser, companyId: string) =>
 		resolveActorContext(deps, user, companyId);
@@ -63,6 +64,16 @@ export function scriptRoutes(deps: ScriptDeps) {
 				);
 			},
 		)
+		.get(`${base}/history`, async (c) => {
+			const actor = await actorFor(c.get("user"), c.req.param("companyId"));
+			return c.json({
+				entries: await listContentGenerations(
+					deps,
+					actor,
+					c.req.param("contentId"),
+				),
+			});
+		})
 		.get(`${base}/refine`, async (c) => {
 			const actor = await actorFor(c.get("user"), c.req.param("companyId"));
 			return c.json({

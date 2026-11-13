@@ -98,6 +98,7 @@ describe("opções avulsas com o limite simulado (RN-071)", () => {
 				field: "cta",
 				options: ["Opção 1 de cta sobre Sofá", "Opção 2 de cta sobre Sofá"],
 				createdByUserId: client.userId,
+				createdByKind: "client",
 			},
 		]);
 	});

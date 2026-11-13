@@ -6,6 +6,7 @@ import {
 	generateScriptOptions,
 	generateScripts,
 	getRefineChat,
+	listContentGenerations,
 	NotDecidedYet,
 	quotaDay,
 	refineContent,
@@ -291,6 +292,7 @@ describe("roteiros e cotas no Postgres", () => {
 			field: "caption",
 			options: ["Legenda 1", "Legenda 2"],
 			createdByUserId: ids.clientA,
+			createdByKind: "client",
 		});
 		// Superusuário ignora o RLS; um papel comum, como o do servidor em produção, não.
 		await db.execute(sql`
@@ -319,5 +321,30 @@ describe("roteiros e cotas no Postgres", () => {
 			{ field: "caption", options: ["Legenda 1", "Legenda 2"] },
 		]);
 		expect(await readAs(ids.companyB)).toEqual([]);
+	});
+
+	it("RN-072: o histórico junta roteiros e opções, das mais novas para as mais antigas", async () => {
+		const card = await newCard("Poltrona");
+		await generateScripts(deps, actorA, [card.id]);
+		await deps.scripts.addOptionSet(ids.companyA, {
+			contentId: card.id,
+			field: "hook",
+			options: ["Gancho 1"],
+			createdByUserId: ids.clientA,
+			createdByKind: "client",
+		});
+
+		const history = await listContentGenerations(deps, actorA, card.id);
+
+		expect(history.map((entry) => entry.kind)).toEqual(["options", "script"]);
+		expect(history[1]).toMatchObject({
+			kind: "script",
+			contentId: card.id,
+			createdByUserId: ids.clientA,
+			createdByKind: "client",
+		});
+		await expect(listContentGenerations(deps, actorB, card.id)).rejects.toThrow(
+			"Card não encontrado.",
+		);
 	});
 });

@@ -43,6 +43,13 @@
       "when": 1794539789706,
       "tag": "0005_roteiros_opcoes",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794540371217,
+      "tag": "0006_roteiros_historico",
+      "breakpoints": true
     }
   ]
 }

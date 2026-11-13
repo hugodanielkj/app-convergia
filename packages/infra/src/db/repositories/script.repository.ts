@@ -1,4 +1,8 @@
-import type { RefineMessage, ScriptRepository } from "@convergia/core";
+import type {
+	HistoryEntry,
+	RefineMessage,
+	ScriptRepository,
+} from "@convergia/core";
 import { and, desc, eq } from "drizzle-orm";
 import type { Db } from "../client";
 import {
@@ -39,6 +43,47 @@ export function createScriptRepository(db: Db): ScriptRepository {
 			await withCompany(db, companyId, (tx) =>
 				tx.insert(contentOptionSets).values({ companyId, ...optionSet }),
 			);
+		},
+
+		listHistory(companyId, contentId, limit) {
+			return withCompany(db, companyId, async (tx) => {
+				// As duas tabelas do histórico, cada uma com as `limit` mais novas.
+				const scripts = await tx
+					.select()
+					.from(contentGenerations)
+					.where(
+						and(
+							eq(contentGenerations.companyId, companyId),
+							eq(contentGenerations.contentId, contentId),
+						),
+					)
+					.orderBy(desc(contentGenerations.createdAt))
+					.limit(limit);
+				const optionSets = await tx
+					.select()
+					.from(contentOptionSets)
+					.where(
+						and(
+							eq(contentOptionSets.companyId, companyId),
+							eq(contentOptionSets.contentId, contentId),
+						),
+					)
+					.orderBy(desc(contentOptionSets.createdAt))
+					.limit(limit);
+				const entries: HistoryEntry[] = [
+					...scripts.map(({ companyId: _, ...row }) => ({
+						...row,
+						kind: "script" as const,
+					})),
+					...optionSets.map(({ companyId: _, ...row }) => ({
+						...row,
+						kind: "options" as const,
+					})),
+				];
+				return entries
+					.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+					.slice(0, limit);
+			});
 		},
 
 		listRefineMessages(companyId, contentId, limit) {

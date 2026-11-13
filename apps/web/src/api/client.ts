@@ -104,6 +104,7 @@ export const api = {
 				json: { count: 3 },
 			}),
 		),
+	history: (param: ContentParams) => call(contentApi.history.$get({ param })),
 	refineChat: (param: ContentParams) => call(contentApi.refine.$get({ param })),
 	refine: (param: ContentParams, message: string) =>
 		call(contentApi.refine.$post({ param, json: { message } })),
@@ -123,6 +124,9 @@ export type Me = Awaited<ReturnType<typeof api.me>>;
 export type CompanySummary = Awaited<ReturnType<typeof api.company>>;
 export type ContentDto = Awaited<ReturnType<typeof api.content>>;
 export type ContentChanges = Parameters<typeof api.updateContent>[1];
+export type HistoryEntryDto = Awaited<
+	ReturnType<typeof api.history>
+>["entries"][number];
 export type RefineMessageDto = Awaited<
 	ReturnType<typeof api.refineChat>
 >["messages"][number];

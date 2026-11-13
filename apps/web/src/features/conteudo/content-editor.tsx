@@ -4,6 +4,7 @@ import {
 	ArrowRightLeft,
 	Copy,
 	Ellipsis,
+	History,
 	Sparkles,
 	Trash2,
 } from "lucide-react";
@@ -21,6 +22,7 @@ import {
 	type ScriptField,
 } from "../../api/client";
 import { BottomSheet } from "../../components/bottom-sheet";
+import { HistorySheet } from "../roteiros/history-sheet";
 import { ScriptAiActions } from "../roteiros/script-ai-actions";
 import {
 	SCRIPT_FIELD_LABEL,
@@ -82,6 +84,7 @@ export function ContentEditor({
 	const [actions, setActions] = useState(false);
 	const [confirmDelete, setConfirmDelete] = useState(false);
 	const [optionsFor, setOptionsFor] = useState<ScriptField | null>(null);
+	const [showHistory, setShowHistory] = useState(false);
 
 	useEffect(() => {
 		const next = toForm(content);
@@ -202,7 +205,17 @@ export function ContentEditor({
 
 			<section className="flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
 				<div>
-					<h2 className="text-lg font-semibold">Roteiro</h2>
+					<div className="flex items-center justify-between gap-2">
+						<h2 className="text-lg font-semibold">Roteiro</h2>
+						<button
+							type="button"
+							onClick={() => setShowHistory(true)}
+							className="-my-2 flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+						>
+							<History className="size-4" aria-hidden />
+							Histórico
+						</button>
+					</div>
 					{content.approvalStatus !== "none" && (
 						<p className="text-sm text-zinc-600 dark:text-zinc-400">
 							Mudanças da agência no roteiro precisam da aprovação do cliente.
@@ -350,6 +363,13 @@ export function ContentEditor({
 					</div>
 				</div>
 			)}
+
+			<HistorySheet
+				companyId={companyId}
+				contentId={content.id}
+				open={showHistory}
+				onClose={() => setShowHistory(false)}
+			/>
 
 			<ScriptOptionsSheet
 				key={optionsFor ?? "fechado"}

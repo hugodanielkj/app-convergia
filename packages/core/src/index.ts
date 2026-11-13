@@ -82,6 +82,7 @@ export {
 	type QuotaTool,
 	quotaDay,
 } from "./policies/quota.policy";
+export { HISTORY_LIMIT, type HistoryEntry } from "./roteiros/history";
 export type {
 	AiCallMeta,
 	RefineTurn,
@@ -104,6 +105,7 @@ export {
 export type { ScriptDeps } from "./roteiros/use-cases/deps";
 export { generateScriptOptions } from "./roteiros/use-cases/generate-script-options";
 export { generateScripts } from "./roteiros/use-cases/generate-scripts";
+export { listContentGenerations } from "./roteiros/use-cases/list-content-generations";
 export {
 	getRefineChat,
 	refineContent,

@@ -1,4 +1,5 @@
-import type { Script, ScriptField } from "../../conteudo/content";
+import type { CreatorKind, Script, ScriptField } from "../../conteudo/content";
+import type { HistoryEntry } from "../history";
 import type { PreviewStatus, RefineMessage } from "../refinement";
 
 /** Histórico de gerações e conversa de refino. Toda operação recebe a empresa (RN-015). */
@@ -6,7 +7,12 @@ export interface ScriptRepository {
 	/** 📎 RN-072: toda geração fica no histórico do card. */
 	addGeneration(
 		companyId: string,
-		generation: { contentId: string; script: Script; createdByUserId: string },
+		generation: {
+			contentId: string;
+			script: Script;
+			createdByUserId: string;
+			createdByKind: CreatorKind;
+		},
 	): Promise<void>;
 	/** 📎 RN-072: as opções avulsas (RN-071) também ficam no histórico do card. */
 	addOptionSet(
@@ -16,8 +22,15 @@ export interface ScriptRepository {
 			field: ScriptField;
 			options: string[];
 			createdByUserId: string;
+			createdByKind: CreatorKind;
 		},
 	): Promise<void>;
+	/** 📎 RN-072: as últimas `limit` gerações do card, das mais novas para as mais antigas. */
+	listHistory(
+		companyId: string,
+		contentId: string,
+		limit: number,
+	): Promise<HistoryEntry[]>;
 	/** As últimas `limit` mensagens do refino, da mais antiga para a mais nova. */
 	listRefineMessages(
 		companyId: string,

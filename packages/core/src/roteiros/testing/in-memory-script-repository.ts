@@ -1,4 +1,5 @@
-import type { Script, ScriptField } from "../../conteudo/content";
+import type { CreatorKind, Script, ScriptField } from "../../conteudo/content";
+import type { HistoryEntry } from "../history";
 import type { ScriptRepository } from "../ports/script-repository";
 import type { PreviewStatus, RefineMessage } from "../refinement";
 
@@ -9,6 +10,7 @@ export class InMemoryScriptRepository implements ScriptRepository {
 		contentId: string;
 		script: Script;
 		createdByUserId: string;
+		createdByKind: CreatorKind;
 	}[] = [];
 	readonly optionSets: {
 		companyId: string;
@@ -16,7 +18,9 @@ export class InMemoryScriptRepository implements ScriptRepository {
 		field: ScriptField;
 		options: string[];
 		createdByUserId: string;
+		createdByKind: CreatorKind;
 	}[] = [];
+	private readonly history: (HistoryEntry & { companyId: string })[] = [];
 	readonly messages: RefineMessage[] = [];
 	private sequence = 0;
 
@@ -24,9 +28,21 @@ export class InMemoryScriptRepository implements ScriptRepository {
 
 	async addGeneration(
 		companyId: string,
-		generation: { contentId: string; script: Script; createdByUserId: string },
+		generation: {
+			contentId: string;
+			script: Script;
+			createdByUserId: string;
+			createdByKind: CreatorKind;
+		},
 	): Promise<void> {
 		this.generations.push({ companyId, ...generation });
+		this.history.push({
+			...generation,
+			companyId,
+			kind: "script",
+			id: `gen-${++this.sequence}`,
+			createdAt: this.now(),
+		});
 	}
 
 	async addOptionSet(
@@ -36,9 +52,29 @@ export class InMemoryScriptRepository implements ScriptRepository {
 			field: ScriptField;
 			options: string[];
 			createdByUserId: string;
+			createdByKind: CreatorKind;
 		},
 	): Promise<void> {
 		this.optionSets.push({ companyId, ...optionSet });
+		this.history.push({
+			...optionSet,
+			companyId,
+			kind: "options",
+			id: `gen-${++this.sequence}`,
+			createdAt: this.now(),
+		});
+	}
+
+	async listHistory(
+		companyId: string,
+		contentId: string,
+		limit: number,
+	): Promise<HistoryEntry[]> {
+		return this.history
+			.filter((e) => e.companyId === companyId && e.contentId === contentId)
+			.reverse()
+			.slice(0, limit)
+			.map(({ companyId: _, ...entry }) => structuredClone(entry));
 	}
 
 	async listRefineMessages(

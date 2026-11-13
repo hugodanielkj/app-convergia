@@ -59,3 +59,19 @@ export function onContentChanged(
 			return { approvalStatus: "in_preparation", event: null };
 	}
 }
+
+/**
+ * ❓ RN-231 (Q-23): se o cliente vê o trabalho da agência no histórico do card ainda está em
+ * aberto. A agência vê tudo; o cliente vê o histórico só enquanto ele não tem nada da agência.
+ */
+export function assertCanSeeHistory(
+	actor: ActorContext,
+	entries: { createdByKind: CreatorKind }[],
+): void {
+	if (
+		actor.kind === "client_user" &&
+		entries.some((entry) => entry.createdByKind === "agency")
+	) {
+		throw new NotDecidedYet("Q-23");
+	}
+}
