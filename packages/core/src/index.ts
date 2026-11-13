@@ -41,6 +41,7 @@ export {
 	type NewContentInput,
 	newContentInput,
 	plannedDateInput,
+	SCRIPT_FIELDS,
 	type Script,
 } from "./conteudo/content";
 export type {
@@ -66,11 +67,42 @@ export {
 	listDeletedContents,
 } from "./conteudo/use-cases/read-contents";
 export { updateContent } from "./conteudo/use-cases/update-content";
+export type { QuotaRepository } from "./cotas/ports/quota-repository";
+export { withQuota } from "./cotas/with-quota";
 export { TRASH_RETENTION_DAYS } from "./policies/content.policy";
 export {
 	assertCanWrite,
 	resolveActorContext,
 } from "./policies/permission.policy";
+export {
+	DEFAULT_DAILY_QUOTAS,
+	QUOTA_TIME_ZONE,
+	type QuotaTool,
+	quotaDay,
+} from "./policies/quota.policy";
+export type {
+	AiCallMeta,
+	RefineTurn,
+	ScriptAi,
+	ScriptBrief,
+	WrittenScript,
+} from "./roteiros/ports/script-ai";
+export type { ScriptRepository } from "./roteiros/ports/script-repository";
+export {
+	MAX_SCRIPTS_PER_CALL,
+	PREVIEW_DECISIONS,
+	type PreviewDecision,
+	type PreviewStatus,
+	type RefineMessage,
+	refineContentInput,
+} from "./roteiros/refinement";
+export type { ScriptDeps } from "./roteiros/use-cases/deps";
+export { generateScripts } from "./roteiros/use-cases/generate-scripts";
+export {
+	getRefineChat,
+	refineContent,
+	reviewContentRefinement,
+} from "./roteiros/use-cases/refine-content";
 export type {
 	ActorContext,
 	ActorKind,
