@@ -113,6 +113,8 @@ export async function discoverVideos(
 				actor.companyId,
 				new Date(now.getTime() - settings.stuckAfterMinutes * 60_000),
 			);
+			// ✅ RN-305: a coleta anterior caiu no meio sem devolver as cotas reservadas para ela.
+			if (started) await releaseReservations(deps, existing.id);
 			query = (await deps.discovery.findQuery(existing.id)) ?? existing;
 		} else {
 			const created = await deps.discovery.createQuery({

@@ -80,7 +80,9 @@ function statusOf(
 	if (running) return query.completedAt ? "refreshing" : "collecting";
 	if (query.completedAt) return "ready";
 	if (!configured) return "not_configured";
-	return query.status === "failed" ? "failed" : "collecting";
+	// Sem andamento e sem resultado: a coleta falhou ou o processo caiu no meio (deploy,
+	// reinício). As duas aparecem como falha, e pesquisar de novo recomeça a coleta.
+	return "failed";
 }
 
 function platformStatus(query: VideoQuery, running: boolean): PlatformStatus[] {
