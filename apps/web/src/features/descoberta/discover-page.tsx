@@ -154,7 +154,7 @@ export function DiscoverPage({
 	return (
 		<div className="flex flex-col gap-4">
 			<div>
-				<h1 className="text-2xl font-bold">Descobrir vídeos</h1>
+				<h1 className="text-3xl font-medium">Descobrir vídeos</h1>
 				<p className="text-sm text-zinc-600 dark:text-zinc-400">
 					Vídeos reais e populares do Instagram Reels e do TikTok sobre um
 					assunto.
@@ -399,7 +399,7 @@ function SearchResults({
 
 			{updatedAt && (
 				<header className="flex flex-col gap-0.5">
-					<h2 className="text-lg font-semibold">{view.label}</h2>
+					<h2 className="text-xl font-medium">{view.label}</h2>
 					<p className="text-xs text-zinc-600 dark:text-zinc-400">
 						Atualizado em {updatedAt}. Relevância estimada pela legenda;
 						métricas públicas no momento da coleta.

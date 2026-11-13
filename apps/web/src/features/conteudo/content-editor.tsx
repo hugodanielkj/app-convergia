@@ -207,7 +207,7 @@ export function ContentEditor({
 			<section className="flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
 				<div>
 					<div className="flex items-center justify-between gap-2">
-						<h2 className="text-lg font-semibold">Roteiro</h2>
+						<h2 className="text-xl font-medium">Roteiro</h2>
 						<button
 							type="button"
 							onClick={() => setShowHistory(true)}

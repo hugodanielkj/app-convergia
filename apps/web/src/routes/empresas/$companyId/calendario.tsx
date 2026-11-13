@@ -29,7 +29,7 @@ function Calendar() {
 	return (
 		<div className="flex flex-col gap-4">
 			<div className="flex items-center justify-between gap-3">
-				<h1 className="text-2xl font-bold">Calendário</h1>
+				<h1 className="text-3xl font-medium">Calendário</h1>
 				<div
 					role="tablist"
 					aria-label="Visualização"

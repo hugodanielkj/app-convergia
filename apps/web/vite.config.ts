@@ -4,7 +4,8 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-const THEME_COLOR = "#4f3bd9";
+/** Creme da marca Convergia: a mesma cor do cabeçalho do app. */
+const THEME_COLOR = "#f8ebdd";
 
 export default defineConfig({
 	plugins: [
@@ -27,7 +28,7 @@ export default defineConfig({
 				display: "standalone",
 				orientation: "portrait",
 				theme_color: THEME_COLOR,
-				background_color: "#ffffff",
+				background_color: "#f8ebdd",
 				icons: [
 					{ src: "pwa-64x64.png", sizes: "64x64", type: "image/png" },
 					{ src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },

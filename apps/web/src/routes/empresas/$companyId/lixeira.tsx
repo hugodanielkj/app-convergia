@@ -28,7 +28,7 @@ function Trash() {
 	return (
 		<div className="flex flex-col gap-4">
 			<div>
-				<h1 className="text-2xl font-bold">Lixeira</h1>
+				<h1 className="text-3xl font-medium">Lixeira</h1>
 				<p className="text-sm text-zinc-600 dark:text-zinc-400">
 					Cards excluídos ficam aqui por 30 dias.
 				</p>

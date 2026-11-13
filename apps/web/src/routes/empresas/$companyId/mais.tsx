@@ -38,7 +38,7 @@ function More() {
 
 	return (
 		<div className="flex flex-col gap-4">
-			<h1 className="text-2xl font-bold">Mais</h1>
+			<h1 className="text-3xl font-medium">Mais</h1>
 			<Link
 				to="/empresas/$companyId/descobrir"
 				params={{ companyId: Route.useParams().companyId }}

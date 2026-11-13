@@ -20,7 +20,7 @@ export function Home({ companyId }: { companyId: string }) {
 	return (
 		<div className="flex flex-col gap-6">
 			<section aria-labelledby="atalhos" className="flex flex-col gap-3">
-				<h1 id="atalhos" className="text-2xl font-bold">
+				<h1 id="atalhos" className="text-3xl font-medium">
 					O que vamos fazer hoje?
 				</h1>
 				<div className="grid gap-3 sm:grid-cols-2">
@@ -65,7 +65,7 @@ export function Home({ companyId }: { companyId: string }) {
 			</section>
 
 			<section aria-labelledby="proximos" className="flex flex-col gap-3">
-				<h2 id="proximos" className="text-lg font-semibold">
+				<h2 id="proximos" className="text-xl font-medium">
 					Próximos posts
 				</h2>
 				<UpcomingPosts companyId={companyId} />

@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <title>ConvergIA</title>
-  <rect width="512" height="512" rx="112" fill="#4f3bd9"/>
-  <path d="M332 168a118 118 0 1 0 0 176" fill="none" stroke="#fff" stroke-width="44" stroke-linecap="round"/>
-  <path d="M352 222l38 34-38 34" fill="none" stroke="#ffd166" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="256" cy="256" r="26" fill="#ffd166"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000"><title>ConvergIA</title><rect width="1000" height="1000" rx="200" fill="#E8491E"/><path fill="#F8EBDD" d="M842.43 163.32C731.03 230.36 619.76 180.08 495.23 205.22C308.45 242.93 151.43 439.85 140.47 624.20C130.54 791.79 280.27 867.21 459.88 825.31C612.55 789.70 758.09 691.24 860.00 540.40C725.81 657.72 600.05 716.37 493.52 708.00C362.40 697.69 328.45 582.30 398.01 456.61C462.95 339.29 577.74 297.40 651.92 330.91C689.02 347.67 704.54 381.19 696.10 439.85Q747.73 289.02 842.43 163.32Z"/></svg>
