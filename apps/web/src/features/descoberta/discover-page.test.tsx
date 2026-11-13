@@ -48,7 +48,6 @@ const view = (overrides: Record<string, unknown> = {}) => ({
 	label: "Populares sobre este assunto",
 	results: [video("v1")],
 	total: 1,
-	nextOffset: null,
 	...overrides,
 });
 
@@ -260,22 +259,25 @@ describe("Descobrir vídeos (RN-110 a RN-119)", () => {
 		);
 	});
 
-	it("carrega mais resultados da mesma pesquisa sem coletar de novo", async () => {
-		postReply = view({ total: 2, nextOffset: 1 });
-		getReplies = [view({ results: [video("v2")], total: 2, nextOffset: null })];
+	it("RN-119: mostra os vídeos sugeridos, sem carregar mais", async () => {
+		postReply = view({
+			results: [
+				video("v1"),
+				video("v2"),
+				video("v3"),
+				video("v4"),
+				video("v5"),
+			],
+			total: 12,
+		});
 		renderPage();
 		await userEvent.type(screen.getByLabelText("Assunto"), "receitas{Enter}");
-		await userEvent.click(
-			await screen.findByRole("button", { name: "Carregar mais" }),
-		);
+
 		expect(
-			await screen.findByText("Como criar vídeos com IA v2"),
+			await screen.findByText("Como criar vídeos com IA v5"),
 		).toBeInTheDocument();
+		expect(screen.getAllByText(/Como criar vídeos com IA v\d/)).toHaveLength(5);
 		expect(screen.queryByRole("button", { name: "Carregar mais" })).toBeNull();
-		expect(calls.filter((c) => c.method === "POST")).toHaveLength(1);
-		expect(calls.at(-1)?.url).toBe(
-			"/api/app/companies/c1/videos/searches/req-1",
-		);
 	});
 
 	it("trocar a plataforma refaz a pesquisa uma vez; trocar a ordem não coleta", async () => {

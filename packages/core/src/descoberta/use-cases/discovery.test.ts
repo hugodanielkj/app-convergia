@@ -128,7 +128,6 @@ describe("descoberta de vídeos (RN-110 a RN-119)", () => {
 			await runQueued();
 			const view = await getVideoSearch(deps, client, first.requestId ?? "", {
 				sort: "relevance",
-				offset: 0,
 			});
 			expect(view.status).toBe("ready");
 			expect(view.results.map((v) => v.externalId).sort()).toEqual([
@@ -207,7 +206,6 @@ describe("descoberta de vídeos (RN-110 a RN-119)", () => {
 			await expect(
 				getVideoSearch(deps, otherCompanyClient, view.requestId ?? "", {
 					sort: "relevance",
-					offset: 0,
 				}),
 			).rejects.toThrow("Pesquisa não encontrada.");
 		});
@@ -260,7 +258,6 @@ describe("descoberta de vídeos (RN-110 a RN-119)", () => {
 			expect(used()).toBe(0);
 			const after = await getVideoSearch(deps, client, view.requestId ?? "", {
 				sort: "relevance",
-				offset: 0,
 			});
 			expect(after.status).toBe("failed");
 			expect(after.message).toContain("Não foi possível buscar vídeos agora");
@@ -274,7 +271,6 @@ describe("descoberta de vídeos (RN-110 a RN-119)", () => {
 			await runQueued();
 			const after = await getVideoSearch(deps, client, view.requestId ?? "", {
 				sort: "relevance",
-				offset: 0,
 			});
 			expect(after.status).toBe("ready");
 			expect(after.results.map((v) => v.externalId)).toEqual(["tt1"]);
@@ -316,6 +312,60 @@ describe("descoberta de vídeos (RN-110 a RN-119)", () => {
 	});
 
 	describe("coleta (runVideoQuery)", () => {
+		/** Deixa as tarefas em andamento chegarem até a próxima espera. */
+		const flush = async () => {
+			for (let i = 0; i < 20; i++) {
+				await new Promise((resolve) => setTimeout(resolve, 0));
+			}
+		};
+		const hold = () => {
+			let release = () => {};
+			const gate = new Promise<void>((resolve) => {
+				release = resolve;
+			});
+			return { gate, release };
+		};
+
+		it("busca as plataformas e os termos ao mesmo tempo, dentro do limite de chamadas simultâneas", async () => {
+			deps.queryExpander.suggestions = ["vídeos com IA", "criar vídeo IA"];
+			const provider = hold();
+			deps.videoProvider.gate = provider.gate;
+			await discoverVideos(deps, client, input());
+			const running = runQueued();
+			await flush();
+
+			// 2 plataformas x 3 termos, todas esperando a resposta juntas.
+			expect(deps.videoProvider.inFlight).toBe(6);
+			provider.release();
+			await running;
+
+			deps.discoverySettings = { ...deps.discoverySettings, parallelCalls: 2 };
+			deps.videoProvider.maxInFlight = 0;
+			deps.videoProvider.gate = null;
+			await discoverVideos(deps, client, input({ query: "outro assunto" }));
+			await runQueued();
+			expect(deps.videoProvider.maxInFlight).toBeLessThanOrEqual(2);
+		});
+
+		it("a frase original começa sem esperar a IA sugerir variações", async () => {
+			deps.queryExpander.suggestions = ["vídeos com IA"];
+			const expander = hold();
+			deps.queryExpander.gate = expander.gate;
+			await discoverVideos(deps, client, input());
+			const running = runQueued();
+			await flush();
+
+			expect(deps.videoProvider.calls.map((c) => [c.platform, c.term])).toEqual(
+				[
+					["instagram", QUERY],
+					["tiktok", QUERY],
+				],
+			);
+			expander.release();
+			await running;
+			expect(deps.videoProvider.calls).toHaveLength(4);
+		});
+
 		it("RN-112: tira repetidos por plataforma + ID e mantém vazio o que não veio", async () => {
 			const duplicate = testVideo({
 				platform: "tiktok",
@@ -433,7 +483,6 @@ describe("descoberta de vídeos (RN-110 a RN-119)", () => {
 			await runQueued();
 			let page = await getVideoSearch(deps, client, view.requestId ?? "", {
 				sort: "relevance",
-				offset: 0,
 			});
 			expect(page.results[0]?.growing).toBe(false);
 
@@ -449,26 +498,24 @@ describe("descoberta de vídeos (RN-110 a RN-119)", () => {
 			await runQueued();
 			page = await getVideoSearch(deps, client, view.requestId ?? "", {
 				sort: "relevance",
-				offset: 0,
 			});
 			expect(page.results[0]?.growing).toBe(true);
 		});
 
-		it("RN-119: pagina os resultados em blocos", async () => {
-			deps.discoverySettings = { ...deps.discoverySettings, pageSize: 1 };
+		it("RN-119: mostra só os vídeos mais bem colocados, sem carregar mais", async () => {
+			deps.discoverySettings = { ...deps.discoverySettings, shownResults: 1 };
 			const view = await discoverVideos(deps, client, input());
 			await runQueued();
-			const first = await getVideoSearch(deps, client, view.requestId ?? "", {
+			const shown = await getVideoSearch(deps, client, view.requestId ?? "", {
 				sort: "relevance",
-				offset: 0,
 			});
-			expect(first).toMatchObject({ total: 2, nextOffset: 1 });
-			const second = await getVideoSearch(deps, client, view.requestId ?? "", {
-				sort: "relevance",
-				offset: 1,
-			});
-			expect(second).toMatchObject({ nextOffset: null });
-			expect(second.results[0]?.id).not.toBe(first.results[0]?.id);
+			expect(shown.total).toBe(2);
+			expect(shown.results).toHaveLength(1);
+			expect(shown).not.toHaveProperty("nextOffset");
+		});
+
+		it("RN-119: por padrão, mostra 5 vídeos", () => {
+			expect(DEFAULT_DISCOVERY_SETTINGS.shownResults).toBe(5);
 		});
 	});
 });

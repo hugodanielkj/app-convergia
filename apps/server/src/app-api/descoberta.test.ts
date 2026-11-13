@@ -37,7 +37,6 @@ type View = {
 	requestId: string | null;
 	status: string;
 	total: number;
-	nextOffset: number | null;
 	results: { externalId: string; platform: string }[];
 	error?: string;
 	message?: string;
@@ -112,7 +111,7 @@ describe("API do app: descoberta de vídeos (RN-110 a RN-119)", () => {
 			videoProvider: provider,
 			discoveryQueue: queue,
 			queryExpander: null,
-			discoverySettings: { ...DEFAULT_DISCOVERY_SETTINGS, pageSize: 2 },
+			discoverySettings: { ...DEFAULT_DISCOVERY_SETTINGS, shownResults: 2 },
 		};
 		deps = base;
 		app = createApp({
@@ -126,7 +125,7 @@ describe("API do app: descoberta de vídeos (RN-110 a RN-119)", () => {
 
 	const path = "/companies/company-a/videos/searches";
 
-	it("pesquisa, acompanha e pagina os resultados", async () => {
+	it("RN-119: pesquisa, acompanha e mostra só os mais bem colocados", async () => {
 		const started = await call(clientA, "POST", path, {
 			query: "receita de bolo fácil",
 			platform: "tiktok",
@@ -141,18 +140,8 @@ describe("API do app: descoberta de vídeos (RN-110 a RN-119)", () => {
 			"GET",
 			`${path}/${started.body.requestId}?sort=recent`,
 		);
-		expect(first.body).toMatchObject({
-			status: "ready",
-			total: 3,
-			nextOffset: 2,
-		});
+		expect(first.body).toMatchObject({ status: "ready", total: 3 });
 		expect(first.body.results.map((v) => v.externalId)).toEqual(["tt1", "tt2"]);
-		const more = await call(
-			clientA,
-			"GET",
-			`${path}/${started.body.requestId}?sort=recent&offset=2`,
-		);
-		expect(more.body.results.map((v) => v.externalId)).toEqual(["tt3"]);
 	});
 
 	it("valida a pesquisa e os filtros", async () => {
@@ -167,7 +156,7 @@ describe("API do app: descoberta de vídeos (RN-110 a RN-119)", () => {
 				})
 			).status,
 		).toBe(422);
-		expect((await call(clientA, "GET", `${path}/x?offset=-1`)).status).toBe(
+		expect((await call(clientA, "GET", `${path}/x?sort=melhores`)).status).toBe(
 			422,
 		);
 		expect(queue.enqueued).toHaveLength(0);

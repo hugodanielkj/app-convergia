@@ -390,9 +390,9 @@ Toda ferramenta que opera dentro de uma empresa recebe o parâmetro `company_id`
 | Ferramenta | Descrição | E | C | J |
 |---|---|---|---|---|
 | `discover_videos` | Pesquisa vídeos populares do Instagram Reels e do TikTok por assunto (✅ RN-110 a RN-119). Responde do cache ou põe a coleta na fila | ✔ | ✔ (por usuário, RN-118) | ✔ |
-| `get_discovered_videos` | Andamento e resultados de uma pesquisa, com ordenação e paginação | | | |
+| `get_discovered_videos` | Andamento e os 5 vídeos sugeridos de uma pesquisa, na ordenação escolhida (RN-119) | | | |
 
-O catálogo (`discovered_videos`, `video_metric_observations`) e o cache de pesquisas (`video_queries`, `video_query_results`) guardam dados públicos e são compartilhados entre as empresas; quem pesquisou fica em `video_search_requests`, isolada por empresa com RLS. O provedor fica atrás da porta `VideoProvider` (`packages/core/src/descoberta/ports/`); a implementação atual é o ScrapeCreators (`packages/infra/src/scraping/`). Cada chamada ao provedor vai para `video_provider_calls`.
+O catálogo (`discovered_videos`, `video_metric_observations`) e o cache de pesquisas (`video_queries`, `video_query_results`) guardam dados públicos e são compartilhados entre as empresas; quem pesquisou fica em `video_search_requests`, isolada por empresa com RLS. O provedor fica atrás da porta `VideoProvider` (`packages/core/src/descoberta/ports/`); a implementação atual é o ScrapeCreators (`packages/infra/src/scraping/`). Cada chamada ao provedor vai para `video_provider_calls`. A coleta faz as buscas de cada plataforma e termo ao mesmo tempo (até `parallelCalls`, 6), começa pela frase original sem esperar a IA sugerir variações e pede as métricas dos Reels também em paralelo, sempre dentro do limite de chamadas por pesquisa (RN-118).
 
 ### Carrossel
 | Ferramenta | Descrição | E | C | J |

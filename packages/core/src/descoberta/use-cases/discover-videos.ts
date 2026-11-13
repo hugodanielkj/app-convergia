@@ -35,7 +35,7 @@ export async function discoverVideos(
 	const queryText = cleanQuery(input.query);
 	const platforms = platformsFor(input.platform);
 	const key = cacheKey({ query: queryText, platforms, period: input.period });
-	const page = { sort: input.sort, offset: 0 };
+	const page = { sort: input.sort };
 
 	const existing = await deps.discovery.findQueryByKey(key);
 	const record = (
@@ -178,7 +178,7 @@ export async function getVideoSearch(
 	deps: DiscoveryDeps,
 	actor: ActorContext,
 	requestId: string,
-	page: { sort: SearchSort; offset: number },
+	page: { sort: SearchSort },
 ): Promise<VideoSearchView> {
 	const request = await deps.discovery.findRequest(actor.companyId, requestId);
 	if (!request) throw searchNotFound();
