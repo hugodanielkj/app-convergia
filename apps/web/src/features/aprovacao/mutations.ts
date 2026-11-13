@@ -1,12 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../api/client";
-import { contentsKey } from "../../api/queries";
 
 /** Enviar, cancelar, aprovar e recusar. Toda decisão recarrega os cards e as listas. */
 export function useApprovalMutations(companyId: string) {
 	const queryClient = useQueryClient();
 	const onSuccess = () =>
-		queryClient.invalidateQueries({ queryKey: contentsKey(companyId) });
+		queryClient.invalidateQueries({ queryKey: ["companies", companyId] });
 	const param = (contentId: string) => ({ companyId, contentId });
 
 	return {

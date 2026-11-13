@@ -20,22 +20,22 @@ const AGENCY_TABS: { view: ApprovalView; label: string; empty: string }[] = [
 	{
 		view: "pending",
 		label: "Aguardando",
-		empty: "Nenhum roteiro aguardando o cliente.",
+		empty: "Nenhum item aguardando o cliente.",
 	},
 	{
 		view: "to_submit",
 		label: "Para enviar",
-		empty: "Nenhum roteiro em preparo. Gere ou edite um roteiro para enviar.",
+		empty: "Nenhum item em preparo. Gere ou edite um roteiro para enviar.",
 	},
 	{
 		view: "rejected",
 		label: "Recusados",
-		empty: "Nenhum roteiro recusado.",
+		empty: "Nenhum item recusado.",
 	},
 	{
 		view: "approved",
 		label: "Aprovados",
-		empty: "Nenhum roteiro aprovado ainda.",
+		empty: "Nenhum item aprovado ainda.",
 	},
 ];
 
@@ -81,15 +81,15 @@ export function ApprovalsPage({
 				<h1 className="text-3xl font-medium">Aprovações</h1>
 				<p className="text-zinc-600 dark:text-zinc-400">
 					{isAgency
-						? "Roteiros que a agência preparou para este cliente."
-						: "Roteiros que a agência preparou para você aprovar."}
+						? "Roteiros e ideias que a agência preparou para este cliente."
+						: "Roteiros e ideias que a agência preparou para você aprovar."}
 				</p>
 			</div>
 
 			{isAgency && (
 				<div
 					role="tablist"
-					aria-label="Situação dos roteiros"
+					aria-label="Situação dos itens"
 					className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1"
 				>
 					{AGENCY_TABS.map((t) => (
@@ -140,7 +140,7 @@ export function ApprovalsPage({
 				<EmptyState icon={CircleCheckBig} title="Nada por aqui">
 					{isAgency
 						? tab?.empty
-						: "Quando a agência enviar um roteiro para você aprovar, ele aparece aqui."}
+						: "Quando a agência enviar um item para você aprovar, ele aparece aqui."}
 				</EmptyState>
 			) : (
 				<ul className="flex flex-col gap-3">
@@ -174,6 +174,7 @@ export function ApprovalsPage({
 				key={
 					decision ? `${decision.mode}-${decision.item.content.id}` : "fechada"
 				}
+				itemType={decision?.item.content.approvalItemType ?? "script"}
 				mode={decision?.mode ?? null}
 				busy={busy}
 				error={decisionError ? errorMessage(decisionError) : null}
@@ -233,7 +234,11 @@ function ApprovalCard({
 		<article className="flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
 			<div className="flex flex-col gap-0.5">
 				<Link
-					to="/empresas/$companyId/cards/$contentId"
+					to={
+						content.approvalItemType === "idea"
+							? "/empresas/$companyId/ideias"
+							: "/empresas/$companyId/cards/$contentId"
+					}
 					params={{ companyId: content.companyId, contentId: content.id }}
 					className="text-lg font-semibold underline-offset-2 hover:underline"
 				>
@@ -254,7 +259,14 @@ function ApprovalCard({
 					)}
 			</div>
 
-			{!isAgency && <ScriptPreview script={content.script} />}
+			{content.approvalItemType === "idea" ? (
+				<div>
+					<p className="whitespace-pre-wrap">{content.script.body}</p>
+					<p className="text-sm">Por que funciona: {content.script.caption}</p>
+				</div>
+			) : (
+				!isAgency && <ScriptPreview script={content.script} />
+			)}
 
 			{!isAgency && view === "pending" && (
 				<div className="flex gap-2">
@@ -316,11 +328,15 @@ function ApprovalCard({
 
 			{isAgency && view === "rejected" && (
 				<Link
-					to="/empresas/$companyId/cards/$contentId"
+					to={
+						content.approvalItemType === "idea"
+							? "/empresas/$companyId/ideias"
+							: "/empresas/$companyId/cards/$contentId"
+					}
 					params={{ companyId: content.companyId, contentId: content.id }}
 					className={secondary}
 				>
-					Ajustar roteiro
+					Revisar conteúdo
 				</Link>
 			)}
 		</article>

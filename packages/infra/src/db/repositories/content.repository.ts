@@ -26,7 +26,7 @@ type Insert = typeof contents.$inferInsert;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function toContent(row: Row): Content {
+export function toContent(row: Row): Content {
 	return {
 		id: row.id,
 		companyId: row.companyId,

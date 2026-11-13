@@ -99,3 +99,11 @@ Limitações do provedor: a busca do Instagram usa resultados indexados pelo Goo
 - Todo Pull Request roda: título do PR, lint, tipos, testes, integração com Postgres e auditoria de dependências.
 - O Claude só faz o merge com o CI verde.
 - No GitHub, proteja a `main` exigindo o check **CI** (Settings → Branches).
+
+### Ideias, referências e fontes (passo 8)
+
+- **Ideias:** em Início, Criar ou Mais → Ideias para a semana. Informe o tema e gere sugestões com motivo. São 5 gerações por empresa por dia, compartilhadas entre agência e cliente. Regenerar substitui as sugestões ativas. A agência envia cada ideia pela tela Aprovações; o cliente aprova ou recusa. Aprovar não cria card: use **Virar card**, sem IA e sem consumo adicional de cota.
+- **Referências no card:** anexe ou remova links sem alterar o roteiro ou a aprovação. As referências anexadas e as fontes prontas entram no contexto de geração/refino (RN-076).
+- **Decisões adiadas:** salvar novas referências e gerar análises novas continuam bloqueados (Q-17, Q-21). Fontes possuem validação e consultas, mas adicionar/extrair, repetir extração, criar card de fonte e pedir envio de PDF também permanecem bloqueados até definir cotas (Q-21). A fila de extração, a coleta de referências e o armazenamento/assinatura de PDFs ainda precisam ser conectados quando essas operações forem liberadas. Nenhum dado é coletado nem arquivo enviado enquanto estiverem bloqueados. A leitura de análises já salvas não reserva cota.
+
+Após atualizar o código, aplique as migrações no banco **local** com `pnpm db:migrate` antes de iniciar o servidor. Para integração com o servidor de desenvolvimento ligado, aponte `DATABASE_URL` para um banco local separado, por exemplo `convergia_teste_fila`, para o worker não consumir os jobs dos testes.

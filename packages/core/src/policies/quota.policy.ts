@@ -8,6 +8,7 @@ import { DomainError, NotDecidedYet } from "../shared/domain-error";
 export const DEFAULT_DAILY_QUOTAS = {
 	generate_scripts: 10,
 	refine_content: 30,
+	regenerate_brainstorm: 5,
 } as const;
 
 /** 📎 RN-071: gerar opções avulsas de cada parte do roteiro consome cota. */
@@ -46,6 +47,7 @@ export function userQuotaExhausted(limit: number): DomainError {
 const QUOTA_LABEL: Record<QuotaTool, string> = {
 	generate_scripts: "gerar roteiro",
 	refine_content: "refinar roteiro",
+	regenerate_brainstorm: "gerar ideias",
 	generate_hook_options: "opções de gancho",
 	generate_body_options: "opções de corpo",
 	generate_cta_options: "opções de CTA",

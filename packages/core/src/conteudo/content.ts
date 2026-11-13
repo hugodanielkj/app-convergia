@@ -45,6 +45,8 @@ export type ScriptField = (typeof SCRIPT_FIELDS)[number];
 
 /** Card: a unidade de conteúdo (RN-060). */
 export type Content = {
+	/** Tipo do item na projeção de aprovação; ausente nos cards existentes. */
+	approvalItemType?: "script" | "idea";
 	id: string;
 	companyId: string;
 	createdByUserId: string;

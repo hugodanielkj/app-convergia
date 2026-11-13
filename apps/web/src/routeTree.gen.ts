@@ -17,8 +17,10 @@ import { Route as EmpresasCompanyIdIndexRouteImport } from './routes/empresas/$c
 import { Route as EmpresasCompanyIdAprovacoesRouteImport } from './routes/empresas/$companyId/aprovacoes'
 import { Route as EmpresasCompanyIdCalendarioRouteImport } from './routes/empresas/$companyId/calendario'
 import { Route as EmpresasCompanyIdDescobrirRouteImport } from './routes/empresas/$companyId/descobrir'
+import { Route as EmpresasCompanyIdIdeiasRouteImport } from './routes/empresas/$companyId/ideias'
 import { Route as EmpresasCompanyIdLixeiraRouteImport } from './routes/empresas/$companyId/lixeira'
 import { Route as EmpresasCompanyIdMaisRouteImport } from './routes/empresas/$companyId/mais'
+import { Route as EmpresasCompanyIdReferenciasRouteImport } from './routes/empresas/$companyId/referencias'
 import { Route as EmpresasCompanyIdCardsContentIdRouteImport } from './routes/empresas/$companyId/cards/$contentId'
 import { Route as EmpresasCompanyIdRoteirosNovoRouteImport } from './routes/empresas/$companyId/roteiros/novo'
 
@@ -65,6 +67,11 @@ const EmpresasCompanyIdDescobrirRoute =
     path: '/descobrir',
     getParentRoute: () => EmpresasCompanyIdRouteRoute,
   } as any)
+const EmpresasCompanyIdIdeiasRoute = EmpresasCompanyIdIdeiasRouteImport.update({
+  id: '/ideias',
+  path: '/ideias',
+  getParentRoute: () => EmpresasCompanyIdRouteRoute,
+} as any)
 const EmpresasCompanyIdLixeiraRoute =
   EmpresasCompanyIdLixeiraRouteImport.update({
     id: '/lixeira',
@@ -76,6 +83,12 @@ const EmpresasCompanyIdMaisRoute = EmpresasCompanyIdMaisRouteImport.update({
   path: '/mais',
   getParentRoute: () => EmpresasCompanyIdRouteRoute,
 } as any)
+const EmpresasCompanyIdReferenciasRoute =
+  EmpresasCompanyIdReferenciasRouteImport.update({
+    id: '/referencias',
+    path: '/referencias',
+    getParentRoute: () => EmpresasCompanyIdRouteRoute,
+  } as any)
 const EmpresasCompanyIdCardsContentIdRoute =
   EmpresasCompanyIdCardsContentIdRouteImport.update({
     id: '/cards/$contentId',
@@ -97,8 +110,10 @@ export interface FileRoutesByFullPath {
   '/empresas/$companyId/aprovacoes': typeof EmpresasCompanyIdAprovacoesRoute
   '/empresas/$companyId/calendario': typeof EmpresasCompanyIdCalendarioRoute
   '/empresas/$companyId/descobrir': typeof EmpresasCompanyIdDescobrirRoute
+  '/empresas/$companyId/ideias': typeof EmpresasCompanyIdIdeiasRoute
   '/empresas/$companyId/lixeira': typeof EmpresasCompanyIdLixeiraRoute
   '/empresas/$companyId/mais': typeof EmpresasCompanyIdMaisRoute
+  '/empresas/$companyId/referencias': typeof EmpresasCompanyIdReferenciasRoute
   '/empresas/$companyId/': typeof EmpresasCompanyIdIndexRoute
   '/empresas/$companyId/cards/$contentId': typeof EmpresasCompanyIdCardsContentIdRoute
   '/empresas/$companyId/roteiros/novo': typeof EmpresasCompanyIdRoteirosNovoRoute
@@ -110,8 +125,10 @@ export interface FileRoutesByTo {
   '/empresas/$companyId/aprovacoes': typeof EmpresasCompanyIdAprovacoesRoute
   '/empresas/$companyId/calendario': typeof EmpresasCompanyIdCalendarioRoute
   '/empresas/$companyId/descobrir': typeof EmpresasCompanyIdDescobrirRoute
+  '/empresas/$companyId/ideias': typeof EmpresasCompanyIdIdeiasRoute
   '/empresas/$companyId/lixeira': typeof EmpresasCompanyIdLixeiraRoute
   '/empresas/$companyId/mais': typeof EmpresasCompanyIdMaisRoute
+  '/empresas/$companyId/referencias': typeof EmpresasCompanyIdReferenciasRoute
   '/empresas/$companyId': typeof EmpresasCompanyIdIndexRoute
   '/empresas/$companyId/cards/$contentId': typeof EmpresasCompanyIdCardsContentIdRoute
   '/empresas/$companyId/roteiros/novo': typeof EmpresasCompanyIdRoteirosNovoRoute
@@ -125,8 +142,10 @@ export interface FileRoutesById {
   '/empresas/$companyId/aprovacoes': typeof EmpresasCompanyIdAprovacoesRoute
   '/empresas/$companyId/calendario': typeof EmpresasCompanyIdCalendarioRoute
   '/empresas/$companyId/descobrir': typeof EmpresasCompanyIdDescobrirRoute
+  '/empresas/$companyId/ideias': typeof EmpresasCompanyIdIdeiasRoute
   '/empresas/$companyId/lixeira': typeof EmpresasCompanyIdLixeiraRoute
   '/empresas/$companyId/mais': typeof EmpresasCompanyIdMaisRoute
+  '/empresas/$companyId/referencias': typeof EmpresasCompanyIdReferenciasRoute
   '/empresas/$companyId/': typeof EmpresasCompanyIdIndexRoute
   '/empresas/$companyId/cards/$contentId': typeof EmpresasCompanyIdCardsContentIdRoute
   '/empresas/$companyId/roteiros/novo': typeof EmpresasCompanyIdRoteirosNovoRoute
@@ -141,8 +160,10 @@ export interface FileRouteTypes {
     | '/empresas/$companyId/aprovacoes'
     | '/empresas/$companyId/calendario'
     | '/empresas/$companyId/descobrir'
+    | '/empresas/$companyId/ideias'
     | '/empresas/$companyId/lixeira'
     | '/empresas/$companyId/mais'
+    | '/empresas/$companyId/referencias'
     | '/empresas/$companyId/'
     | '/empresas/$companyId/cards/$contentId'
     | '/empresas/$companyId/roteiros/novo'
@@ -154,8 +175,10 @@ export interface FileRouteTypes {
     | '/empresas/$companyId/aprovacoes'
     | '/empresas/$companyId/calendario'
     | '/empresas/$companyId/descobrir'
+    | '/empresas/$companyId/ideias'
     | '/empresas/$companyId/lixeira'
     | '/empresas/$companyId/mais'
+    | '/empresas/$companyId/referencias'
     | '/empresas/$companyId'
     | '/empresas/$companyId/cards/$contentId'
     | '/empresas/$companyId/roteiros/novo'
@@ -168,8 +191,10 @@ export interface FileRouteTypes {
     | '/empresas/$companyId/aprovacoes'
     | '/empresas/$companyId/calendario'
     | '/empresas/$companyId/descobrir'
+    | '/empresas/$companyId/ideias'
     | '/empresas/$companyId/lixeira'
     | '/empresas/$companyId/mais'
+    | '/empresas/$companyId/referencias'
     | '/empresas/$companyId/'
     | '/empresas/$companyId/cards/$contentId'
     | '/empresas/$companyId/roteiros/novo'
@@ -240,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresasCompanyIdDescobrirRouteImport
       parentRoute: typeof EmpresasCompanyIdRouteRoute
     }
+    '/empresas/$companyId/ideias': {
+      id: '/empresas/$companyId/ideias'
+      path: '/ideias'
+      fullPath: '/empresas/$companyId/ideias'
+      preLoaderRoute: typeof EmpresasCompanyIdIdeiasRouteImport
+      parentRoute: typeof EmpresasCompanyIdRouteRoute
+    }
     '/empresas/$companyId/lixeira': {
       id: '/empresas/$companyId/lixeira'
       path: '/lixeira'
@@ -252,6 +284,13 @@ declare module '@tanstack/react-router' {
       path: '/mais'
       fullPath: '/empresas/$companyId/mais'
       preLoaderRoute: typeof EmpresasCompanyIdMaisRouteImport
+      parentRoute: typeof EmpresasCompanyIdRouteRoute
+    }
+    '/empresas/$companyId/referencias': {
+      id: '/empresas/$companyId/referencias'
+      path: '/referencias'
+      fullPath: '/empresas/$companyId/referencias'
+      preLoaderRoute: typeof EmpresasCompanyIdReferenciasRouteImport
       parentRoute: typeof EmpresasCompanyIdRouteRoute
     }
     '/empresas/$companyId/cards/$contentId': {
@@ -275,8 +314,10 @@ interface EmpresasCompanyIdRouteRouteChildren {
   EmpresasCompanyIdAprovacoesRoute: typeof EmpresasCompanyIdAprovacoesRoute
   EmpresasCompanyIdCalendarioRoute: typeof EmpresasCompanyIdCalendarioRoute
   EmpresasCompanyIdDescobrirRoute: typeof EmpresasCompanyIdDescobrirRoute
+  EmpresasCompanyIdIdeiasRoute: typeof EmpresasCompanyIdIdeiasRoute
   EmpresasCompanyIdLixeiraRoute: typeof EmpresasCompanyIdLixeiraRoute
   EmpresasCompanyIdMaisRoute: typeof EmpresasCompanyIdMaisRoute
+  EmpresasCompanyIdReferenciasRoute: typeof EmpresasCompanyIdReferenciasRoute
   EmpresasCompanyIdIndexRoute: typeof EmpresasCompanyIdIndexRoute
   EmpresasCompanyIdCardsContentIdRoute: typeof EmpresasCompanyIdCardsContentIdRoute
   EmpresasCompanyIdRoteirosNovoRoute: typeof EmpresasCompanyIdRoteirosNovoRoute
@@ -287,8 +328,10 @@ const EmpresasCompanyIdRouteRouteChildren: EmpresasCompanyIdRouteRouteChildren =
     EmpresasCompanyIdAprovacoesRoute: EmpresasCompanyIdAprovacoesRoute,
     EmpresasCompanyIdCalendarioRoute: EmpresasCompanyIdCalendarioRoute,
     EmpresasCompanyIdDescobrirRoute: EmpresasCompanyIdDescobrirRoute,
+    EmpresasCompanyIdIdeiasRoute: EmpresasCompanyIdIdeiasRoute,
     EmpresasCompanyIdLixeiraRoute: EmpresasCompanyIdLixeiraRoute,
     EmpresasCompanyIdMaisRoute: EmpresasCompanyIdMaisRoute,
+    EmpresasCompanyIdReferenciasRoute: EmpresasCompanyIdReferenciasRoute,
     EmpresasCompanyIdIndexRoute: EmpresasCompanyIdIndexRoute,
     EmpresasCompanyIdCardsContentIdRoute: EmpresasCompanyIdCardsContentIdRoute,
     EmpresasCompanyIdRoteirosNovoRoute: EmpresasCompanyIdRoteirosNovoRoute,

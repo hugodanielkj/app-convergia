@@ -16,6 +16,7 @@ export interface ApprovalRepository {
 		companyId: string,
 		input: {
 			contentId: string;
+			itemType?: "script" | "idea";
 			expect: { contentVersion: number; approvalStatus: ApprovalStatus };
 			snapshot: Script;
 			event: ApprovalEventDraft<"submitted">;
@@ -27,6 +28,7 @@ export interface ApprovalRepository {
 		companyId: string,
 		input: {
 			contentId: string;
+			itemType?: "script" | "idea";
 			requestId: string;
 			/** Versão que quem decide revisou; sem ela, decide sobre a versão atual. */
 			expectVersion: number | null;

@@ -58,6 +58,7 @@ const companyApi = client.companies[":companyId"];
 const searchesApi = companyApi.videos.searches;
 const contentApi = companyApi.contents[":contentId"];
 const approvalApi = contentApi.approval;
+const ideasApi = companyApi.ideas;
 
 type KanbanStatus = "idea" | "draft" | "edited" | "published";
 type ContentParams = { companyId: string; contentId: string };
@@ -67,6 +68,47 @@ export type VideoSort = "relevance" | "popularity" | "recent";
 
 export const api = {
 	me: () => call(client.me.$get()),
+	references: (companyId: string) =>
+		call(companyApi.references.$get({ param: { companyId } })),
+	saveReference: (companyId: string, url: string) =>
+		call(companyApi.references.$post({ param: { companyId }, json: { url } })),
+	deleteReference: (companyId: string, referenceId: string) =>
+		call(
+			companyApi.references[":referenceId"].$delete({
+				param: { companyId, referenceId },
+			}),
+		),
+	creatorAnalysis: (companyId: string, referenceId: string) =>
+		call(
+			companyApi.references[":referenceId"].analysis.$post({
+				param: { companyId, referenceId },
+			}),
+		),
+	contentReferences: (param: ContentParams) =>
+		call(contentApi.references.$get({ param })),
+	attachReference: (
+		param: ContentParams,
+		json: Parameters<typeof contentApi.references.$post>[0]["json"],
+	) => call(contentApi.references.$post({ param, json })),
+	detachReference: (param: ContentParams, referenceId: string) =>
+		call(
+			contentApi.references[":referenceId"].$delete({
+				param: { ...param, referenceId },
+			}),
+		),
+	contentSources: (param: ContentParams) =>
+		call(contentApi.sources.$get({ param })),
+	addSource: (
+		param: ContentParams,
+		json: Parameters<typeof contentApi.sources.$post>[0]["json"],
+	) => call(contentApi.sources.$post({ param, json })),
+	ideas: (companyId: string) => call(ideasApi.$get({ param: { companyId } })),
+	regenerateIdeas: (companyId: string, brief: string) =>
+		call(ideasApi.$post({ param: { companyId }, json: { brief } })),
+	acceptIdea: (companyId: string, ideaId: string) =>
+		call(ideasApi[":ideaId"].accept.$post({ param: { companyId, ideaId } })),
+	dismissIdea: (companyId: string, ideaId: string) =>
+		call(ideasApi[":ideaId"].$delete({ param: { companyId, ideaId } })),
 	companies: () => call(client.companies.$get()),
 	company: (companyId: string) =>
 		call(companyApi.$get({ param: { companyId } })),

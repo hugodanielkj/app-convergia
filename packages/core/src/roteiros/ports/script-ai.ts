@@ -15,6 +15,8 @@ export type AiCallMeta = {
 /** O que a IA sabe do card (✅ RN-076: sem módulo de marca, o contexto é o card e a empresa). */
 export type ScriptBrief = {
 	companyName: string;
+	sources?: { kind: string; text: string | null; url: string | null }[];
+	references?: { title: string; url: string; kind: string }[];
 	content: Pick<
 		Content,
 		| "title"

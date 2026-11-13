@@ -16,6 +16,19 @@ export function createFakeLlm(): LlmClient {
 				cta: "Salve este post para ver depois e mande para quem precisa.",
 				caption: `${title} ✨\n\nConta nos comentários o que você achou!`,
 			};
+			if (request.task === "brainstorm")
+				return {
+					output: {
+						ideas: [1, 2, 3, 4, 5].map((n) => ({
+							title: `Ideia simulada ${n}`,
+							text: `Mostre uma dica prática ${n} para seu público.`,
+							reason:
+								"Exemplo local para testar o fluxo, sem chamada de IA real.",
+						})),
+					},
+					inputTokens: null,
+					outputTokens: null,
+				};
 			if (request.task === "expand_query") {
 				// Sem variações inventadas: a busca segue com a frase original.
 				return {

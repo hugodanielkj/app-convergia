@@ -2,10 +2,9 @@ import { z } from "zod";
 import type { Content, CreatorKind, Script } from "../conteudo/content";
 
 /**
- * O que passa por aprovação (RN-201). Por enquanto só o roteiro do card; carrossel e ideias
- * entram com os módulos deles.
+ * O que passa por aprovação (RN-201): roteiro e ideia; carrossel entra com seu módulo.
  */
-export const APPROVAL_ITEM_TYPES = ["script"] as const;
+export const APPROVAL_ITEM_TYPES = ["script", "idea"] as const;
 export type ApprovalItemType = (typeof APPROVAL_ITEM_TYPES)[number];
 
 /** Situação de uma solicitação de aprovação (design §5.3). */

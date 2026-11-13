@@ -71,6 +71,20 @@
       "when": 1794599050838,
       "tag": "0009_aprovacao",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794603786183,
+      "tag": "0010_ideias",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794604177796,
+      "tag": "0011_referencias_fontes",
+      "breakpoints": true
     }
   ]
 }

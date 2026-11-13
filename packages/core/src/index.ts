@@ -80,6 +80,7 @@ export type {
 	ContentRepository,
 	NewContent,
 } from "./conteudo/ports/content-repository";
+export * from "./conteudo/source";
 export {
 	createContents,
 	MAX_BULK_CONTENTS,
@@ -97,6 +98,7 @@ export {
 	listContents,
 	listDeletedContents,
 } from "./conteudo/use-cases/read-contents";
+export * from "./conteudo/use-cases/sources";
 export { updateContent } from "./conteudo/use-cases/update-content";
 export type { QuotaRepository } from "./cotas/ports/quota-repository";
 export { withQuota } from "./cotas/with-quota";
@@ -168,7 +170,17 @@ export {
 	videoSearchInput,
 	videoSearchPageInput,
 } from "./descoberta/video";
+export {
+	brainstormInput,
+	type Idea,
+	type IdeaDraft,
+	ideaApprovalSubject,
+	ideaDraftSchema,
+} from "./ideias/idea";
+export type { BrainstormAi, IdeaRepository } from "./ideias/ports";
+export * from "./ideias/use-cases";
 export { TRASH_RETENTION_DAYS } from "./policies/content.policy";
+export { assertIdeaCanBecomeCard } from "./policies/ideas.policy";
 export {
 	assertCanWrite,
 	resolveActorContext,
@@ -183,6 +195,8 @@ export {
 	type UserQuotaTool,
 	userQuotaKey,
 } from "./policies/quota.policy";
+export * from "./referencias/knowledge";
+export * from "./referencias/use-cases";
 export { HISTORY_LIMIT, type HistoryEntry } from "./roteiros/history";
 export type {
 	AiCallMeta,

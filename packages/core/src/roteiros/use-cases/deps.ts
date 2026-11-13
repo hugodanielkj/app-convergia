@@ -1,12 +1,15 @@
 import type { CompanyRepository } from "../../acesso/ports/company-repository";
 import type { Content } from "../../conteudo/content";
 import type { ContentRepository } from "../../conteudo/ports/content-repository";
+import type { SourceRepository } from "../../conteudo/source";
 import type { QuotaRepository } from "../../cotas/ports/quota-repository";
+import type { KnowledgeRepository } from "../../referencias/knowledge";
 import type { ActorContext } from "../../shared/actor-context";
 import type { ScriptAi, ScriptBrief } from "../ports/script-ai";
 import type { ScriptRepository } from "../ports/script-repository";
-
 export type ScriptDeps = {
+	knowledge?: KnowledgeRepository;
+	sources?: SourceRepository;
 	companies: CompanyRepository;
 	contents: ContentRepository;
 	scripts: ScriptRepository;
@@ -16,7 +19,7 @@ export type ScriptDeps = {
 };
 
 export async function briefFor(
-	deps: Pick<ScriptDeps, "companies">,
+	deps: Pick<ScriptDeps, "companies" | "knowledge" | "sources">,
 	actor: ActorContext,
 	content: Content,
 ): Promise<ScriptBrief> {
@@ -27,5 +30,13 @@ export async function briefFor(
 	if (!company) {
 		throw new Error(`Empresa ${actor.companyId} sumiu durante a chamada.`);
 	}
-	return { companyName: company.name, content };
+	return {
+		companyName: company.name,
+		content,
+		references:
+			(await deps.knowledge?.listAttached(actor.companyId, content.id)) ?? [],
+		sources: (
+			(await deps.sources?.list(actor.companyId, content.id)) ?? []
+		).filter((s) => s.status === "ready"),
+	};
 }

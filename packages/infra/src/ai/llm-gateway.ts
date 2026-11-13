@@ -7,6 +7,7 @@ import { withCompany } from "../db/with-company";
 export type LlmMessage = { role: "user" | "assistant"; content: string };
 
 export type LlmTask =
+	| "brainstorm"
 	| "write_script"
 	| "refine_script"
 	| "suggest_options"

@@ -37,12 +37,14 @@ const COPY: Record<
 /** Folha para recusar com motivo ou aprovar em nome do cliente. */
 export function DecisionSheet({
 	mode,
+	itemType = "script",
 	busy = false,
 	error = null,
 	onClose,
 	onConfirm,
 }: {
 	mode: DecisionMode | null;
+	itemType?: "script" | "idea";
 	busy?: boolean;
 	error?: string | null;
 	onClose: () => void;
@@ -50,7 +52,15 @@ export function DecisionSheet({
 }) {
 	const id = useId();
 	const [reason, setReason] = useState("");
-	const copy = COPY[mode ?? "reject"];
+	const baseCopy = COPY[mode ?? "reject"];
+	const copy =
+		itemType === "idea" && mode === "reject"
+			? {
+					...baseCopy,
+					title: "Recusar ideia",
+					intro: "A ideia volta para a agência revisar.",
+				}
+			: baseCopy;
 	const trimmed = reason.trim();
 	const close = () => {
 		setReason("");
