@@ -77,7 +77,7 @@ export const api = {
 	content: (param: ContentParams) => call(contentApi.$get({ param })),
 	createContent: (
 		companyId: string,
-		json: { title: string; plannedDate?: string | null },
+		json: Parameters<typeof companyApi.contents.$post>[0]["json"],
 	) => call(companyApi.contents.$post({ param: { companyId }, json })),
 	updateContent: (
 		param: ContentParams,
@@ -92,9 +92,28 @@ export const api = {
 	deleteContent: (param: ContentParams) => call(contentApi.$delete({ param })),
 	restoreContent: (param: ContentParams) =>
 		call(contentApi.restore.$post({ param })),
+
+	generateScript: (param: ContentParams) =>
+		call(contentApi.script.$post({ param })),
+	refineChat: (param: ContentParams) => call(contentApi.refine.$get({ param })),
+	refine: (param: ContentParams, message: string) =>
+		call(contentApi.refine.$post({ param, json: { message } })),
+	reviewPreview: (
+		param: ContentParams,
+		messageId: string,
+		decision: "apply" | "discard",
+	) =>
+		call(
+			contentApi.refine[":messageId"][":decision"].$post({
+				param: { ...param, messageId, decision },
+			}),
+		),
 };
 
 export type Me = Awaited<ReturnType<typeof api.me>>;
 export type CompanySummary = Awaited<ReturnType<typeof api.company>>;
 export type ContentDto = Awaited<ReturnType<typeof api.content>>;
 export type ContentChanges = Parameters<typeof api.updateContent>[1];
+export type RefineMessageDto = Awaited<
+	ReturnType<typeof api.refineChat>
+>["messages"][number];

@@ -15,6 +15,7 @@ import {
 } from "react";
 import { type ContentDto, errorMessage } from "../../api/client";
 import { BottomSheet } from "../../components/bottom-sheet";
+import { ScriptAiActions } from "../roteiros/script-ai-actions";
 import { type ContentForm, diffForm, toForm } from "./content-form";
 import {
 	APPROVAL_BADGE,
@@ -50,7 +51,13 @@ function Field({
 }
 
 /** Tela do card (design §13.2): conteúdo, roteiro, data e coluna. */
-export function ContentEditor({ content }: { content: ContentDto }) {
+export function ContentEditor({
+	content,
+	startRefining = false,
+}: {
+	content: ContentDto;
+	startRefining?: boolean;
+}) {
 	const companyId = content.companyId;
 	const mutations = useContentMutations(companyId);
 	const navigate = useNavigate();
@@ -173,6 +180,11 @@ export function ContentEditor({ content }: { content: ContentDto }) {
 						</p>
 					)}
 				</div>
+				<ScriptAiActions
+					content={content}
+					unsavedChanges={dirty}
+					startRefining={startRefining}
+				/>
 				<Field label="Gancho">
 					<textarea
 						value={form.hook}

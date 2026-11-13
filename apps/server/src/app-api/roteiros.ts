@@ -15,7 +15,12 @@ import { validator } from "hono/validator";
 import { z } from "zod";
 import type { AppEnv } from "./env";
 
-const decisionParam = z.object({ decision: z.enum(PREVIEW_DECISIONS) });
+const reviewParams = z.object({
+	companyId: z.string(),
+	contentId: z.string(),
+	messageId: z.string(),
+	decision: z.enum(PREVIEW_DECISIONS),
+});
 
 /** Gerar e refinar o roteiro de um card (✅ RN-006; RN-070 a RN-074). */
 export function scriptRoutes(deps: ScriptDeps) {
@@ -54,10 +59,7 @@ export function scriptRoutes(deps: ScriptDeps) {
 		)
 		.post(
 			`${base}/refine/:messageId/:decision`,
-			validator("param", (value) => ({
-				...(value as Record<string, string>),
-				...parseInput(decisionParam, value),
-			})),
+			validator("param", (value) => parseInput(reviewParams, value)),
 			async (c) => {
 				const actor = await actorFor(c.get("user"), c.req.param("companyId"));
 				return c.json(

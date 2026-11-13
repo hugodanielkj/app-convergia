@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeftRight } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import {
@@ -47,6 +47,7 @@ function Shell({
 	const [creating, setCreating] = useState(false);
 	const openCreate = () => setCreating(true);
 	const openNewContent = useOpenNewContent();
+	const navigate = useNavigate();
 
 	return (
 		<div className="flex min-h-dvh">
@@ -77,6 +78,12 @@ function Shell({
 				open={creating}
 				onClose={() => setCreating(false)}
 				onNewContent={() => openNewContent()}
+				onCreateScript={() =>
+					void navigate({
+						to: "/empresas/$companyId/roteiros/novo",
+						params: { companyId },
+					})
+				}
 			/>
 		</div>
 	);

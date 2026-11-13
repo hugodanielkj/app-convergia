@@ -21,7 +21,10 @@ describe("tela Início", () => {
 		expect(
 			await screen.findByRole("heading", { name: "O que vamos fazer hoje?" }),
 		).toBeInTheDocument();
-		expect(screen.getByText("Criar roteiro")).toBeInTheDocument();
+		expect(screen.getByRole("link", { name: /Criar roteiro/ })).toHaveAttribute(
+			"href",
+			"/empresas/c1/roteiros/novo",
+		);
 		expect(screen.getByText("Ideias para a semana")).toBeInTheDocument();
 		expect(
 			screen.getByRole("link", { name: /Aprovações pendentes/ }),

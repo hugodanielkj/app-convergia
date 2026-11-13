@@ -24,15 +24,14 @@ export function Home({ companyId }: { companyId: string }) {
 					O que vamos fazer hoje?
 				</h1>
 				<div className="grid gap-3 sm:grid-cols-2">
-					<div
-						aria-disabled="true"
-						className="flex min-h-24 flex-col justify-between gap-3 rounded-3xl bg-brand-600 p-4 text-white sm:col-span-2"
+					<Link
+						to="/empresas/$companyId/roteiros/novo"
+						params={{ companyId }}
+						className="flex min-h-24 flex-col justify-between gap-3 rounded-3xl bg-brand-600 p-4 text-white active:scale-[0.99] sm:col-span-2"
 					>
 						<div className="flex items-start justify-between gap-2">
 							<FileText className="size-7" aria-hidden />
-							<span className="rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium">
-								Em breve
-							</span>
+							<ChevronRight className="size-5 text-brand-100" aria-hidden />
 						</div>
 						<div>
 							<p className="text-lg font-semibold">Criar roteiro</p>
@@ -40,7 +39,7 @@ export function Home({ companyId }: { companyId: string }) {
 								A IA escreve a partir de um tema ou de um texto seu.
 							</p>
 						</div>
-					</div>
+					</Link>
 					<div
 						aria-disabled="true"
 						className="flex min-h-24 flex-col justify-between gap-3 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800"

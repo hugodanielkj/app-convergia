@@ -44,3 +44,10 @@ export const contentQuery = (companyId: string, contentId: string) =>
 		queryKey: [...contentsKey(companyId), "one", contentId],
 		queryFn: () => api.content({ companyId, contentId }),
 	});
+
+/** Conversa de refino do roteiro de um card (RN-006). */
+export const refineChatQuery = (companyId: string, contentId: string) =>
+	queryOptions({
+		queryKey: [...contentsKey(companyId), "one", contentId, "refine"],
+		queryFn: () => api.refineChat({ companyId, contentId }),
+	});

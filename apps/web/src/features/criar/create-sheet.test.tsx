@@ -5,7 +5,14 @@ import { CREATE_OPTIONS, CreateSheet } from "./create-sheet";
 
 describe("menu Criar", () => {
 	it("as opções que ainda não existem ficam marcadas como em breve", () => {
-		render(<CreateSheet open onClose={() => {}} onNewContent={() => {}} />);
+		render(
+			<CreateSheet
+				open
+				onClose={() => {}}
+				onNewContent={() => {}}
+				onCreateScript={() => {}}
+			/>,
+		);
 
 		const dialog = screen.getByRole("dialog", { name: "Criar" });
 		expect(dialog).toBeInTheDocument();
@@ -18,7 +25,14 @@ describe("menu Criar", () => {
 
 	it("fecha com Esc e pelo botão Fechar", async () => {
 		const onClose = vi.fn();
-		render(<CreateSheet open onClose={onClose} onNewContent={() => {}} />);
+		render(
+			<CreateSheet
+				open
+				onClose={onClose}
+				onNewContent={() => {}}
+				onCreateScript={() => {}}
+			/>,
+		);
 
 		await userEvent.keyboard("{Escape}");
 		await userEvent.click(
@@ -30,7 +44,12 @@ describe("menu Criar", () => {
 
 	it("não renderiza nada fechado", () => {
 		render(
-			<CreateSheet open={false} onClose={() => {}} onNewContent={() => {}} />,
+			<CreateSheet
+				open={false}
+				onClose={() => {}}
+				onNewContent={() => {}}
+				onCreateScript={() => {}}
+			/>,
 		);
 
 		expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -39,7 +58,14 @@ describe("menu Criar", () => {
 	it("Novo card fecha o menu e abre a criação do card", async () => {
 		const onClose = vi.fn();
 		const onNewContent = vi.fn();
-		render(<CreateSheet open onClose={onClose} onNewContent={onNewContent} />);
+		render(
+			<CreateSheet
+				open
+				onClose={onClose}
+				onNewContent={onNewContent}
+				onCreateScript={() => {}}
+			/>,
+		);
 
 		await userEvent.click(screen.getByRole("button", { name: /Novo card/ }));
 

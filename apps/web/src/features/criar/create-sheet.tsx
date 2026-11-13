@@ -13,7 +13,7 @@ type CreateOption = {
 	label: string;
 	description: string;
 	icon: LucideIcon;
-	action?: "new-content";
+	action?: "new-content" | "create-script";
 };
 
 /** Menu do botão central "Criar" (design §13.2). As ações chegam com cada módulo (§12). */
@@ -22,6 +22,7 @@ export const CREATE_OPTIONS: CreateOption[] = [
 		label: "Criar roteiro",
 		description: "A IA escreve a partir de um tema ou de um texto",
 		icon: FileText,
+		action: "create-script",
 	},
 	{
 		label: "Novo card",
@@ -50,10 +51,12 @@ export function CreateSheet({
 	open,
 	onClose,
 	onNewContent,
+	onCreateScript,
 }: {
 	open: boolean;
 	onClose: () => void;
 	onNewContent: () => void;
+	onCreateScript: () => void;
 }) {
 	return (
 		<BottomSheet open={open} title="Criar" onClose={onClose}>
@@ -65,7 +68,8 @@ export function CreateSheet({
 							disabled={!action}
 							onClick={() => {
 								onClose();
-								onNewContent();
+								if (action === "create-script") onCreateScript();
+								else onNewContent();
 							}}
 							className="flex min-h-14 w-full items-center gap-4 rounded-2xl px-2 py-3 text-left hover:bg-zinc-100 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:hover:bg-zinc-800"
 						>
