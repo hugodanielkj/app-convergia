@@ -3,5 +3,13 @@ export { InMemoryApiKeyRepository } from "./acesso/testing/in-memory-api-key-rep
 export { InMemoryCompanyRepository } from "./acesso/testing/in-memory-company-repository";
 export { InMemoryContentRepository } from "./conteudo/testing/in-memory-content-repository";
 export { InMemoryQuotaRepository } from "./cotas/testing/in-memory-quota-repository";
+export {
+	FakeDiscoveryQueue,
+	FakeQueryExpander,
+	FakeVideoProvider,
+	testDiscoveryDeps,
+	testVideo,
+} from "./descoberta/testing/fakes";
+export { InMemoryDiscoveryRepository } from "./descoberta/testing/in-memory-discovery-repository";
 export { FakeScriptAi } from "./roteiros/testing/fake-script-ai";
 export { InMemoryScriptRepository } from "./roteiros/testing/in-memory-script-repository";

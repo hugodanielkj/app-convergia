@@ -77,6 +77,23 @@ Quando ele pedir permissão, responda "sim", "não" ou dê outra instrução. A 
 4. `pnpm dev` sobe o servidor (MCP em `http://localhost:3000/api/mcp`). Em outro terminal, `pnpm dev:web` sobe o app web em `http://localhost:5173`.
 5. `pnpm db:seed` cria uma empresa e dois usuários de exemplo e mostra uma chave de API para cada um. Use a chave na tela de entrada do app web (só em desenvolvimento) ou no cabeçalho `Authorization: Bearer <chave>` do seu cliente MCP. A chave aparece só nessa hora; rodar de novo gera outra.
 
+## Descoberta de vídeos: configurar o provedor
+
+A tela "Descobrir vídeos" (menu **Mais**) e as ferramentas MCP `discover_videos` e `get_discovered_videos` pesquisam vídeos do Instagram Reels e do TikTok pelo [ScrapeCreators](https://scrapecreators.com). Sem a chave, tudo funciona, mas a tela avisa que a integração não está configurada e não mostra vídeo nenhum.
+
+1. Crie uma conta em `app.scrapecreators.com` e copie a chave de API. A conta grátis vem com 100 créditos; depois, os pacotes são pagos (cada chamada custa 1 crédito).
+2. No `.env` (nunca no código nem no commit), preencha `SCRAPECREATORS_API_KEY=<sua chave>`.
+3. Reinicie `pnpm dev`. O terminal mostra `Descoberta de vídeos: scrapecreators`.
+
+Custo e limites, todos no `.env.example`:
+
+- Uma pesquisa nova gasta no máximo `VIDEO_SEARCH_MAX_CALLS` créditos (padrão 8): buscas nas duas plataformas mais as visualizações de até `VIDEO_SEARCH_METRIC_REFRESH` Reels (padrão 5), que a busca do Instagram não traz.
+- Pesquisa repetida dentro de `VIDEO_SEARCH_CACHE_TTL_HOURS` (padrão 6) sai do cache, sem gastar crédito.
+- Cada usuário faz até `VIDEO_SEARCH_DAILY_LIMIT_PER_USER` pesquisas novas por dia (padrão 20) e `VIDEO_SEARCH_PER_MINUTE_LIMIT` por minuto (padrão 5).
+- `VIDEO_SEARCH_AI_EXPANSION=false` desliga as variações da pesquisa sugeridas pela IA.
+
+Limitações do provedor: a busca do Instagram usa resultados indexados pelo Google, então é parcial e pode trazer menos Reels recentes; as métricas são as públicas no momento da coleta. Cada chamada fica registrada na tabela `video_provider_calls` (latência, erro e créditos) e cada pesquisa em `video_search_requests` (acerto de cache). Para trocar de provedor, implemente a porta `VideoProvider` em `packages/infra/src/scraping/` e troque `createVideoProvider`.
+
 ## CI
 
 - Todo Pull Request roda: título do PR, lint, tipos, testes, integração com Postgres e auditoria de dependências.

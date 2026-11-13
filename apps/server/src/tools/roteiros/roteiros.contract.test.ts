@@ -5,6 +5,7 @@ import {
 	InMemoryContentRepository,
 	InMemoryQuotaRepository,
 	InMemoryScriptRepository,
+	testDiscoveryDeps,
 } from "@convergia/core/testing";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
@@ -84,6 +85,7 @@ describe("contrato MCP: roteiros", () => {
 			scripts: new InMemoryScriptRepository(),
 			scriptAi: new FakeScriptAi(),
 			quotas: new InMemoryQuotaRepository(),
+			...testDiscoveryDeps(),
 			now: () => new Date("2026-11-12T12:00:00Z"),
 		};
 	});

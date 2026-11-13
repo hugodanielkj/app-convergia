@@ -7,11 +7,28 @@ export {
 	type LlmClient,
 	type LlmGateway,
 } from "./ai/llm-gateway";
+export { createQueryExpander } from "./ai/query-expander";
 export { createScriptAi } from "./ai/script-ai";
 export { createDb, type Db } from "./db/client";
 export { runMigrations } from "./db/migrate";
 export { createApiKeyRepository } from "./db/repositories/api-key.repository";
 export { createCompanyRepository } from "./db/repositories/company.repository";
 export { createContentRepository } from "./db/repositories/content.repository";
+export { createDiscoveryRepository } from "./db/repositories/discovery.repository";
+export { createProviderCallLog } from "./db/repositories/provider-call-log";
 export { createQuotaRepository } from "./db/repositories/quota.repository";
 export { createScriptRepository } from "./db/repositories/script.repository";
+export {
+	createDiscoveryQueue,
+	DISCOVERY_QUEUE,
+	startJobs,
+	workDiscoveryQueue,
+} from "./jobs/discovery-queue";
+export {
+	createVideoProvider,
+	discoverySettingsFromEnv,
+} from "./scraping/discovery-config";
+export {
+	createScrapeCreatorsProvider,
+	type ProviderCall,
+} from "./scraping/scrapecreators-provider";

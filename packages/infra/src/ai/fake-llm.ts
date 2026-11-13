@@ -16,6 +16,14 @@ export function createFakeLlm(): LlmClient {
 				cta: "Salve este post para ver depois e mande para quem precisa.",
 				caption: `${title} ✨\n\nConta nos comentários o que você achou!`,
 			};
+			if (request.task === "expand_query") {
+				// Sem variações inventadas: a busca segue com a frase original.
+				return {
+					output: { variations: [] },
+					inputTokens: null,
+					outputTokens: null,
+				};
+			}
 			if (request.task === "suggest_options") {
 				return {
 					output: {

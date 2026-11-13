@@ -1,6 +1,7 @@
 import {
 	type CompanyRepository,
 	type ContentRepository,
+	type DiscoveryDeps,
 	listCompanies,
 	type QuotaRepository,
 	resolveActorContext,
@@ -11,11 +12,12 @@ import {
 import { Hono } from "hono";
 import type { Authenticate } from "../auth/authenticate";
 import { contentRoutes } from "./conteudo";
+import { discoveryRoutes } from "./descoberta";
 import type { AppEnv } from "./env";
 import { toAppError } from "./errors";
 import { scriptRoutes } from "./roteiros";
 
-export type AppApiDeps = {
+export type AppApiDeps = DiscoveryDeps & {
 	authenticate: Authenticate;
 	companies: CompanyRepository;
 	contents: ContentRepository;
@@ -62,7 +64,8 @@ export function createAppApi(deps: AppApiDeps) {
 			return c.json({ id: company.id, name: company.name });
 		})
 		.route("/", contentRoutes(deps))
-		.route("/", scriptRoutes(deps));
+		.route("/", scriptRoutes(deps))
+		.route("/", discoveryRoutes(deps));
 }
 
 export type AppApi = ReturnType<typeof createAppApi>;

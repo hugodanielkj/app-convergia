@@ -46,6 +46,7 @@ Ajuda cada empresa cliente a **planejar e produzir conteúdo orgânico para Inst
 | **Carrossel** | Criar carrossel (planejar, escrever lâminas, gerar arte) e renderizar as imagens |
 | **Aprovação** | Fluxo novo, que o Dalea não tem (seção 5) |
 | **App web** | Telas mobile first para todos os módulos acima, instalável como PWA (RN-005 a RN-007) |
+| **Descoberta de vídeos** | Pesquisar em linguagem natural vídeos reais e populares do Instagram Reels e do TikTok (RN-110 a RN-119). *(Incluída em 13/11/2026.)* |
 | **Cotas** | Limite diário de uso das ferramentas de IA e de scraping |
 
 ### 2.2 Fora do protótipo
@@ -54,10 +55,10 @@ Ajuda cada empresa cliente a **planejar e produzir conteúdo orgânico para Inst
 |---|---|---|
 | Editor de vídeo (cortes, legendas, zooms, renderização) | **Removido do produto** | ✅ |
 | Módulo de marca (ficha da empresa, brand kit, entrevista de estratégia, fatos, restrições, memória) | Depois | ✅ |
-| Catálogo viral compartilhado (vídeos e criadores de terceiros) | Fase 2 | ✅ |
+| Catálogo viral compartilhado (vídeos e criadores de terceiros): ocultar criadores, salvar vídeos do catálogo, feed "para você" | Fase 2. A pesquisa de vídeos por assunto entrou no protótipo em 13/11/2026 (RN-110 a RN-119) | ✅ |
 | Benchmarks de nicho (dependem do catálogo) | Fase 2 | 📎 depende do catálogo |
 | Tráfego pago (campanhas de anúncios) | Fase 2 | ✅ |
-| TikTok | Depois | ✅ |
+| TikTok (conexão de conta, métricas, publicação) | Depois. Só a descoberta de vídeos já pesquisa no TikTok (RN-110) | ✅ |
 | Agendamento e publicação de carrossel no Instagram | Depois | ✅ |
 | Aprovação da data de planejamento no calendário | Depois | ✅ |
 | Cobrança e assinatura | Futuro | ✅ |
@@ -196,7 +197,22 @@ As regras desta seção são 📎 **Referência Dalea**, exceto a RN-045, que fo
 - 📎 **RN-091** — **Excluir uma referência é definitivo.**
 - 📎 **RN-092** — Análise aprofundada de um criador de referência (posicionamento, pilares, público, tom, formatos, ganchos, o que adaptar). Se já existe análise salva, devolve a salva. Consome cota.
 - 📎 **RN-093** — O Dalea limita a "até 3 criadores de referência" no plano. ❓ Teremos limite de criadores de referência por empresa? (Q-17)
-- ✅ **RN-094** — Busca no catálogo viral, ocultar criadores e salvar vídeos do catálogo ficam para a **fase 2**.
+- ✅ **RN-094** — Ocultar criadores e salvar vídeos do catálogo ficam para a **fase 2**. *(Mudada em 13/11/2026: a pesquisa de vídeos por assunto entrou no protótipo, seção 4.9.)*
+
+### 4.9 Descoberta de vídeos
+
+Decidido em 13/11/2026.
+
+- ✅ **RN-110** — O cliente pesquisa um assunto em linguagem natural (ex.: "como criar vídeos com IA") e recebe **vídeos reais** do Instagram Reels e do TikTok sobre o assunto, com prévia, criador, plataforma, métricas disponíveis e link para assistir. Filtros: todas as plataformas, só Instagram ou só TikTok; período de 7 dias, 30 dias ou qualquer data.
+- ✅ **RN-111** — Os dados vêm de um **provedor de dados públicos** atrás de uma interface trocável. A IA pode sugerir **até três variações** da pesquisa (termos ou hashtags), com saída estruturada, limite de custo e volta para a frase original se falhar. **A IA nunca inventa vídeos, links, métricas nem evidências de viralização.** Sem o provedor configurado, a tela avisa que a integração precisa ser configurada; nunca mostra vídeos ou métricas fictícios como reais.
+- ✅ **RN-112** — O catálogo guarda só os metadados necessários: plataforma e ID original (chave contra duplicados), link original, legenda, criador, miniatura, data de publicação, métricas disponíveis, origem e horário da coleta. **Campo ausente fica vazio, nunca vira zero.** Os vídeos não são baixados nem hospedados; a reprodução é pelo link original.
+- ✅ **RN-113** — A pesquisa é normalizada (espaços, idioma e filtros) sem perder a intenção original. Pesquisas em português priorizam vídeos em português. **O idioma da pesquisa não prova que o vídeo é brasileiro.**
+- ✅ **RN-114** — Há **cache por pesquisa normalizada, filtros e versão da estratégia**, com validade configurável (**6 horas** no início). Com resultados guardados, a resposta é imediata; se estiverem velhos, atualizam em segundo plano e a tela avisa que vieram de uma atualização anterior. Pesquisa nova roda em tarefa assíncrona com progresso. Pesquisas iguais em andamento são reaproveitadas.
+- ✅ **RN-115** — Primeiro filtra a relação com o assunto **pelos textos disponíveis** (legenda e hashtags); não se afirma analisar o vídeo inteiro. Depois ordena por uma combinação configurável de correspondência, recência e visualizações e engajamento. Ordenações: relevância, popularidade, mais recentes.
+- ✅ **RN-116** — A popularidade é calculada **separadamente por plataforma** antes de combinar os resultados: contagens do Instagram e do TikTok não se comparam diretamente. Rótulo da primeira versão: **"Populares sobre este assunto"**.
+- ✅ **RN-117** — **"Em crescimento"** só aparece com pelo menos **duas leituras das métricas em momentos diferentes**. Visualizações divididas pela idade do vídeo não comprovam crescimento recente.
+- ✅ **RN-118** — Controle de custo: limites configuráveis de **pesquisas por usuário** (por dia e por minuto), de termos, páginas, resultados e chamadas por pesquisa; tempo máximo e tentativas limitadas para falhas passageiras; registro de latência, erros, acertos de cache e consumo. Valores iniciais: **20 pesquisas por usuário por dia, 5 por minuto**; só contam as pesquisas que coletam dados novos. A busca **não promete** ser completa, ter métricas em tempo real nem disponibilidade garantida.
+- ✅ **RN-119** — Até **20 resultados** por vez, com "carregar mais". Uma falha em uma plataforma **não esconde** os resultados válidos da outra. A tela trata carregamento, resultado parcial, nenhum resultado, integração indisponível e erro de plataforma.
 
 ### 4.8 Carrossel
 
@@ -319,6 +335,10 @@ Os erros voltam como resultado normal da ferramenta, marcados como erro (📎 pa
 | Conexão só de leitura | "Esta conexão é só de leitura. Reconecte com permissão de escrita." | 📎 |
 | Limite por minuto | "Muitas requisições. Tente de novo em um minuto." | 📎 |
 | Cota diária esgotada | "A cota diária de <ferramenta> desta empresa acabou (<n> por dia). Tente amanhã." | ✅ RN-301 |
+| Limite diário de pesquisas de vídeos do usuário | "Você chegou ao limite de <n> pesquisas de vídeos por dia. Tente amanhã." | ✅ RN-118 |
+| Muitas pesquisas de vídeos em um minuto | "Muitas pesquisas em pouco tempo. Tente de novo em um minuto." | ✅ RN-118 |
+| Pesquisa de vídeos de outra empresa ou inexistente | "Pesquisa não encontrada." | ✅ RN-015 |
+| Busca de vídeos sem provedor configurado | "A busca de vídeos ainda não foi configurada neste ambiente. Peça para a equipe técnica configurar o provedor de dados." | ✅ RN-111 |
 | Cliente tentando enviar para aprovação | "Itens criados por você não precisam de aprovação." | ✅ RN-200 |
 | Aprovar item que não está pendente | "Este item não está aguardando aprovação." | ✅ |
 | Agência aprova em nome do cliente sem motivo | "Informe o motivo da aprovação em nome do cliente (ex.: aprovado por WhatsApp em 10/11)." | ✅ RN-214 |
@@ -352,7 +372,7 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 ### Instagram e IA
 - ~~**Q-05**~~ — Respondida em 12/11/2026: o cliente conecta (RN-034).
 - **Q-07** — *Respondida em parte em 12/11/2026: a IA identifica o nicho pelo Instagram (RN-033).* Falta decidir quais dados do Instagram ela lê (bio, categoria, legendas, transcrições, métricas, comentários).
-- **Q-08** — *Respondida em parte em 12/11/2026: o perfil da empresa só entra pela autenticação da Meta (RN-035).* Falta decidir o scraping de perfis e posts de terceiros (referências): quando usar e com qual cuidado.
+- **Q-08** — *Respondida em parte em 12/11/2026: o perfil da empresa só entra pela autenticação da Meta (RN-035). Em 13/11/2026: a descoberta de vídeos usa dados públicos de terceiros por um provedor, guardando só metadados e sem baixar os vídeos (RN-111, RN-112).* Falta decidir o scraping de perfis e posts de terceiros para **referências**: quando usar e com qual cuidado.
 - **Q-09** — *Respondida em parte em 12/11/2026: insights com pelo menos 5 vídeos (RN-045).* As demais regras de desempenho do Dalea (RN-040 a RN-051) valem para nós?
 
 ### Aprovação
@@ -385,7 +405,7 @@ Nada abaixo foi deduzido. Responda quando puder; cada resposta vira uma regra �
 | Depois | Módulo de marca: ficha da empresa, brand kit, entrevista de estratégia, fatos, restrições, memória |
 | Depois | Agendamento e publicação de carrossel (com RN-104) |
 | Depois | Aprovação da data de planejamento |
-| Depois | TikTok |
-| Fase 2 | Catálogo viral compartilhado, benchmarks de nicho, feed "para você" |
+| Depois | TikTok (conexão de conta, métricas, publicação); a descoberta de vídeos já pesquisa no TikTok |
+| Fase 2 | Catálogo viral compartilhado (ocultar criadores, salvar vídeos), benchmarks de nicho, feed "para você" |
 | Fase 2 | Tráfego pago (plataformas a definir) |
 | Futuro | Cobrança |

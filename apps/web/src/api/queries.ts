@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { api } from "./client";
+import { api, type VideoSort } from "./client";
 
 export const meQuery = queryOptions({ queryKey: ["me"], queryFn: api.me });
 
@@ -57,4 +57,17 @@ export const historyQuery = (companyId: string, contentId: string) =>
 	queryOptions({
 		queryKey: [...contentsKey(companyId), "one", contentId, "history"],
 		queryFn: () => api.history({ companyId, contentId }),
+	});
+
+/** ✅ RN-119: andamento e resultados de uma pesquisa de vídeos. */
+export const videoSearchQuery = (
+	companyId: string,
+	requestId: string,
+	sort: VideoSort,
+) =>
+	queryOptions({
+		queryKey: ["companies", companyId, "video-searches", requestId, sort],
+		queryFn: () => api.videoSearch(companyId, requestId, sort),
+		// A resposta da pesquisa já chega pronta; o andamento segue pelo refetchInterval da tela.
+		staleTime: 10_000,
 	});

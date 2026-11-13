@@ -22,6 +22,27 @@ export type QuotaTool =
 	| keyof typeof DEFAULT_DAILY_QUOTAS
 	| (typeof OPTION_QUOTA_TOOLS)[ScriptField];
 
+/**
+ * ✅ RN-118: ferramentas com limite por usuário, além da empresa. O limite vem da configuração
+ * do servidor (`DiscoverySettings`).
+ */
+export type UserQuotaTool = "discover_videos";
+
+/** Chave gravada no contador de uso: a ferramenta, ou a ferramenta e o usuário. */
+export type QuotaKey = QuotaTool | `${UserQuotaTool}:user:${string}`;
+
+export function userQuotaKey(tool: UserQuotaTool, userId: string): QuotaKey {
+	return `${tool}:user:${userId}`;
+}
+
+/** ✅ RN-118: mensagem da regra de negócio §7. */
+export function userQuotaExhausted(limit: number): DomainError {
+	return new DomainError(
+		"quota_exhausted",
+		`Você chegou ao limite de ${limit} pesquisas de vídeos por dia. Tente amanhã.`,
+	);
+}
+
 const QUOTA_LABEL: Record<QuotaTool, string> = {
 	generate_scripts: "gerar roteiro",
 	refine_content: "refinar roteiro",

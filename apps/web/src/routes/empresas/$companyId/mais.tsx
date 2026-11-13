@@ -3,6 +3,7 @@ import {
 	Bookmark,
 	ChartColumn,
 	ChevronRight,
+	Compass,
 	Images,
 	Lightbulb,
 	LogOut,
@@ -38,6 +39,15 @@ function More() {
 	return (
 		<div className="flex flex-col gap-4">
 			<h1 className="text-2xl font-bold">Mais</h1>
+			<Link
+				to="/empresas/$companyId/descobrir"
+				params={{ companyId: Route.useParams().companyId }}
+				className="flex min-h-14 items-center gap-3 rounded-2xl bg-white px-4 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800"
+			>
+				<Compass className="size-5 text-brand-600" aria-hidden />
+				<span className="flex-1">Descobrir vídeos</span>
+				<ChevronRight className="size-5 text-zinc-400" aria-hidden />
+			</Link>
 			<ul className="flex flex-col divide-y divide-zinc-200 overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200 dark:divide-zinc-800 dark:bg-zinc-900 dark:ring-zinc-800">
 				{SECTIONS.map(({ label, icon: Icon }) => (
 					<li

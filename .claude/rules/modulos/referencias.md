@@ -15,5 +15,5 @@ Regras: RN-090 a RN-094, RN-031, RN-035. Em aberto: Q-08 (scraping de terceiros)
 Invariantes:
 - Excluir referência é definitivo (RN-091).
 - Análise de criador já salva é devolvida sem gerar de novo (RN-092).
-- Catálogo viral está fora do protótipo (RN-094).
+- Ocultar criadores e salvar vídeos do catálogo estão fora do protótipo (RN-094). A pesquisa de vídeos por assunto é do módulo `descoberta`.
 - Scraping fica atrás de uma porta; o fornecedor é trocável.

@@ -5,6 +5,7 @@ import {
 	InMemoryContentRepository,
 	InMemoryQuotaRepository,
 	InMemoryScriptRepository,
+	testDiscoveryDeps,
 } from "@convergia/core/testing";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
@@ -43,6 +44,7 @@ async function connect(as: AuthenticatedUser) {
 			scripts: new InMemoryScriptRepository(),
 			scriptAi: new FakeScriptAi(),
 			quotas: new InMemoryQuotaRepository(),
+			...testDiscoveryDeps(),
 			now: () => new Date(),
 		}).connect(serverTransport),
 		client.connect(clientTransport),

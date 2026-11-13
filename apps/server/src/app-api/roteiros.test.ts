@@ -6,6 +6,7 @@ import {
 	InMemoryContentRepository,
 	InMemoryQuotaRepository,
 	InMemoryScriptRepository,
+	testDiscoveryDeps,
 } from "@convergia/core/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../app";
@@ -104,6 +105,7 @@ describe("API do app: roteiros (RN-006)", () => {
 			scripts: new InMemoryScriptRepository(),
 			scriptAi,
 			quotas: new InMemoryQuotaRepository(),
+			...testDiscoveryDeps(),
 			now: () => new Date("2026-11-12T12:00:00Z"),
 		});
 	});
