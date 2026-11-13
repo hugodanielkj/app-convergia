@@ -15,6 +15,10 @@ const STATUS_BY_CODE: Record<string, ContentfulStatusCode> = {
 	rate_limited: 429,
 	search_not_found: 404,
 	stale_preview: 409,
+	content_conflict: 409,
+	approval_version_changed: 409,
+	not_pending: 409,
+	already_pending: 409,
 	preview_unavailable: 409,
 	ai_unavailable: 503,
 };

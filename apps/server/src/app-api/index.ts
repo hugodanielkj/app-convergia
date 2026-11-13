@@ -1,4 +1,5 @@
 import {
+	type ApprovalRepository,
 	type CompanyRepository,
 	type ContentRepository,
 	type DiscoveryDeps,
@@ -11,6 +12,7 @@ import {
 } from "@convergia/core";
 import { Hono } from "hono";
 import type { Authenticate } from "../auth/authenticate";
+import { approvalRoutes } from "./aprovacao";
 import { contentRoutes } from "./conteudo";
 import { discoveryRoutes } from "./descoberta";
 import type { AppEnv } from "./env";
@@ -21,6 +23,7 @@ export type AppApiDeps = DiscoveryDeps & {
 	authenticate: Authenticate;
 	companies: CompanyRepository;
 	contents: ContentRepository;
+	approvals: ApprovalRepository;
 	scripts: ScriptRepository;
 	scriptAi: ScriptAi;
 	quotas: QuotaRepository;
@@ -64,6 +67,7 @@ export function createAppApi(deps: AppApiDeps) {
 			return c.json({ id: company.id, name: company.name });
 		})
 		.route("/", contentRoutes(deps))
+		.route("/", approvalRoutes(deps))
 		.route("/", scriptRoutes(deps))
 		.route("/", discoveryRoutes(deps));
 }

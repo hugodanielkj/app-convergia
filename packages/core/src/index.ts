@@ -22,6 +22,34 @@ export {
 export { listCompanies } from "./acesso/use-cases/list-companies";
 export { type WhoamiResult, whoami } from "./acesso/use-cases/whoami";
 export {
+	APPROVAL_EVENT_TYPES,
+	APPROVAL_ITEM_TYPES,
+	APPROVAL_REQUEST_STATUSES,
+	APPROVAL_VIEWS,
+	type ApprovalEvent,
+	type ApprovalEventDraft,
+	type ApprovalEventType,
+	type ApprovalItem,
+	type ApprovalRequest,
+	type ApprovalRequestStatus,
+	type ApprovalView,
+	type ApproveInput,
+	approveInput,
+	type RejectInput,
+	rejectInput,
+} from "./aprovacao/approval";
+export type { ApprovalRepository } from "./aprovacao/ports/approval-repository";
+export {
+	type ApprovalDeps,
+	type ApprovalDetail,
+	approveItem,
+	cancelApprovalRequest,
+	getApprovalItem,
+	listApprovalItems,
+	rejectItem,
+	submitForApproval,
+} from "./aprovacao/use-cases/approvals";
+export {
 	APPROVAL_STATUSES,
 	type ApprovalStatus,
 	type CalendarRange,
@@ -47,6 +75,7 @@ export {
 	type ScriptField,
 } from "./conteudo/content";
 export type {
+	ContentChange,
 	ContentPatch,
 	ContentRepository,
 	NewContent,

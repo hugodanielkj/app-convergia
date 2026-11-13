@@ -3,6 +3,7 @@ import { type DiscoveryDeps, runVideoQuery } from "@convergia/core";
 import {
 	chooseLlm,
 	createApiKeyRepository,
+	createApprovalRepository,
 	createCompanyRepository,
 	createContentRepository,
 	createDb,
@@ -54,6 +55,7 @@ const app = createApp({
 	authenticate: createAuthenticate({ apiKeys: createApiKeyRepository(db) }),
 	companies: createCompanyRepository(db),
 	contents: createContentRepository(db),
+	approvals: createApprovalRepository(db),
 	scripts: createScriptRepository(db),
 	scriptAi: createScriptAi(gateway),
 	...discoveryDeps,

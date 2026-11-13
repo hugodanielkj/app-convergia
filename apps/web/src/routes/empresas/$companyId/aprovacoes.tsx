@@ -1,14 +1,17 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { CircleCheckBig } from "lucide-react";
-import { EmptyState } from "../../../components/states";
+import { meQuery } from "../../../api/queries";
+import { ApprovalsPage } from "../../../features/aprovacao/approvals-page";
 
 export const Route = createFileRoute("/empresas/$companyId/aprovacoes")({
-	component: () => (
-		<div className="flex flex-col gap-4">
-			<h1 className="text-3xl font-medium">Aprovações</h1>
-			<EmptyState icon={CircleCheckBig} title="Nada para aprovar">
-				Os conteúdos enviados para aprovação aparecem aqui.
-			</EmptyState>
-		</div>
-	),
+	component: () => {
+		const { companyId } = Route.useParams();
+		const { data: me } = useSuspenseQuery(meQuery);
+		return (
+			<ApprovalsPage
+				companyId={companyId}
+				isAgency={me.kind === "agency_member"}
+			/>
+		);
+	},
 });

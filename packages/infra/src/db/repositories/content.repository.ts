@@ -1,5 +1,6 @@
 import type {
 	Content,
+	ContentChange,
 	ContentPatch,
 	ContentRepository,
 	NewContent,
@@ -10,14 +11,15 @@ import {
 	desc,
 	eq,
 	gte,
+	inArray,
 	isNotNull,
 	isNull,
 	lte,
 	type SQL,
 } from "drizzle-orm";
 import type { Db } from "../client";
-import { contents } from "../schema";
-import { withCompany } from "../with-company";
+import { approvalEvents, approvalRequests, contents } from "../schema";
+import { type Tx, withCompany } from "../with-company";
 
 type Row = typeof contents.$inferSelect;
 type Insert = typeof contents.$inferInsert;
@@ -50,6 +52,7 @@ function toContent(row: Row): Content {
 		plannedDate: row.plannedDate,
 		contentVersion: row.contentVersion,
 		approvalStatus: row.approvalStatus,
+		currentApprovalRequestId: row.currentApprovalRequestId,
 		deletedAt: row.deletedAt,
 		createdAt: row.createdAt,
 		updatedAt: row.updatedAt,
@@ -77,6 +80,9 @@ export function createContentRepository(db: Db): ContentRepository {
 					eq(contents.companyId, companyId),
 					isNull(contents.deletedAt),
 					filter.status ? eq(contents.status, filter.status) : undefined,
+					filter.approvalStatuses
+						? inArray(contents.approvalStatus, filter.approvalStatuses)
+						: undefined,
 					filter.plannedFrom
 						? gte(contents.plannedDate, filter.plannedFrom)
 						: undefined,
@@ -154,5 +160,60 @@ export function createContentRepository(db: Db): ContentRepository {
 				return toContent(row);
 			});
 		},
+
+		applyContentChange(companyId, id, patch, change) {
+			if (!UUID.test(id)) return Promise.resolve(null);
+			return withCompany(db, companyId, async (tx) => {
+				const [row] = await tx
+					.update(contents)
+					.set({ ...toColumns(patch), updatedAt: new Date() })
+					.where(
+						and(
+							eq(contents.companyId, companyId),
+							eq(contents.id, id),
+							eq(contents.contentVersion, change.expect.contentVersion),
+							eq(contents.approvalStatus, change.expect.approvalStatus),
+						),
+					)
+					.returning();
+				if (!row) return null;
+				await recordChangeEvent(tx, row, change);
+				return toContent(row);
+			});
+		},
 	};
+}
+
+/** RN-230 e RN-216: evento da mexida e, na pendência, a versão nova na solicitação. */
+async function recordChangeEvent(
+	tx: Tx,
+	row: Row,
+	change: ContentChange,
+): Promise<void> {
+	const event = change.approvalEvent;
+	const requestId = row.currentApprovalRequestId;
+	if (!event || !requestId) return;
+	if (event.type === "updated_while_pending") {
+		await tx
+			.update(approvalRequests)
+			.set({
+				itemVersion: row.contentVersion,
+				snapshot: toContent(row).script,
+			})
+			.where(
+				and(
+					eq(approvalRequests.id, requestId),
+					eq(approvalRequests.status, "pending"),
+				),
+			);
+	}
+	await tx.insert(approvalEvents).values({
+		companyId: row.companyId,
+		requestId,
+		contentId: row.id,
+		type: event.type,
+		actorId: event.actorId,
+		actorKind: event.actorKind,
+		itemVersion: row.contentVersion,
+	});
 }

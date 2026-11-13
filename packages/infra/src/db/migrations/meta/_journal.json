@@ -64,6 +64,13 @@
       "when": 1794583933255,
       "tag": "0008_descoberta_videos",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794599050838,
+      "tag": "0009_aprovacao",
+      "breakpoints": true
     }
   ]
 }

@@ -57,10 +57,12 @@ async function call<T>(request: Promise<ClientResponse<T>>): Promise<T> {
 const companyApi = client.companies[":companyId"];
 const searchesApi = companyApi.videos.searches;
 const contentApi = companyApi.contents[":contentId"];
+const approvalApi = contentApi.approval;
 
 type KanbanStatus = "idea" | "draft" | "edited" | "published";
 type ContentParams = { companyId: string; contentId: string };
 export type ScriptField = "hook" | "body" | "cta" | "caption";
+export type ApprovalView = "pending" | "to_submit" | "rejected" | "approved";
 export type VideoSort = "relevance" | "popularity" | "recent";
 
 export const api = {
@@ -95,6 +97,22 @@ export const api = {
 	deleteContent: (param: ContentParams) => call(contentApi.$delete({ param })),
 	restoreContent: (param: ContentParams) =>
 		call(contentApi.restore.$post({ param })),
+
+	approvals: (companyId: string, view: ApprovalView) =>
+		call(companyApi.approvals.$get({ param: { companyId }, query: { view } })),
+	approval: (param: ContentParams) => call(approvalApi.$get({ param })),
+	submitApproval: (param: ContentParams) =>
+		call(approvalApi.submit.$post({ param })),
+	cancelApproval: (param: ContentParams) =>
+		call(approvalApi.cancel.$post({ param })),
+	approve: (
+		param: ContentParams,
+		json: Parameters<typeof approvalApi.approve.$post>[0]["json"],
+	) => call(approvalApi.approve.$post({ param, json })),
+	reject: (
+		param: ContentParams,
+		json: Parameters<typeof approvalApi.reject.$post>[0]["json"],
+	) => call(approvalApi.reject.$post({ param, json })),
 
 	generateScript: (param: ContentParams) =>
 		call(contentApi.script.$post({ param })),
@@ -146,6 +164,11 @@ export type HistoryEntryDto = Awaited<
 	ReturnType<typeof api.history>
 >["entries"][number];
 export type CitationDto = ContentDto["citations"][number];
+export type ApprovalItemDto = Awaited<
+	ReturnType<typeof api.approvals>
+>["items"][number];
+export type ApprovalDetailDto = Awaited<ReturnType<typeof api.approval>>;
+export type ApprovalEventDto = ApprovalDetailDto["history"][number];
 export type RefineMessageDto = Awaited<
 	ReturnType<typeof api.refineChat>
 >["messages"][number];

@@ -1,6 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeftRight } from "lucide-react";
 import { type ReactNode, useState } from "react";
+import { approvalsQuery } from "../api/queries";
 import {
 	NewContentProvider,
 	useOpenNewContent,
@@ -49,10 +51,16 @@ function Shell({
 	const openCreate = () => setCreating(true);
 	const openNewContent = useOpenNewContent();
 	const navigate = useNavigate();
+	const pending = useQuery(approvalsQuery(companyId, "pending"));
+	const pendingApprovals = pending.data?.items.length ?? 0;
 
 	return (
 		<div className="flex min-h-dvh">
-			<SideNav companyId={companyId} onCreate={openCreate} />
+			<SideNav
+				companyId={companyId}
+				onCreate={openCreate}
+				pendingApprovals={pendingApprovals}
+			/>
 			<div className="flex min-w-0 flex-1 flex-col">
 				<header className="sticky top-0 z-30 border-b border-zinc-200 bg-zinc-50/95 pt-[env(safe-area-inset-top)] backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
 					<div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
@@ -75,7 +83,11 @@ function Shell({
 					{children}
 				</main>
 			</div>
-			<BottomNav companyId={companyId} onCreate={openCreate} />
+			<BottomNav
+				companyId={companyId}
+				onCreate={openCreate}
+				pendingApprovals={pendingApprovals}
+			/>
 			<CreateSheet
 				open={creating}
 				onClose={() => setCreating(false)}

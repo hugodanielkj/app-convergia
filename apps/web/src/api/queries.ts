@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { api, type VideoSort } from "./client";
+import { type ApprovalView, api, type VideoSort } from "./client";
 
 export const meQuery = queryOptions({ queryKey: ["me"], queryFn: api.me });
 
@@ -43,6 +43,20 @@ export const contentQuery = (companyId: string, contentId: string) =>
 	queryOptions({
 		queryKey: [...contentsKey(companyId), "one", contentId],
 		queryFn: () => api.content({ companyId, contentId }),
+	});
+
+/** Listas da tela de aprovações. Ficam sob os cards: toda mudança num card as recarrega. */
+export const approvalsQuery = (companyId: string, view: ApprovalView) =>
+	queryOptions({
+		queryKey: [...contentsKey(companyId), "approvals", view],
+		queryFn: () => api.approvals(companyId, view),
+	});
+
+/** Estado da aprovação do roteiro de um card, com o histórico (RN-230). */
+export const approvalQuery = (companyId: string, contentId: string) =>
+	queryOptions({
+		queryKey: [...contentsKey(companyId), "one", contentId, "approval"],
+		queryFn: () => api.approval({ companyId, contentId }),
 	});
 
 /** Conversa de refino do roteiro de um card (RN-006). */

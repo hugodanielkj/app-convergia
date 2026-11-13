@@ -1,6 +1,9 @@
 /** Dublês das portas, só para testes dos outros pacotes. */
+
 export { InMemoryApiKeyRepository } from "./acesso/testing/in-memory-api-key-repository";
 export { InMemoryCompanyRepository } from "./acesso/testing/in-memory-company-repository";
+export { inMemoryContentDeps } from "./aprovacao/testing/content-deps";
+export { InMemoryApprovalRepository } from "./aprovacao/testing/in-memory-approval-repository";
 export { InMemoryContentRepository } from "./conteudo/testing/in-memory-content-repository";
 export { InMemoryQuotaRepository } from "./cotas/testing/in-memory-quota-repository";
 export {

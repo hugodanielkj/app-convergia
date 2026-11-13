@@ -31,6 +31,17 @@ describe("navegação inferior", () => {
 		).toHaveAttribute("href", "/empresas/c1/calendario");
 	});
 
+	it("design §13.1: Aprovações mostra o contador de pendências", async () => {
+		renderInRouter(
+			<BottomNav companyId="c1" onCreate={() => {}} pendingApprovals={2} />,
+		);
+
+		expect(
+			await screen.findByRole("link", { name: /Aprovações.*2 pendentes/ }),
+		).toBeInTheDocument();
+		expect(screen.getByText("2")).toBeInTheDocument();
+	});
+
 	it("marca a tela atual", async () => {
 		renderInRouter(
 			<BottomNav companyId="c1" onCreate={() => {}} />,

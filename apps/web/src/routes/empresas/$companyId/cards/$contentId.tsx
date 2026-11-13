@@ -2,7 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { errorMessage } from "../../../../api/client";
-import { contentQuery } from "../../../../api/queries";
+import { contentQuery, meQuery } from "../../../../api/queries";
 import { ErrorState, SkeletonList } from "../../../../components/states";
 import { ContentEditor } from "../../../../features/conteudo/content-editor";
 
@@ -38,6 +38,13 @@ export const Route = createFileRoute("/empresas/$companyId/cards/$contentId")({
 		const { companyId, contentId } = Route.useParams();
 		const { refinar } = Route.useSearch();
 		const { data } = useSuspenseQuery(contentQuery(companyId, contentId));
-		return <ContentEditor content={data} startRefining={refinar === true} />;
+		const { data: me } = useSuspenseQuery(meQuery);
+		return (
+			<ContentEditor
+				content={data}
+				isAgency={me.kind === "agency_member"}
+				startRefining={refinar === true}
+			/>
+		);
 	},
 });

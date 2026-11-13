@@ -10,10 +10,10 @@ import {
 	FakeVideoProvider,
 	InMemoryApiKeyRepository,
 	InMemoryCompanyRepository,
-	InMemoryContentRepository,
 	InMemoryDiscoveryRepository,
 	InMemoryQuotaRepository,
 	InMemoryScriptRepository,
+	inMemoryContentDeps,
 	testVideo,
 } from "@convergia/core/testing";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -117,7 +117,7 @@ describe("API do app: descoberta de vídeos (RN-110 a RN-119)", () => {
 		deps = base;
 		app = createApp({
 			authenticate: createAuthenticate({ apiKeys }),
-			contents: new InMemoryContentRepository(),
+			...inMemoryContentDeps(),
 			scripts: new InMemoryScriptRepository(),
 			scriptAi: new FakeScriptAi(),
 			...base,

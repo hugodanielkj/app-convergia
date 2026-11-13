@@ -22,6 +22,7 @@ import {
 	type ScriptField,
 } from "../../api/client";
 import { BottomSheet } from "../../components/bottom-sheet";
+import { ApprovalPanel } from "../aprovacao/approval-panel";
 import { CitationList } from "../roteiros/citation-list";
 import { HistorySheet } from "../roteiros/history-sheet";
 import { ScriptAiActions } from "../roteiros/script-ai-actions";
@@ -71,9 +72,11 @@ function Field({
 /** Tela do card (design §13.2): conteúdo, roteiro, data e coluna. */
 export function ContentEditor({
 	content,
+	isAgency,
 	startRefining = false,
 }: {
 	content: ContentDto;
+	isAgency: boolean;
 	startRefining?: boolean;
 }) {
 	const companyId = content.companyId;
@@ -93,24 +96,27 @@ export function ContentEditor({
 		setForm(next);
 	}, [content]);
 
+	// RN-217: o cliente não edita o roteiro que a agência enviou; só aprova ou recusa.
+	const scriptLocked = !isAgency && content.approvalStatus === "pending";
 	const changes = diffForm(saved, form);
 	const dirty = Object.keys(changes).length > 0;
 	const set =
 		(key: keyof ContentForm) => (event: { target: { value: string } }) =>
 			setForm((f) => ({ ...f, [key]: event.target.value }));
 	// 📎 RN-071: opções avulsas de cada parte; a IA lê o card salvo, por isso pede salvar antes.
-	const optionsButton = (field: ScriptField) => (
-		<button
-			type="button"
-			disabled={dirty}
-			onClick={() => setOptionsFor(field)}
-			aria-label={`Sugerir opções de ${SCRIPT_FIELD_LABEL[field].name}`}
-			className="-my-2 flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-brand-700 hover:bg-brand-50 disabled:opacity-50 dark:text-brand-200 dark:hover:bg-brand-900"
-		>
-			<Sparkles className="size-4" aria-hidden />
-			Opções
-		</button>
-	);
+	const optionsButton = (field: ScriptField) =>
+		!scriptLocked && (
+			<button
+				type="button"
+				disabled={dirty}
+				onClick={() => setOptionsFor(field)}
+				aria-label={`Sugerir opções de ${SCRIPT_FIELD_LABEL[field].name}`}
+				className="-my-2 flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-brand-700 hover:bg-brand-50 disabled:opacity-50 dark:text-brand-200 dark:hover:bg-brand-900"
+			>
+				<Sparkles className="size-4" aria-hidden />
+				Opções
+			</button>
+		);
 	const approval = APPROVAL_BADGE[content.approvalStatus];
 	const actionError =
 		mutations.duplicate.error ??
@@ -204,6 +210,12 @@ export function ContentEditor({
 				/>
 			</Field>
 
+			<ApprovalPanel
+				content={content}
+				isAgency={isAgency}
+				unsavedChanges={dirty}
+			/>
+
 			<section className="flex flex-col gap-4 rounded-2xl bg-white p-4 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800">
 				<div>
 					<div className="flex items-center justify-between gap-2">
@@ -217,21 +229,30 @@ export function ContentEditor({
 							Histórico
 						</button>
 					</div>
-					{content.approvalStatus !== "none" && (
+					{scriptLocked ? (
 						<p className="text-sm text-zinc-600 dark:text-zinc-400">
-							Mudanças da agência no roteiro precisam da aprovação do cliente.
+							Enviado pela agência: aprove ou recuse com um comentário.
 						</p>
+					) : (
+						content.approvalStatus !== "none" && (
+							<p className="text-sm text-zinc-600 dark:text-zinc-400">
+								Mudanças da agência no roteiro precisam da aprovação do cliente.
+							</p>
+						)
 					)}
 				</div>
-				<ScriptAiActions
-					content={content}
-					unsavedChanges={dirty}
-					startRefining={startRefining}
-				/>
+				{!scriptLocked && (
+					<ScriptAiActions
+						content={content}
+						unsavedChanges={dirty}
+						startRefining={startRefining}
+					/>
+				)}
 				<Field label="Gancho" action={optionsButton("hook")}>
 					<textarea
 						value={form.hook}
 						onChange={set("hook")}
+						readOnly={scriptLocked}
 						rows={2}
 						maxLength={2000}
 						className={inputClass}
@@ -241,6 +262,7 @@ export function ContentEditor({
 					<textarea
 						value={form.body}
 						onChange={set("body")}
+						readOnly={scriptLocked}
 						rows={6}
 						maxLength={20000}
 						className={inputClass}
@@ -250,6 +272,7 @@ export function ContentEditor({
 					<textarea
 						value={form.cta}
 						onChange={set("cta")}
+						readOnly={scriptLocked}
 						rows={2}
 						maxLength={2000}
 						className={inputClass}
@@ -259,6 +282,7 @@ export function ContentEditor({
 					<textarea
 						value={form.caption}
 						onChange={set("caption")}
+						readOnly={scriptLocked}
 						rows={4}
 						maxLength={5000}
 						className={inputClass}

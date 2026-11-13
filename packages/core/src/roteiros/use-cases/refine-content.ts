@@ -1,5 +1,6 @@
 import type { Content } from "../../conteudo/content";
 import { getContent } from "../../conteudo/use-cases/read-contents";
+import { writeScriptChange } from "../../conteudo/use-cases/script-change";
 import { withQuota } from "../../cotas/with-quota";
 import { assertCanEditContent } from "../../policies/approval.policy";
 import { assertCanWrite } from "../../policies/permission.policy";
@@ -10,7 +11,7 @@ import {
 	type PreviewDecision,
 	type RefineMessage,
 } from "../refinement";
-import { briefFor, type ScriptDeps, scriptChange } from "./deps";
+import { briefFor, type ScriptDeps } from "./deps";
 
 /** Quantas mensagens anteriores vão para a IA como contexto do refino. */
 const HISTORY_FOR_AI = 20;
@@ -116,11 +117,13 @@ export async function reviewContentRefinement(
 	if (message.previewBaseVersion !== content.contentVersion) {
 		throw stalePreview();
 	}
-	assertCanEditContent(actor, content.approvalStatus);
-	const updated = await deps.contents.update(actor.companyId, content.id, {
-		...scriptChange(actor, content, message.preview),
-		citations: mergeCitations(content.citations, message.sources),
-	});
+	const updated = await writeScriptChange(
+		deps,
+		actor,
+		content,
+		message.preview,
+		{ citations: mergeCitations(content.citations, message.sources) },
+	);
 	return {
 		content: updated,
 		message: await deps.scripts.setPreviewStatus(

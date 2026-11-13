@@ -1,5 +1,6 @@
 import type { Content } from "../../conteudo/content";
 import { getContent } from "../../conteudo/use-cases/read-contents";
+import { writeScriptChange } from "../../conteudo/use-cases/script-change";
 import { withQuota } from "../../cotas/with-quota";
 import {
 	assertCanEditContent,
@@ -9,7 +10,7 @@ import { assertCanWrite } from "../../policies/permission.policy";
 import type { ActorContext } from "../../shared/actor-context";
 import { scriptBatchOutOfRange } from "../errors";
 import { MAX_SCRIPTS_PER_CALL } from "../refinement";
-import { briefFor, type ScriptDeps, scriptChange } from "./deps";
+import { briefFor, type ScriptDeps } from "./deps";
 
 /**
  * Gera o roteiro completo (gancho, corpo, CTA e legenda) de 1 a 5 cards (📎 RN-070) e grava
@@ -51,13 +52,7 @@ export async function generateScripts(
 	for (const [index, content] of cards.entries()) {
 		const script = written[index];
 		if (!script) throw new Error("A IA devolveu menos roteiros que cards.");
-		updated.push(
-			await deps.contents.update(
-				actor.companyId,
-				content.id,
-				scriptChange(actor, content, script),
-			),
-		);
+		updated.push(await writeScriptChange(deps, actor, content, script));
 		await deps.scripts.addGeneration(actor.companyId, {
 			contentId: content.id,
 			script,

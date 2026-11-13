@@ -9,10 +9,10 @@ import {
 	FakeScriptAi,
 	FakeVideoProvider,
 	InMemoryCompanyRepository,
-	InMemoryContentRepository,
 	InMemoryDiscoveryRepository,
 	InMemoryQuotaRepository,
 	InMemoryScriptRepository,
+	inMemoryContentDeps,
 	testVideo,
 } from "@convergia/core/testing";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -99,7 +99,7 @@ describe("contrato MCP: descoberta de vídeos (RN-110 a RN-119)", () => {
 				{ id: "company-a", agencyId: "agency-1", name: "A" },
 				{ id: "company-b", agencyId: "agency-1", name: "B" },
 			]),
-			contents: new InMemoryContentRepository(),
+			...inMemoryContentDeps(),
 			scripts: new InMemoryScriptRepository(),
 			scriptAi: new FakeScriptAi(),
 			quotas: new InMemoryQuotaRepository(),

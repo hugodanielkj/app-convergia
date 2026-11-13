@@ -2,9 +2,9 @@ import type { AuthenticatedUser } from "@convergia/core";
 import {
 	FakeScriptAi,
 	InMemoryCompanyRepository,
-	InMemoryContentRepository,
 	InMemoryQuotaRepository,
 	InMemoryScriptRepository,
+	inMemoryContentDeps,
 	testDiscoveryDeps,
 } from "@convergia/core/testing";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -81,7 +81,7 @@ describe("contrato MCP: roteiros", () => {
 				{ id: "company-a", agencyId: "agency-1", name: "A" },
 				{ id: "company-b", agencyId: "agency-1", name: "B" },
 			]),
-			contents: new InMemoryContentRepository(),
+			...inMemoryContentDeps(),
 			scripts: new InMemoryScriptRepository(),
 			scriptAi: new FakeScriptAi(),
 			quotas: new InMemoryQuotaRepository(),

@@ -1,7 +1,3 @@
-import {
-	assertCanEditContent,
-	onContentChanged,
-} from "../../policies/approval.policy";
 import { assertCanWrite } from "../../policies/permission.policy";
 import type { ActorContext } from "../../shared/actor-context";
 import {
@@ -15,6 +11,7 @@ import type {
 	ContentRepository,
 } from "../ports/content-repository";
 import { getContent } from "./read-contents";
+import { writeScriptChange } from "./script-change";
 
 /**
  * Edita os campos editoriais. Mudar o roteiro é mexida de conteúdo: passa pela política de
@@ -45,13 +42,7 @@ export async function updateContent(
 		(field) => nextScript[field] !== content.script[field],
 	);
 	if (scriptChanged) {
-		assertCanEditContent(actor, content.approvalStatus);
-		const effect = onContentChanged(actor, content.approvalStatus);
-		// O histórico (effect.event) entra com o módulo de aprovação; até lá nada fica pendente
-		// nem aprovado, então os eventos ainda não acontecem.
-		patch.script = nextScript;
-		patch.approvalStatus = effect.approvalStatus;
-		patch.contentVersion = content.contentVersion + 1;
+		return writeScriptChange(deps, actor, content, nextScript, patch);
 	}
 
 	if (Object.keys(patch).length === 0) {
