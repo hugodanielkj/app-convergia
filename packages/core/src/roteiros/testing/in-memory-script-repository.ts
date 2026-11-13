@@ -1,4 +1,9 @@
-import type { CreatorKind, Script, ScriptField } from "../../conteudo/content";
+import type {
+	Citation,
+	CreatorKind,
+	Script,
+	ScriptField,
+} from "../../conteudo/content";
 import type { HistoryEntry } from "../history";
 import type { ScriptRepository } from "../ports/script-repository";
 import type { PreviewStatus, RefineMessage } from "../refinement";
@@ -96,6 +101,7 @@ export class InMemoryScriptRepository implements ScriptRepository {
 			request: string;
 			reply: string;
 			preview: Script;
+			sources: Citation[];
 			previewBaseVersion: number;
 		},
 	): Promise<RefineMessage[]> {
@@ -121,6 +127,7 @@ export class InMemoryScriptRepository implements ScriptRepository {
 				role: "user",
 				text: exchange.request,
 				preview: null,
+				sources: [],
 				previewBaseVersion: null,
 				previewStatus: null,
 			},
@@ -130,6 +137,7 @@ export class InMemoryScriptRepository implements ScriptRepository {
 				role: "assistant",
 				text: exchange.reply,
 				preview: exchange.preview,
+				sources: exchange.sources,
 				previewBaseVersion: exchange.previewBaseVersion,
 				previewStatus: "pending",
 			},

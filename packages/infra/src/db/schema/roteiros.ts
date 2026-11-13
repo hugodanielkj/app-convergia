@@ -1,4 +1,4 @@
-import { SCRIPT_FIELDS, type Script } from "@convergia/core";
+import { type Citation, SCRIPT_FIELDS, type Script } from "@convergia/core";
 import {
 	bigint,
 	boolean,
@@ -102,6 +102,8 @@ export const refineMessages = pgTable(
 		role: refineRole("role").notNull(),
 		text: text("text").notNull(),
 		preview: jsonb("preview").$type<Script>(),
+		/** 📎 RN-075: páginas da web que a IA usou na prévia. */
+		sources: jsonb("sources").$type<Citation[]>().notNull().default([]),
 		previewBaseVersion: integer("preview_base_version"),
 		previewStatus: previewStatus("preview_status"),
 		createdByUserId: uuid("created_by_user_id")

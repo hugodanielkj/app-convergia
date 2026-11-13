@@ -1,4 +1,4 @@
-import { type AiCallMeta, DomainError } from "@convergia/core";
+import { type AiCallMeta, type Citation, DomainError } from "@convergia/core";
 import type { z } from "zod";
 import type { Db } from "../db/client";
 import { aiCallLog } from "../db/schema";
@@ -14,13 +14,20 @@ export type LlmRequest<T> = {
 	messages: LlmMessage[];
 	/** Saída estruturada: o modelo responde neste formato e o gateway valida (stack §4). */
 	schema: z.ZodType<T>;
+	/** Deixa o modelo pesquisar na web antes de responder (📎 RN-075). */
+	webSearch?: boolean;
 };
 
 export type LlmResult = {
 	output: unknown;
 	inputTokens: number | null;
 	outputTokens: number | null;
+	/** Páginas que a busca na web devolveu ao modelo nesta chamada. */
+	webResults?: Citation[];
 };
+
+/** Saída validada e as páginas que a busca na web realmente devolveu (📎 RN-075). */
+export type LlmOutput<T> = { output: T; webResults: Citation[] };
 
 /** Fornecedor do modelo. Trocar de modelo ou de provedor muda só a implementação desta interface. */
 export interface LlmClient {
@@ -31,7 +38,7 @@ export interface LlmClient {
 export type LlmGateway = <T>(
 	meta: AiCallMeta,
 	request: LlmRequest<T>,
-) => Promise<T>;
+) => Promise<LlmOutput<T>>;
 
 const AI_UNAVAILABLE =
 	"A IA não conseguiu responder agora. Tente de novo em instantes.";
@@ -41,7 +48,10 @@ const AI_UNAVAILABLE =
  * com empresa, ferramenta, modelo, tokens, duração e resultado (design §10).
  */
 export function createLlmGateway(db: Db, llm: LlmClient): LlmGateway {
-	return async <T>(meta: AiCallMeta, request: LlmRequest<T>): Promise<T> => {
+	return async <T>(
+		meta: AiCallMeta,
+		request: LlmRequest<T>,
+	): Promise<LlmOutput<T>> => {
 		const started = performance.now();
 		const log = async (entry: {
 			success: boolean;
@@ -83,6 +93,6 @@ export function createLlmGateway(db: Db, llm: LlmClient): LlmGateway {
 			inputTokens: result.inputTokens,
 			outputTokens: result.outputTokens,
 		});
-		return output;
+		return { output, webResults: result.webResults ?? [] };
 	};
 }

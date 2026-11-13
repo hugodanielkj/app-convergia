@@ -40,6 +40,7 @@ export async function createContents(
 				cta: input.script?.cta ?? null,
 				caption: input.script?.caption ?? null,
 			},
+			citations: [],
 			platform: "instagram",
 			mediaType: input.mediaType ?? null,
 			format: input.format ?? null,

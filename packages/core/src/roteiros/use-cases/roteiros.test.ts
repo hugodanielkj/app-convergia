@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { companyA, companyB } from "../../acesso/testing/fixtures";
 import { InMemoryCompanyRepository } from "../../acesso/testing/in-memory-company-repository";
-import type { Content } from "../../conteudo/content";
+import type { Citation, Content } from "../../conteudo/content";
 import {
 	agency,
 	client,
@@ -10,7 +10,10 @@ import {
 } from "../../conteudo/testing/actors";
 import { InMemoryContentRepository } from "../../conteudo/testing/in-memory-content-repository";
 import { createContents } from "../../conteudo/use-cases/create-contents";
-import { deleteContent } from "../../conteudo/use-cases/organize-content";
+import {
+	deleteContent,
+	duplicateContent,
+} from "../../conteudo/use-cases/organize-content";
 import { updateContent } from "../../conteudo/use-cases/update-content";
 import { InMemoryQuotaRepository } from "../../cotas/testing/in-memory-quota-repository";
 import type { ActorContext } from "../../shared/actor-context";
@@ -40,6 +43,11 @@ describe("roteiros", () => {
 		const [content] = await createContents(deps, actor, [{ title }]);
 		if (!content) throw new Error("card não criado");
 		return content;
+	};
+	const setCitations = (citations: Citation[]) => {
+		const [row] = deps.contents.rows;
+		if (!row) throw new Error("card não criado");
+		row.citations = citations;
 	};
 	const latestPreview = (messages: { id: string; role: string }[]) => {
 		const reply = messages.find((m) => m.role === "assistant");
@@ -363,6 +371,107 @@ describe("roteiros", () => {
 					"apply",
 				),
 			).rejects.toThrow(NOT_FOUND);
+		});
+	});
+
+	describe("refino com pesquisa na web (RN-075)", () => {
+		const source = {
+			title: "Fonte sobre pedido",
+			url: "https://example.com/fonte",
+		};
+
+		it("RN-075: sem pedir, o refino não pesquisa nem devolve fontes", async () => {
+			const card = await create();
+			const messages = await refineContent(deps, client, card.id, "pedido");
+			expect(deps.scriptAi.calls[0]?.webSearch).toBe(false);
+			expect(messages.map((m) => m.sources)).toEqual([[], []]);
+		});
+
+		it("RN-075: com pesquisa, a prévia traz as fontes e não altera o card", async () => {
+			const card = await create();
+			const messages = await refineContent(deps, client, card.id, "pedido", {
+				webSearch: true,
+			});
+			expect(deps.scriptAi.calls[0]?.webSearch).toBe(true);
+			expect(messages[1]?.sources).toEqual([source]);
+			expect(deps.contents.rows[0]?.citations).toEqual([]);
+		});
+
+		it("RN-075: a IA recebe as citações do card e as fontes da conversa", async () => {
+			const card = await create();
+			setCitations([{ title: "Antiga", url: "https://example.com/antiga" }]);
+			await refineContent(deps, client, card.id, "pedido", { webSearch: true });
+			await refineContent(deps, client, card.id, "outro");
+
+			const second = deps.scriptAi.calls[1];
+			expect(second?.brief.content.citations).toEqual([
+				{ title: "Antiga", url: "https://example.com/antiga" },
+			]);
+			expect(second?.history?.[1]?.sources).toEqual([source]);
+		});
+
+		it("RN-075: aplicar soma as fontes novas e preserva as citações existentes", async () => {
+			const card = await create();
+			const existing = [
+				{ title: "Antiga", url: "https://example.com/antiga" },
+				{ title: "Mesma fonte", url: "https://example.com/fonte/" },
+			];
+			setCitations(existing);
+			deps.scriptAi.sources = [
+				source,
+				{ title: "Nova", url: "https://example.com/nova" },
+			];
+			const messages = await refineContent(deps, client, card.id, "pedido", {
+				webSearch: true,
+			});
+			const { content } = await reviewContentRefinement(
+				deps,
+				client,
+				card.id,
+				latestPreview(messages),
+				"apply",
+			);
+			expect(content.citations).toEqual([
+				...existing,
+				{ title: "Nova", url: "https://example.com/nova" },
+			]);
+		});
+
+		it("RN-075: aplicar prévia sem fontes mantém as citações do card", async () => {
+			const card = await create();
+			const existing = [{ title: "Antiga", url: "https://example.com/antiga" }];
+			setCitations(existing);
+			const messages = await refineContent(deps, client, card.id, "pedido");
+			const { content } = await reviewContentRefinement(
+				deps,
+				client,
+				card.id,
+				latestPreview(messages),
+				"apply",
+			);
+			expect(content.citations).toEqual(existing);
+		});
+
+		it("RN-075: descartar a prévia não leva as fontes para o card", async () => {
+			const card = await create();
+			const messages = await refineContent(deps, client, card.id, "pedido", {
+				webSearch: true,
+			});
+			const { content } = await reviewContentRefinement(
+				deps,
+				client,
+				card.id,
+				latestPreview(messages),
+				"discard",
+			);
+			expect(content.citations).toEqual([]);
+		});
+
+		it("RN-065: duplicar o card copia as citações", async () => {
+			const card = await create();
+			setCitations([{ title: "Antiga", url: "https://example.com/antiga" }]);
+			const copy = await duplicateContent(deps, client, card.id);
+			expect(copy.citations).toEqual(deps.contents.rows[0]?.citations);
 		});
 	});
 

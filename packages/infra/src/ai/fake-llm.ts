@@ -30,14 +30,26 @@ export function createFakeLlm(): LlmClient {
 			if (request.task === "write_script") {
 				return { output: script, inputTokens: null, outputTokens: null };
 			}
-			const ask = request.messages.at(-1)?.content ?? "";
+			// O pedido vem antes da instrução de busca, que fica entre parênteses no fim.
+			const ask = (request.messages.at(-1)?.content ?? "").split("\n\n(")[0];
+			// 📎 RN-075: sem busca de verdade, uma página de exemplo faz o papel do resultado.
+			const pages = request.webSearch
+				? [
+						{
+							title: "Fonte simulada",
+							url: "https://example.com/fonte-simulada",
+						},
+					]
+				: [];
 			return {
 				output: {
 					reply: `Pronto, ajustei o roteiro: "${ask}". (Resposta simulada.)`,
 					script: { ...script, hook: `${script.hook} (ajustado)` },
+					sources: pages,
 				},
 				inputTokens: null,
 				outputTokens: null,
+				webResults: pages,
 			};
 		},
 	};

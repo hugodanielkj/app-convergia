@@ -184,6 +184,44 @@ describe("roteiros e cotas no Postgres", () => {
 		);
 	});
 
+	it("RN-075: refino com pesquisa grava as fontes e aplicar soma às citações do card", async () => {
+		const card = await newCard("Poltrona");
+		const existing = { title: "Antiga", url: "https://example.com/antiga" };
+		await deps.contents.update(ids.companyA, card.id, {
+			citations: [existing],
+		});
+
+		const messages = await refineContent(deps, actorA, card.id, "com dados", {
+			webSearch: true,
+		});
+		const source = {
+			title: "Fonte simulada",
+			url: "https://example.com/fonte-simulada",
+		};
+		expect(messages[1]?.text).toContain('"com dados"');
+		const chat = await getRefineChat(deps, actorA, card.id);
+		expect(chat.map((m) => m.sources)).toEqual([[], [source]]);
+
+		const { content } = await reviewContentRefinement(
+			deps,
+			actorA,
+			card.id,
+			messages[1]?.id ?? "",
+			"apply",
+		);
+		expect(content.citations).toEqual([existing, source]);
+		const [row] = await withCompany(db, ids.companyA, (tx) =>
+			tx.select().from(contents).where(eq(contents.id, card.id)),
+		);
+		expect(row?.citations).toEqual([existing, source]);
+	});
+
+	it("RN-075: sem pedir a pesquisa, a prévia vem sem fontes", async () => {
+		const card = await newCard("Puff");
+		const messages = await refineContent(deps, actorA, card.id, "pedido");
+		expect(messages[1]?.sources).toEqual([]);
+	});
+
 	it("RN-015: a empresa B não lê o refino nem aplica a prévia da A", async () => {
 		const card = await newCard("Cadeira");
 		const messages = await refineContent(deps, actorA, card.id, "pedido");

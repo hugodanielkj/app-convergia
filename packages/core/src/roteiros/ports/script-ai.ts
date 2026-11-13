@@ -1,4 +1,9 @@
-import type { Content, Script, ScriptField } from "../../conteudo/content";
+import type {
+	Citation,
+	Content,
+	Script,
+	ScriptField,
+} from "../../conteudo/content";
 import type { QuotaTool } from "../../policies/quota.policy";
 
 /** Quem paga a chamada, para o registro de custo em `ai_call_log` (design §10). */
@@ -17,6 +22,7 @@ export type ScriptBrief = {
 		| "funnelStage"
 		| "targetDurationSeconds"
 		| "script"
+		| "citations"
 	>;
 };
 
@@ -32,7 +38,11 @@ export type RefineTurn = {
 	role: "user" | "assistant";
 	text: string;
 	preview: Script | null;
+	sources: Citation[];
 };
+
+/** Resposta do refino: a prévia e as fontes da web que a embasam (📎 RN-075). */
+export type Refinement = { reply: string; script: Script; sources: Citation[] };
 
 /** IA de texto para roteiros. Implementada pelo gateway de IA em `packages/infra`. */
 export interface ScriptAi {
@@ -42,7 +52,8 @@ export interface ScriptAi {
 		brief: ScriptBrief,
 		history: RefineTurn[],
 		request: string,
-	): Promise<{ reply: string; script: Script }>;
+		options: { webSearch: boolean },
+	): Promise<Refinement>;
 	/** 📎 RN-071: até `MAX_OPTIONS_PER_CALL` opções para uma parte do roteiro. */
 	suggestOptions(
 		meta: AiCallMeta,

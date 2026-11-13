@@ -22,6 +22,7 @@ import {
 	type ScriptField,
 } from "../../api/client";
 import { BottomSheet } from "../../components/bottom-sheet";
+import { CitationList } from "../roteiros/citation-list";
 import { HistorySheet } from "../roteiros/history-sheet";
 import { ScriptAiActions } from "../roteiros/script-ai-actions";
 import {
@@ -263,6 +264,15 @@ export function ContentEditor({
 						className={inputClass}
 					/>
 				</Field>
+				{content.citations.length > 0 && (
+					<div>
+						<h3 className="text-sm font-medium">Citações</h3>
+						<p className="text-sm text-zinc-600 dark:text-zinc-400">
+							Páginas da web pesquisadas no refino que embasam este roteiro.
+						</p>
+						<CitationList citations={content.citations} />
+					</div>
+				)}
 			</section>
 
 			<section className="grid gap-4 sm:grid-cols-2">

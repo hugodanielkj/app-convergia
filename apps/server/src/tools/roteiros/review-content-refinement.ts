@@ -3,6 +3,7 @@ import { z } from "zod";
 import { registerCompanyTool } from "../company-tool";
 import { contentIdInput, contentResult } from "../conteudo/format";
 import type { RegisterScriptTool } from "./deps";
+import { citationsText } from "./format";
 
 export const registerReviewContentRefinement: RegisterScriptTool = (
 	server,
@@ -17,7 +18,7 @@ export const registerReviewContentRefinement: RegisterScriptTool = (
 		{
 			title: "Aplicar ou descartar prévia",
 			description:
-				"Aplica no card a prévia proposta pelo refino, ou a descarta. Não chama a IA nem consome cota. Aplicar é recusado se o card mudou depois da prévia (RN-074).",
+				"Aplica no card a prévia proposta pelo refino, ou a descarta. Não chama a IA nem consome cota. Aplicar é recusado se o card mudou depois da prévia (RN-074) e soma as fontes da prévia às citações do card, sem apagar nenhuma (RN-075).",
 			input: {
 				...contentIdInput,
 				message_id: z
@@ -40,7 +41,7 @@ export const registerReviewContentRefinement: RegisterScriptTool = (
 			);
 			return contentResult(
 				input.decision === "apply"
-					? "Prévia aplicada no card."
+					? `Prévia aplicada no card.${citationsText("Citações do card", content.citations)}`
 					: "Prévia descartada.",
 				content,
 			);

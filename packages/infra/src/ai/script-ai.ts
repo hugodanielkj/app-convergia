@@ -1,4 +1,6 @@
 import {
+	type Citation,
+	citationKey,
 	MAX_OPTIONS_PER_CALL,
 	type RefineTurn,
 	type Script,
@@ -21,6 +23,11 @@ const refinement = z.object({
 		.string()
 		.describe("Resposta curta à pessoa, dizendo o que mudou no roteiro"),
 	script: writtenScript.describe("O roteiro completo, já com as mudanças"),
+	sources: z
+		.array(z.object({ title: z.string(), url: z.string() }))
+		.describe(
+			"Páginas da busca na web que embasam o roteiro proposto. Vazio se não pesquisou",
+		),
 });
 
 const optionSet = z.object({
@@ -46,7 +53,12 @@ Um roteiro tem quatro partes:
 - body: o desenvolvimento. Em reel ou story, escreva as falas e indique as cenas entre colchetes. Em carrossel, escreva o texto de cada lâmina em linhas começando por "Lâmina 1:", "Lâmina 2:" e assim por diante. Em imagem, o texto da arte.
 - cta: a chamada para ação, uma frase.
 - caption: a legenda do post, com no máximo 5 hashtags no fim.
-Respeite a duração alvo quando ela for informada. Não invente dados, preços nem depoimentos da empresa.`;
+Respeite a duração alvo quando ela for informada. Não invente dados, preços nem depoimentos da empresa.
+Quando o roteiro já tiver fontes citadas, preserve as informações que vêm delas: não as apague nem as contradiga ao reescrever.`;
+
+const WEB_SEARCH_ON =
+	"Pesquise na web para embasar este pedido com dados atuais e confiáveis. Em sources, liste só as páginas da busca que você realmente usou no roteiro, com o endereço exato.";
+const WEB_SEARCH_OFF = "Não pesquise na web neste pedido; deixe sources vazio.";
 
 const MEDIA_LABEL: Record<string, string> = {
 	reel: "reel",
@@ -69,6 +81,10 @@ function scriptText(script: Script): string {
 	].join("\n");
 }
 
+function citationLines(citations: Citation[]): string {
+	return citations.map((c) => `- ${c.title} (${c.url})`).join("\n");
+}
+
 function briefText({ companyName, content }: ScriptBrief): string {
 	const lines = [
 		`Empresa: ${companyName}`,
@@ -81,6 +97,8 @@ function briefText({ companyName, content }: ScriptBrief): string {
 			`Etapa do funil: ${FUNNEL_LABEL[content.funnelStage]}`,
 		content.targetDurationSeconds &&
 			`Duração alvo: ${content.targetDurationSeconds} segundos`,
+		content.citations.length > 0 &&
+			`Fontes já citadas no roteiro:\n${citationLines(content.citations)}`,
 	];
 	return lines.filter(Boolean).join("\n");
 }
@@ -90,14 +108,38 @@ function turnMessage(turn: RefineTurn): LlmMessage {
 	const preview = turn.preview
 		? `\n\nRoteiro proposto:\n${scriptText(turn.preview)}`
 		: "";
-	return { role: "assistant", content: `${turn.text}${preview}` };
+	const sources =
+		turn.sources.length > 0
+			? `\n\nFontes usadas:\n${citationLines(turn.sources)}`
+			: "";
+	return { role: "assistant", content: `${turn.text}${preview}${sources}` };
+}
+
+/**
+ * 📎 RN-075: só vale como fonte uma página que a busca devolveu de fato. O título vem da busca,
+ * não do modelo, e a mesma página não se repete.
+ */
+function confirmedSources(
+	chosen: Citation[],
+	searched: Citation[],
+): Citation[] {
+	const found = new Map(searched.map((page) => [citationKey(page.url), page]));
+	const sources: Citation[] = [];
+	for (const { url } of chosen) {
+		const key = citationKey(url);
+		const page = found.get(key);
+		if (!page) continue;
+		found.delete(key);
+		sources.push({ title: page.title || page.url, url: page.url });
+	}
+	return sources;
 }
 
 /** Prompts de roteiro sobre o gateway de IA. Implementa a porta `ScriptAi` do core. */
 export function createScriptAi(llm: LlmGateway): ScriptAi {
 	return {
-		writeScript(meta, brief) {
-			return llm(meta, {
+		async writeScript(meta, brief) {
+			const { output } = await llm(meta, {
 				task: "write_script",
 				system: SYSTEM,
 				messages: [
@@ -108,10 +150,11 @@ export function createScriptAi(llm: LlmGateway): ScriptAi {
 				],
 				schema: writtenScript,
 			});
+			return output;
 		},
 
-		refineScript(meta, brief, history, request) {
-			return llm(meta, {
+		async refineScript(meta, brief, history, request, { webSearch }) {
+			const { output, webResults } = await llm(meta, {
 				task: "refine_script",
 				system: SYSTEM,
 				messages: [
@@ -120,14 +163,25 @@ export function createScriptAi(llm: LlmGateway): ScriptAi {
 						content: `${briefText(brief)}\n\nRoteiro atual do card:\n${scriptText(brief.content.script)}\n\nVamos refinar este roteiro. Em cada pedido, devolva o roteiro completo com as mudanças, partindo do último roteiro que você propôs.`,
 					},
 					...history.map(turnMessage),
-					{ role: "user", content: request },
+					{
+						role: "user",
+						content: `${request}\n\n(${webSearch ? WEB_SEARCH_ON : WEB_SEARCH_OFF})`,
+					},
 				],
 				schema: refinement,
+				webSearch,
 			});
+			return {
+				reply: output.reply,
+				script: output.script,
+				sources: webSearch ? confirmedSources(output.sources, webResults) : [],
+			};
 		},
 
 		async suggestOptions(meta, brief, field) {
-			const { options } = await llm(meta, {
+			const {
+				output: { options },
+			} = await llm(meta, {
 				task: "suggest_options",
 				system: SYSTEM,
 				messages: [

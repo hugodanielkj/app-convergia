@@ -30,7 +30,13 @@ const agency: AuthenticatedUser = {
 	scopes: [],
 };
 
-type Message = { id: string; role: string; previewStatus: string | null };
+type Citation = { title: string; url: string };
+type Message = {
+	id: string;
+	role: string;
+	previewStatus: string | null;
+	sources: Citation[];
+};
 type Body = {
 	id: string;
 	error?: string;
@@ -38,7 +44,8 @@ type Body = {
 	message?: string | Message;
 	script?: { hook: string | null };
 	approvalStatus?: string;
-	content?: { script: { hook: string | null } };
+	citations?: Citation[];
+	content?: { script: { hook: string | null }; citations: Citation[] };
 	messages?: Message[];
 	entries?: { kind: string; createdByKind: string; createdAt: string }[];
 };
@@ -147,6 +154,38 @@ describe("API do app: roteiros (RN-006)", () => {
 		);
 	});
 
+	it("RN-075: refino com pesquisa devolve as fontes e aplicar leva ao card", async () => {
+		const id = await newCard();
+		const path = `/companies/company-a/contents/${id}/refine`;
+		const plain = await call(clientA, "POST", path, { message: "sem busca" });
+		expect(plain.body.messages?.[1]?.sources).toEqual([]);
+		expect(scriptAi.calls[0]?.webSearch).toBe(false);
+
+		const refined = await call(clientA, "POST", path, {
+			message: "com dados",
+			webSearch: true,
+		});
+		expect(scriptAi.calls[1]?.webSearch).toBe(true);
+		const source = {
+			title: "Fonte sobre com dados",
+			url: "https://example.com/fonte",
+		};
+		expect(refined.body.messages?.[1]?.sources).toEqual([source]);
+
+		const applied = await call(
+			clientA,
+			"POST",
+			`${path}/${refined.body.messages?.[1]?.id}/apply`,
+		);
+		expect(applied.body.content?.citations).toEqual([source]);
+		const card = await call(
+			clientA,
+			"GET",
+			`/companies/company-a/contents/${id}`,
+		);
+		expect(card.body.citations).toEqual([source]);
+	});
+
 	it("RN-074: aplicar prévia em card alterado devolve 409 com a mensagem do §7", async () => {
 		const id = await newCard();
 		const path = `/companies/company-a/contents/${id}/refine`;
@@ -194,6 +233,10 @@ describe("API do app: roteiros (RN-006)", () => {
 		expect((await call(clientA, "POST", path, { message: "" })).status).toBe(
 			422,
 		);
+		expect(
+			(await call(clientA, "POST", path, { message: "x", webSearch: "sim" }))
+				.status,
+		).toBe(422);
 		expect(
 			(await call(clientA, "POST", `${path}/qualquer/aceitar`)).status,
 		).toBe(422);

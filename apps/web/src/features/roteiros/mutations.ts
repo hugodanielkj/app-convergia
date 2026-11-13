@@ -33,10 +33,12 @@ export function useScriptMutations(companyId: string) {
 			mutationFn: ({
 				contentId,
 				message,
+				webSearch,
 			}: {
 				contentId: string;
 				message: string;
-			}) => api.refine(param(contentId), message),
+				webSearch: boolean;
+			}) => api.refine(param(contentId), message, webSearch),
 			onSuccess: ({ messages }, { contentId }) => {
 				// Mostra a resposta na hora; prévias antigas mudam de estado no servidor.
 				queryClient.setQueryData(
